@@ -43,6 +43,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Module\Special\HTTPException as ModuleHTTPException;
 use Friendica\Network\HTTPException;
+use Friendica\Protocol\ATProtocol\DID;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\HTTPInputData;
 use Friendica\Util\HTTPSignature;
@@ -565,8 +566,8 @@ class App
 	 */
 	public function runFrontend(App\Router $router, IManagePersonalConfigValues $pconfig, Authentication $auth, App\Page $page, Nav $nav, ModuleHTTPException $httpException, HTTPInputData $httpInput, float $start_time, array $server)
 	{
-		$requeststring = ($_SERVER['REQUEST_METHOD'] ?? '') . ' ' . ($_SERVER['REQUEST_URI'] ?? '') . ' ' . ($_SERVER['SERVER_PROTOCOL'] ?? '');
-		$this->logger->debug('Request received', ['address' => $_SERVER['REMOTE_ADDR'] ?? '', 'request' => $requeststring, 'referer' => $_SERVER['HTTP_REFERER'] ?? '', 'user-agent' => $_SERVER['HTTP_USER_AGENT'] ?? '']);
+		$requeststring = ($server['REQUEST_METHOD'] ?? '') . ' ' . ($server['REQUEST_URI'] ?? '') . ' ' . ($server['SERVER_PROTOCOL'] ?? '');
+		$this->logger->debug('Request received', ['address' => $server['REMOTE_ADDR'] ?? '', 'request' => $requeststring, 'referer' => $server['HTTP_REFERER'] ?? '', 'user-agent' => $server['HTTP_USER_AGENT'] ?? '']);
 		$request_start = microtime(true);
 
 		$this->profiler->set($start_time, 'start');
@@ -593,8 +594,10 @@ class App
 				Core\Hook::callAll('init_1');
 			}
 
+			DID::routeRequest($this->args->getCommand(), $server);
+
 			if ($this->mode->isNormal() && !$this->mode->isBackend()) {
-				$requester = HTTPSignature::getSigner('', $_SERVER);
+				$requester = HTTPSignature::getSigner('', $server);
 				if (!empty($requester)) {
 					Profile::addVisitorCookieForHandle($requester);
 				}
@@ -716,10 +719,10 @@ class App
 				$response = $page->run($this, $this->baseURL, $this->args, $this->mode, $response, $this->l10n, $this->profiler, $this->config, $pconfig, $nav, $this->session->getLocalUserId());
 			}
 
-			$this->logger->debug('Request processed sucessfully', ['response' => $response->getStatusCode(), 'address' => $_SERVER['REMOTE_ADDR'] ?? '', 'request' => $requeststring, 'referer' => $_SERVER['HTTP_REFERER'] ?? '', 'user-agent' => $_SERVER['HTTP_USER_AGENT'] ?? '', 'duration' => number_format(microtime(true) - $request_start, 3)]);
+			$this->logger->debug('Request processed sucessfully', ['response' => $response->getStatusCode(), 'address' => $server['REMOTE_ADDR'] ?? '', 'request' => $requeststring, 'referer' => $server['HTTP_REFERER'] ?? '', 'user-agent' => $server['HTTP_USER_AGENT'] ?? '', 'duration' => number_format(microtime(true) - $request_start, 3)]);
 			System::echoResponse($response);
 		} catch (HTTPException $e) {
-			$this->logger->debug('Request processed with exception', ['response' => $e->getCode(), 'address' => $_SERVER['REMOTE_ADDR'] ?? '', 'request' => $requeststring, 'referer' => $_SERVER['HTTP_REFERER'] ?? '', 'user-agent' => $_SERVER['HTTP_USER_AGENT'] ?? '', 'duration' => number_format(microtime(true) - $request_start, 3)]);
+			$this->logger->debug('Request processed with exception', ['response' => $e->getCode(), 'address' => $server['REMOTE_ADDR'] ?? '', 'request' => $requeststring, 'referer' => $server['HTTP_REFERER'] ?? '', 'user-agent' => $server['HTTP_USER_AGENT'] ?? '', 'duration' => number_format(microtime(true) - $request_start, 3)]);
 			$httpException->rawContent($e);
 		}
 		$page->logRuntime($this->config, 'runFrontend');
