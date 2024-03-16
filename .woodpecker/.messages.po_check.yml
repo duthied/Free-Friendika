@@ -8,5 +8,6 @@ steps:
     commands:
       - /check-messages.sh
 
-branches:
-  exclude: [ stable ]
+when:
+  - branch:
+      exclude: [ stable ]
