@@ -178,11 +178,11 @@ class Timeline extends BaseModule
 	protected function getNoSharerWidget(string $base): string
 	{
 		$path = $this->selectedTab;
-		if (!empty($this->accountTypeString)) {
-			$path .= '/' . $this->accountTypeString;
-		}
-		$query_parameters = [];
 
+		$query_parameters = [];
+		if (!empty($this->accountTypeString)) {
+			$query_parameters['accounttype'] = $this->accountTypeString;
+		}
 		if (!empty($this->minId)) {
 			$query_parameters['min_id'] = $this->minId;
 		}
