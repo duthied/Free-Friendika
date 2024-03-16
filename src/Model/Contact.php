@@ -2826,10 +2826,10 @@ class Contact
 		) {
 			if (GServer::reachable($contact)) {
 				self::updateContact($id, $uid, $uriid, $contact['url'], ['failed' => false, 'local-data' => $has_local_data, 'last-update' => $updated, 'next-update' => $success_next_update, 'success_update' => $updated, 'unsearchable' => true]);
-				Logger::info('Not updating relais', ['id' => $id, 'url' => $contact['url']]);
+				Logger::info('Not updating relay', ['id' => $id, 'url' => $contact['url']]);
 				return true;
 			}
-			Logger::info('Relais server is not reachable', ['id' => $id, 'url' => $contact['url']]);
+			Logger::info('Relay server is not reachable', ['id' => $id, 'url' => $contact['url']]);
 			self::updateContact($id, $uid, $uriid, $contact['url'], ['failed' => true, 'local-data' => $has_local_data, 'last-update' => $updated, 'next-update' => $failed_next_update, 'failure_update' => $updated, 'unsearchable' => true]);
 			return false;
 		}
