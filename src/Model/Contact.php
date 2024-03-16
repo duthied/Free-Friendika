@@ -2819,13 +2819,19 @@ class Contact
 		}
 
 		// We must not try to update relay contacts via probe. They are no real contacts.
+		// See Relay::updateContact() for more details.
 		// We check after the probing to be able to correct falsely detected contact types.
-		if (($contact['contact-type'] == self::TYPE_RELAY) &&
+		if (($contact['contact-type'] == self::TYPE_RELAY) && Strings::compareLink($contact['url'], $contact['baseurl']) &&
 			(!Strings::compareLink($ret['url'], $contact['url']) || in_array($ret['network'], [Protocol::FEED, Protocol::PHANTOM]))
 		) {
-			self::updateContact($id, $uid, $uriid, $contact['url'], ['failed' => false, 'local-data' => $has_local_data, 'last-update' => $updated, 'next-update' => $success_next_update, 'success_update' => $updated]);
-			Logger::info('Not updating relais', ['id' => $id, 'url' => $contact['url']]);
-			return true;
+			if (GServer::reachable($contact)) {
+				self::updateContact($id, $uid, $uriid, $contact['url'], ['failed' => false, 'local-data' => $has_local_data, 'last-update' => $updated, 'next-update' => $success_next_update, 'success_update' => $updated, 'unsearchable' => true]);
+				Logger::info('Not updating relay', ['id' => $id, 'url' => $contact['url']]);
+				return true;
+			}
+			Logger::info('Relay server is not reachable', ['id' => $id, 'url' => $contact['url']]);
+			self::updateContact($id, $uid, $uriid, $contact['url'], ['failed' => true, 'local-data' => $has_local_data, 'last-update' => $updated, 'next-update' => $failed_next_update, 'failure_update' => $updated, 'unsearchable' => true]);
+			return false;
 		}
 
 		// If Probe::uri fails the network code will be different ("feed" or "unkn")
