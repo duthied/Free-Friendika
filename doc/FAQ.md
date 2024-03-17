@@ -178,14 +178,14 @@ The available features are client specific and may differ.
 #### Android
 
 * [AndStatus](http://andstatus.org) ([F-Droid](https://f-droid.org/repository/browse/?fdid=org.andstatus.app), [Google Play](https://play.google.com/store/apps/details?id=org.andstatus.app))
-* [Fedi](https://github.com/Big-Fig/Fediverse.app) ([Google Play](https://play.google.com/store/apps/details?id=com.fediverse.app))
 * [Fedilab](https://fedilab.app) ([F-Droid](https://f-droid.org/app/fr.gouv.etalab.mastodon), [Google Play](https://play.google.com/store/apps/details?id=app.fedilab.android))
 * [Friendiqa](https://git.friendi.ca/lubuwest/Friendiqa) ([F-Droid](https://git.friendi.ca/lubuwest/Friendiqa#install), [Google Play](https://play.google.com/store/apps/details?id=org.qtproject.friendiqa))
-* [Husky](https://git.sr.ht/~captainepoch/husky) ([F-Droid](https://f-droid.org/repository/browse/?fdid=su.xash.husky), [Google Play](https://play.google.com/store/apps/details?id=su.xash.husky))
+* [Husky](https://codeberg.org/husky/husky) ([F-Droid](https://f-droid.org/repository/browse/?fdid=su.xash.husky), [Google Play](https://play.google.com/store/apps/details?id=su.xash.husky))
 * [Mastodon](https://github.com/mastodon/mastodon-android) ([F-Droid](https://f-droid.org/en/packages/org.joinmastodon.android/), [Google Play](https://play.google.com/store/apps/details?id=org.joinmastodon.android))
-* [Subway Tooter](https://github.com/tateisu/SubwayTooter) ([F-Droid](https://android.izzysoft.de/repo/apk/jp.juggler.subwaytooter))
+* [Pachli](https://github.com/pachli/pachli-android) ([F-Droid](https://f-droid.org/en/packages/app.pachli/), [Google Play](https://play.google.com/store/apps/details?id=app.pachli))
+* [Subway Tooter](https://github.com/tateisu/SubwayTooter) ([F-Droid via Izzy](https://android.izzysoft.de/repo/apk/jp.juggler.subwaytooter.noFcm))
 * [Tooot](https://tooot.app/) ([Google Play](https://play.google.com/store/apps/details?id=com.xmflsct.app.tooot))
-* [Tusky](https://tusky.app) ([F-Droid](https://f-droid.org/repository/browse/?fdid=com.keylesspalace.tusky), [Google Play](https://play.google.com/store/apps/details?id=com.keylesspalace.tusky))
+* [Tusky](https://github.com/tuskyapp/Tusky) ([F-Droid](https://f-droid.org/repository/browse/?fdid=com.keylesspalace.tusky), [Google Play](https://play.google.com/store/apps/details?id=com.keylesspalace.tusky))
 * [TwidereX](https://github.com/TwidereProject/TwidereX-Android) ([F-Droid](https://f-droid.org/en/packages/com.twidere.twiderex/), [Google Play](https://play.google.com/store/apps/details?id=com.twidere.twiderex))
 * [Yuito](https://github.com/accelforce/Yuito) ([Google Play](https://play.google.com/store/apps/details?id=net.accelf.yuito))
 
@@ -193,7 +193,7 @@ The available features are client specific and may differ.
 
 * [Mastodon](https://joinmastodon.org/apps) ([App Store](https://apps.apple.com/us/app/mastodon-for-iphone/id1571998974))
 * [Stella*](https://www.stella-app.net/) ([App Store](https://apps.apple.com/us/app/stella-for-mastodon-twitter/id921372048))
-* [Tooot](https://github.com/tooot-app) ([App Store](https://apps.apple.com/app/id1549772269)
+* [Tooot](https://github.com/tooot-app) ([App Store](https://apps.apple.com/app/id1549772269))
 * [TwidereX](https://github.com/TwidereProject/TwidereX-iOS) ([App Store](https://apps.apple.com/app/twidere-x/id1530314034))
 
 #### Linux
