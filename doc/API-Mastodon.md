@@ -170,7 +170,8 @@ Example:
 
 - [`GET /api/v1/followed_tags`](https://docs.joinmastodon.org/methods/followed_tags/)
 - [`GET /api/v1/instance`](https://docs.joinmastodon.org/methods/instance/#v1)
-- `GET /api/v1/instance/rules` Undocumented, returns Terms of Service
+- [`GET /api/v1/instance/extended_description`](https://docs.joinmastodon.org/methods/instance/#extended_description)
+- [`GET /api/v1/instance/rules`](https://docs.joinmastodon.org/methods/instance/#rules)
 - [`GET /api/v1/instance/peers`](https://docs.joinmastodon.org/methods/instance#list-of-connected-domains)
 - [`GET /api/v1/lists`](https://docs.joinmastodon.org/methods/timelines/lists/)
 - [`POST /api/v1/lists`](https://docs.joinmastodon.org/methods/timelines/lists/)
@@ -314,7 +315,6 @@ They refer to features or data that don't exist in Friendica yet.
 - [`PUT /api/v1/filters/:id`](https://docs.joinmastodon.org/methods/accounts/filters/)
 - [`DELETE /api/v1/filters/:id`](https://docs.joinmastodon.org/methods/accounts/filters/)
 - [`GET /api/v1/instance/activity`](https://docs.joinmastodon.org/methods/instance#weekly-activity)
-- [`POST /api/v1/markers`](https://docs.joinmastodon.org/methods/timelines/markers/)
 - [`PUT /api/v1/scheduled_statuses/:id`](https://docs.joinmastodon.org/methods/statuses/scheduled_statuses/)
 - [`GET /api/v1/statuses/{id:\d+}/history`](https://github.com/mastodon/mastodon/pull/16697)
 - [`GET /api/v1/streaming`](https://docs.joinmastodon.org/methods/timelines/streaming/)
