@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2024.06-dev (Yellow Archangel)
--- DB_UPDATE_VERSION 1558
+-- DB_UPDATE_VERSION 1559
 -- ------------------------------------------
 
 
@@ -1347,7 +1347,7 @@ CREATE TABLE IF NOT EXISTS `post-engagement` (
 	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
 	`owner-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Item owner',
 	`contact-type` tinyint NOT NULL DEFAULT 0 COMMENT 'Person, organisation, news, community, relay',
-	`media-type` tinyint NOT NULL DEFAULT 0 COMMENT 'Type of media in a bit array (1 = image, 2 = video, 4 = audio',
+	`media-type` tinyint NOT NULL DEFAULT 0 COMMENT 'Type of media in a bit array (1 = image, 2 = video, 4 = audio)',
 	`language` char(2) COMMENT 'Language information about this post in the ISO 639-1 format',
 	`searchtext` mediumtext COMMENT 'Simplified text for the full text search',
 	`size` int unsigned COMMENT 'Body size',
@@ -1471,7 +1471,7 @@ CREATE TABLE IF NOT EXISTS `post-question-option` (
 CREATE TABLE IF NOT EXISTS `post-searchindex` (
 	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
 	`owner-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Item owner',
-	`media-type` tinyint NOT NULL DEFAULT 0 COMMENT 'Type of media in a bit array (1 = image, 2 = video, 4 = audio',
+	`media-type` tinyint NOT NULL DEFAULT 0 COMMENT 'Type of media in a bit array (1 = image, 2 = video, 4 = audio)',
 	`language` char(2) COMMENT 'Language information about this post in the ISO 639-1 format',
 	`searchtext` mediumtext COMMENT 'Simplified text for the full text search',
 	`size` int unsigned COMMENT 'Body size',
@@ -1550,6 +1550,7 @@ CREATE TABLE IF NOT EXISTS `post-user` (
 	`post-reason` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'Reason why the post arrived at the user',
 	`vid` smallint unsigned COMMENT 'Id of the verb table entry that contains the activity verbs',
 	`private` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '0=public, 1=private, 2=unlisted',
+	`restrictions` tinyint unsigned COMMENT 'Bit array of post restrictions (1 = Reply, 2 = Like, 4 = Announce)',
 	`global` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`visible` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`deleted` boolean NOT NULL DEFAULT '0' COMMENT 'item has been marked for deletion',
@@ -2201,6 +2202,7 @@ CREATE VIEW `post-user-view` AS SELECT
 	`post-content`.`location` AS `location`,
 	`post-content`.`coord` AS `coord`,
 	`post-content`.`sensitive` AS `sensitive`,
+	`post-user`.`restrictions` AS `restrictions`,
 	`post-content`.`app` AS `app`,
 	`post-content`.`object-type` AS `object-type`,
 	`post-content`.`object` AS `object`,
@@ -2386,6 +2388,7 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 	`post-content`.`location` AS `location`,
 	`post-content`.`coord` AS `coord`,
 	`post-content`.`sensitive` AS `sensitive`,
+	`post-user`.`restrictions` AS `restrictions`,
 	`post-content`.`app` AS `app`,
 	`post-content`.`object-type` AS `object-type`,
 	`post-content`.`object` AS `object`,

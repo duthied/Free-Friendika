@@ -927,7 +927,16 @@ class Processor
 			$restrictions = [];
 		}
 
-		// @todo Store restrictions
+		$item['restrictions'] = null;
+ 		foreach ($restrictions as $restriction) {
+			if ($restriction == Tag::CAN_REPLY) {
+				$item['restrictions'] = $item['restrictions'] | Item::CANT_REPLY;
+			} elseif ($restriction == Tag::CAN_LIKE) {
+				$item['restrictions'] = $item['restrictions'] | Item::CANT_LIKE;
+			} elseif ($restriction == Tag::CAN_ANNOUNCE) {
+				$item['restrictions'] = $item['restrictions'] | Item::CANT_ANNOUNCE;
+			} 
+		}
 
 		$item['location'] = $activity['location'];
 
