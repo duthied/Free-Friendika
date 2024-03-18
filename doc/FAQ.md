@@ -182,7 +182,7 @@ The available features are client specific and may differ.
 * [Friendiqa](https://git.friendi.ca/lubuwest/Friendiqa) ([F-Droid](https://git.friendi.ca/lubuwest/Friendiqa#install), [Google Play](https://play.google.com/store/apps/details?id=org.qtproject.friendiqa))
 * [Husky](https://codeberg.org/husky/husky) ([F-Droid](https://f-droid.org/repository/browse/?fdid=su.xash.husky), [Google Play](https://play.google.com/store/apps/details?id=su.xash.husky))
 * [Mastodon](https://github.com/mastodon/mastodon-android) ([F-Droid](https://f-droid.org/en/packages/org.joinmastodon.android/), [Google Play](https://play.google.com/store/apps/details?id=org.joinmastodon.android))
-* [Pachli](https://github.com/pachli/pachli-android) ([F-Droid](https://f-droid.org/en/packages/app.pachli/), [Google Play](https://play.google.com/store/apps/details?id=app.pachli))
+* [Pachli](https://pachli.app/) ([F-Droid](https://f-droid.org/en/packages/app.pachli/), [Google Play](https://play.google.com/store/apps/details?id=app.pachli))
 * [Subway Tooter](https://github.com/tateisu/SubwayTooter) ([F-Droid via Izzy](https://android.izzysoft.de/repo/apk/jp.juggler.subwaytooter.noFcm))
 * [Tooot](https://tooot.app/) ([Google Play](https://play.google.com/store/apps/details?id=com.xmflsct.app.tooot))
 * [Tusky](https://tusky.app) ([F-Droid](https://f-droid.org/repository/browse/?fdid=com.keylesspalace.tusky), [Google Play](https://play.google.com/store/apps/details?id=com.keylesspalace.tusky))
