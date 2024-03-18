@@ -32,6 +32,7 @@ Anthronaut
 Anton
 Antron Samurai
 Anubis2814
+arcanicanis
 Arian - Cazare Muncitori
 Asher Pen
 atjn
@@ -136,6 +137,7 @@ gudzpoz
 GunChleoc
 guzzisti
 Haakon Meland Eriksen
+haheute
 Hank Grabowski
 Hannes Heute
 Hans Meine
@@ -147,6 +149,7 @@ hlad
 hoergen
 Hubert Kościański
 Hypolite Petovan
+ike
 Ilmari
 ImgBotApp
 irhen
@@ -222,6 +225,7 @@ Michal Šupler
 Michalina
 Mike Macgirvin
 miqrogroove
+Morgan McMillian
 mpanhans
 mytbk
 nathilia-peirce
@@ -255,8 +259,10 @@ Pierre Bernardeau
 Pierre Rudloff
 Piotr Blonkowski
 Piotr Strębski
+pixelroot
 pokerazor
 R C
+r1pu5u
 Rabuzarus
 Radek
 Rafael Garau
@@ -294,9 +300,11 @@ Senex Petrovic
 Seth
 SickShark X
 Silke Meyer
+Simon
 Simon L'nu
 Simon Rupf
 Simó Albert i Beltran
+snajafov
 softmetz
 soko1
 Spencer Dub
