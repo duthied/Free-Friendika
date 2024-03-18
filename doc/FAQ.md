@@ -185,7 +185,7 @@ The available features are client specific and may differ.
 * [Pachli](https://github.com/pachli/pachli-android) ([F-Droid](https://f-droid.org/en/packages/app.pachli/), [Google Play](https://play.google.com/store/apps/details?id=app.pachli))
 * [Subway Tooter](https://github.com/tateisu/SubwayTooter) ([F-Droid via Izzy](https://android.izzysoft.de/repo/apk/jp.juggler.subwaytooter.noFcm))
 * [Tooot](https://tooot.app/) ([Google Play](https://play.google.com/store/apps/details?id=com.xmflsct.app.tooot))
-* [Tusky](https://github.com/tuskyapp/Tusky) ([F-Droid](https://f-droid.org/repository/browse/?fdid=com.keylesspalace.tusky), [Google Play](https://play.google.com/store/apps/details?id=com.keylesspalace.tusky))
+* [Tusky](https://tusky.app) ([F-Droid](https://f-droid.org/repository/browse/?fdid=com.keylesspalace.tusky), [Google Play](https://play.google.com/store/apps/details?id=com.keylesspalace.tusky))
 * [TwidereX](https://github.com/TwidereProject/TwidereX-Android) ([F-Droid](https://f-droid.org/en/packages/com.twidere.twiderex/), [Google Play](https://play.google.com/store/apps/details?id=com.twidere.twiderex))
 * [Yuito](https://github.com/accelforce/Yuito) ([Google Play](https://play.google.com/store/apps/details?id=net.accelf.yuito))
 
