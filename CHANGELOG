@@ -10,14 +10,15 @@ Version 2024.03 (unreleased)
     Improved the Mastodon compatible API [annando, MrPetovan]
     Improved logging of the system load value [annando]
     Improved image handling [annando]
-		Improved detection of user activity [annando]
-		Improved display of embedded videos [annando]
+    Improved detection of user activity [annando]
+    Improved display of embedded videos [annando]
     Fixed an issue that could lead to empty URLs in the server block list [annando]
     Fixed XSS attacks [leoOliver, MrPetovan, snajafov]
     Fixed an issue when importing emails [annando]
     Fixed an issue that blocked users could still use the API [annando]
     Fixed an issue when fetching remote content [annando, arcanicanis]
-		Fixed an issue with unescaped HTML characters for RSS feeds [MrPetovan, r1pu5u]
+    Fixed an issue with unescaped HTML characters for RSS feeds [MrPetovan, r1pu5u]
+    Fixed an issue when showing the post preview [annando]
     General code cleanup [annando, MrPetovan]
     Updated the PasswordExposed usage [mexon]
     Removed fpostit (Friendica post bookmarklet) [MrPetovan]
@@ -35,7 +36,7 @@ Version 2024.03 (unreleased)
       Updated dependency for PHP8.2 compatibility [MrPetovan]
     blockbot
       Fixed an issue preventing the creation of previews on remote systems [annando]
-			Updated block lists [annando]
+      Updated block lists [annando]
     bluesky
       Overhaul of the Bluesky connector [annando]
       Fixed problem with empty quoted shares [annando]
@@ -45,19 +46,19 @@ Version 2024.03 (unreleased)
       Connector addon was added [spacenerdmo]
     tesseract
       Added the addon to generate image descriptions from images via OCR [annando]
-		tumblr
-		  Improved handling of quoted shares [annando]
+	  tumblr
+      Improved handling of quoted shares [annando]
     url_replace
       Added addon to replace URLs from Twitter, Youtube and some others using 12ft.io [toddy15]
-			Fixed an issue with empty config vars [MrPetovan]
+      Fixed an issue with empty config vars [MrPetovan]
 
   Closed Issues
       903,  7732,  8768, 11142, 13220, 13293, 13765, 13768, 13809,
     13814, 13814, 13818, 13819, 13822, 13823, 13828, 13837, 13839,
-		13844, 13845, 13859, 13863, 13873, 13877, 13886, 13887, 13897,
-		13899, 13905, 13909, 13922, 13925, 13930, 13939, 13940, 13946,
-		13947, 13949, 13950, 13953, 13955, 13959, 13968, 13969, 13972,
-		13985, 13986
+    13844, 13845, 13859, 13863, 13873, 13877, 13886, 13887, 13897,
+    13899, 13905, 13909, 13922, 13925, 13930, 13939, 13940, 13946,
+    13947, 13949, 13950, 13953, 13955, 13959, 13968, 13969, 13972,
+    13984, 13985, 13986
 
 Version 2023.12 (2023-12-24)
   Friendica Core
