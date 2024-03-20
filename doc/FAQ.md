@@ -211,7 +211,7 @@ The available features are client specific and may differ.
 #### Windows
 
 * [TheDesk](https://thedesk.top/en/) ([GitHub](https://github.com/cutls/TheDesk))
-* [Whalebird](https://whalebird.social/en/desktop/contents) ([Website Download](https://whalebird.social/en/desktop/contents/downloads#windows), [GitHub](https://github.com/h3poteto/whalebird-desktop))
+* [Whalebird](https://whalebird.social/en/desktop/contents) ([Microsoft Store](https://apps.microsoft.com/detail/9nbw4csdv5hc), [GitHub](https://github.com/h3poteto/whalebird-desktop))
 
 #### Web Frontend
 
