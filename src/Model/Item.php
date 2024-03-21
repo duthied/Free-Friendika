@@ -108,7 +108,7 @@ class Item
 		'owner-id', 'owner-link', 'owner-alias', 'owner-name', 'owner-avatar', 'owner-network', 'owner-contact-type', 'owner-updated', 'owner-gsid',
 		'causer-id', 'causer-link', 'causer-alias', 'causer-name', 'causer-avatar', 'causer-contact-type', 'causer-network', 'causer-gsid',
 		'contact-id', 'contact-uid', 'contact-link', 'contact-name', 'contact-avatar',
-		'writable', 'self', 'cid', 'alias',
+		'writable', 'restrictions', 'self', 'cid', 'alias',
 		'event-created', 'event-edited', 'event-start', 'event-finish',
 		'event-summary', 'event-desc', 'event-location', 'event-type',
 		'event-nofinish', 'event-ignore', 'event-id',
@@ -167,6 +167,11 @@ class Item
 	const GRAVITY_ACTIVITY = 3;
 	const GRAVITY_COMMENT  = 6;
 	const GRAVITY_UNKNOWN  = 9;
+
+	// Restrictions
+	const CANT_REPLY    = 1;
+	const CANT_LIKE     = 2;
+	const CANT_ANNOUNCE = 4;
 
 	/**
 	 * Update existing item entries
@@ -759,7 +764,7 @@ class Item
 	{
 		$fields = [
 			'uid', 'uri', 'parent-uri', 'id', 'deleted',
-			'uri-id', 'parent-uri-id',
+			'uri-id', 'parent-uri-id', 'restrictions', 'verb',
 			'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid',
 			'wall', 'private', 'origin', 'author-id'
 		];
@@ -781,6 +786,11 @@ class Item
 		if (!DBA::isResult($parent)) {
 			Logger::notice('item parent was not found - ignoring item', ['uri-id' => $item['uri-id'], 'thr-parent-id' => $item['thr-parent-id'], 'uid' => $item['uid']]);
 			return [];
+		}
+
+		if (self::hasRestrictions($item, $parent['author-id'], $parent['restrictions'])) {
+			Logger::notice('Restrictions apply - ignoring item', ['restrictions' => $parent['restrictions'], 'verb' => $parent['verb'], 'uri-id' => $item['uri-id'], 'thr-parent-id' => $item['thr-parent-id'], 'uid' => $item['uid']]);
+			return 0;
 		}
 
 		if ($parent['uri-id'] == $parent['parent-uri-id']) {
@@ -1437,6 +1447,27 @@ class Item
 		}
 
 		return $post_user_id;
+	}
+
+	private static function hasRestrictions(array $item, int $author_id, int $restrictions = null): bool
+	{
+		if (empty($restrictions) || ($author_id == $item['author-id'])) {
+			return false;
+		}
+
+		if (($restrictions & self::CANT_REPLY) && ($item['verb'] == Activity::POST)) {
+			return true;
+		}
+
+		if (($restrictions & self::CANT_ANNOUNCE) && ($item['verb'] == Activity::ANNOUNCE)) {
+			return true;
+		}
+
+		if (($restrictions & self::CANT_LIKE) && in_array($item['verb'], [Activity::LIKE, Activity::DISLIKE, Activity::ATTEND, Activity::ATTENDMAYBE, Activity::ATTENDNO])) {
+			return true;
+		}
+
+		return false;
 	}
 
 	private static function reshareChannelPost(int $uri_id, int $reshare_id = 0)

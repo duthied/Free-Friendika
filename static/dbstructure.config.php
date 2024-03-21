@@ -56,7 +56,7 @@ use Friendica\Database\DBA;
 
 // This file is required several times during the test in DbaDefinition which justifies this condition
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1558);
+	define('DB_UPDATE_VERSION', 1559);
 }
 
 return [
@@ -1368,7 +1368,7 @@ return [
 			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
 			"owner-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id"], "comment" => "Item owner"],
 			"contact-type" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => "Person, organisation, news, community, relay"],
-			"media-type" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => "Type of media in a bit array (1 = image, 2 = video, 4 = audio"],
+			"media-type" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => "Type of media in a bit array (1 = image, 2 = video, 4 = audio)"],
 			"language" => ["type" => "char(2)", "comment" => "Language information about this post in the ISO 639-1 format"],
 			"searchtext" => ["type" => "mediumtext", "comment" => "Simplified text for the full text search"],
 			"size" => ["type" => "int unsigned", "comment" => "Body size"],
@@ -1490,7 +1490,7 @@ return [
 		"fields" => [
 			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
 			"owner-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id"], "comment" => "Item owner"],
-			"media-type" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => "Type of media in a bit array (1 = image, 2 = video, 4 = audio"],
+			"media-type" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => "Type of media in a bit array (1 = image, 2 = video, 4 = audio)"],
 			"language" => ["type" => "char(2)", "comment" => "Language information about this post in the ISO 639-1 format"],
 			"searchtext" => ["type" => "mediumtext", "comment" => "Simplified text for the full text search"],
 			"size" => ["type" => "int unsigned", "comment" => "Body size"],
@@ -1562,6 +1562,7 @@ return [
 			"post-reason" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => "Reason why the post arrived at the user"],
 			"vid" => ["type" => "smallint unsigned", "foreign" => ["verb" => "id", "on delete" => "restrict"], "comment" => "Id of the verb table entry that contains the activity verbs"],
 			"private" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => "0=public, 1=private, 2=unlisted"],
+			"restrictions" => ["type" => "tinyint unsigned", "comment" => "Bit array of post restrictions (1 = Reply, 2 = Like, 4 = Announce)"],
 			"global" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"visible" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"deleted" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "item has been marked for deletion"],

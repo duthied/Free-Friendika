@@ -212,9 +212,22 @@ class Post
 		$shareable    = in_array($conv->getProfileOwner(), [0, DI::userSession()->getLocalUserId()]) && $item['private'] != Item::PRIVATE;
 		$announceable = $shareable && in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::TWITTER, Protocol::TUMBLR, Protocol::BLUESKY]);
 		$commentable  = ($item['network'] != Protocol::TUMBLR);
+		$likeable     = true;
 
 		// On Diaspora only toplevel posts can be reshared
 		if ($announceable && ($item['network'] == Protocol::DIASPORA) && ($item['gravity'] != Item::GRAVITY_PARENT)) {
+			$announceable = false;
+		}
+
+		if ($item['restrictions'] & Item::CANT_REPLY) {
+			$commentable = false;
+		}
+
+		if ($item['restrictions'] & Item::CANT_LIKE) {
+			$likeable = false;
+		}
+
+		if ($item['restrictions'] & Item::CANT_ANNOUNCE) {
 			$announceable = false;
 		}
 
@@ -423,8 +436,10 @@ class Post
 		}
 
 		if ($conv->isWritable()) {
-			$buttons['like']    = [DI::l10n()->t("I like this \x28toggle\x29"), DI::l10n()->t('Like')];
-			$buttons['dislike'] = [DI::l10n()->t("I don't like this \x28toggle\x29"), DI::l10n()->t('Dislike')];
+			if ($likeable) {
+				$buttons['like']    = [DI::l10n()->t("I like this \x28toggle\x29"), DI::l10n()->t('Like')];
+				$buttons['dislike'] = [DI::l10n()->t("I don't like this \x28toggle\x29"), DI::l10n()->t('Dislike')];
+			}
 			if ($shareable) {
 				$buttons['share'] = [DI::l10n()->t('Quote share this'), DI::l10n()->t('Quote Share')];
 			}
