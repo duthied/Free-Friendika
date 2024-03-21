@@ -600,6 +600,10 @@ return [
 			Friendica\Core\Worker::PRIORITY_NEGLIGIBLE => 720
 		],
 
+		// worker_max_idletime (Integer)
+		// Higly experimental! Maximum number of seconds after the last worker execution to enforce a new worker process.
+		'worker_max_idletime' => 0,
+
 		// worker_processes_cooldown (Integer)
 		// Maximum number per processes that causes a cooldown before each worker function call.
 		'worker_processes_cooldown' => 0,
