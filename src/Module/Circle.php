@@ -141,13 +141,15 @@ class Circle extends BaseModule
 
 	protected function content(array $request = []): string
 	{
-		$change = false;
+		$change   = false;
+		$relation = $request['rel'] ?? '';
 
 		if (!DI::userSession()->getLocalUserId()) {
 			throw new \Friendica\Network\HTTPException\ForbiddenException();
 		}
 
 		DI::page()['aside'] = Model\Circle::sidebarWidget('contact', 'circle', 'extended', ((DI::args()->getArgc() > 1) ? DI::args()->getArgv()[1] : 'everyone'));
+		DI::page()['aside'] .= Widget::contactRels($this->server['REQUEST_URI'], $relation);
 
 		// With no circle number provided we jump to the unassigned contacts as a starting point
 		// @TODO: Replace with parameter from router
@@ -298,6 +300,9 @@ class Circle extends BaseModule
 
 		// Format the data of the circle members
 		foreach ($members as $member) {
+			if (!self::matchRelation($relation, $member['rel'])) {
+				continue;
+			}
 			if ($member['url']) {
 				$entry = Contact::getContactTemplateVars($member);
 				$entry['label'] = 'members';
@@ -332,6 +337,9 @@ class Circle extends BaseModule
 		if (DBA::isResult($contacts)) {
 			// Format the data of the contacts who aren't in the contact circle
 			foreach ($contacts as $member) {
+				if (!self::matchRelation($relation, $member['rel'])) {
+					continue;
+				}
 				if (!in_array($member['id'], $preselected)) {
 					$entry = Contact::getContactTemplateVars($member);
 					$entry['label'] = 'contacts';
@@ -365,5 +373,20 @@ class Circle extends BaseModule
 		}
 
 		return Renderer::replaceMacros($tpl, $context);
+	}
+
+	private static function matchRelation(string $relation, int $rel)
+	{
+		switch ($relation) {
+			case 'followers':
+				return($rel == Model\Contact::FOLLOWER);
+			case 'following':
+				return($rel == Model\Contact::SHARING);
+			case 'mutuals':
+				return($rel == Model\Contact::FRIEND);
+			case 'nothing':
+				return($rel == Model\Contact::NOTHING);
+		}
+		return true;
 	}
 }
