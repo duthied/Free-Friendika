@@ -200,7 +200,7 @@
 							</div>
 							<div id="contact-edit-channel-collapse" class="panel-body panel-collapse collapse" role="tabpanel" aria-labelledby="contact-edit-channel">
 								<div class="section-content-tools-wrapper">
-	
+									{{include file="field_checkbox.tpl" field=$channel_only}}
 									<label>{{$frequency_label}}</label>
 									{{include file="field_radio.tpl" field=$frequency_default}}
 									{{include file="field_radio.tpl" field=$frequency_always}}

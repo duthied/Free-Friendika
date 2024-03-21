@@ -365,6 +365,53 @@ class User
 	}
 
 	/**
+	 * Set the channel only value for contact id and user id
+	 *
+	 * @param int $cid           Either public contact id or user's contact id
+	 * @param int $uid           User ID
+	 * @param int $isChannelOnly Is channel only
+	 * @return void
+	 * @throws \Exception
+	 */
+	public static function setChannelOnly(int $cid, int $uid, bool $isChannelOnly)
+	{
+		$cdata = Contact::getPublicAndUserContactID($cid, $uid);
+		if (empty($cdata)) {
+			return;
+		}
+
+		DBA::update('user-contact', ['channel-only' => $isChannelOnly], ['cid' => $cdata['public'], 'uid' => $uid], true);
+	}
+
+	/**
+	 * Returns if the contact is channel only for contact id and user id
+	 *
+	 * @param int $cid Either public contact id or user's contact id
+	 * @param int $uid User ID
+	 * @return bool Contact is channel only
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function getChannelOnly(int $cid, int $uid): bool
+	{
+		$cdata = Contact::getPublicAndUserContactID($cid, $uid);
+		if (empty($cdata)) {
+			return false;
+		}
+
+		$isChannelOnly = false;
+
+		if (!empty($cdata['public'])) {
+			$public_contact = DBA::selectFirst('user-contact', ['channel-only'], ['cid' => $cdata['public'], 'uid' => $uid]);
+			if (DBA::isResult($public_contact)) {
+				$isChannelOnly = $public_contact['channel-only'] ?? false;
+			}
+		}
+
+		return $isChannelOnly;
+	}
+
+	/**
 	 * Set/Release that the user is blocked by the contact
 	 *
 	 * @param int     $cid     Either public contact id or user's contact id

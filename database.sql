@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2024.06-dev (Yellow Archangel)
--- DB_UPDATE_VERSION 1557
+-- DB_UPDATE_VERSION 1558
 -- ------------------------------------------
 
 
@@ -1947,6 +1947,7 @@ CREATE TABLE IF NOT EXISTS `user-contact` (
 	`ignored` boolean COMMENT 'Posts from this contact are ignored',
 	`collapsed` boolean COMMENT 'Posts from this contact are collapsed',
 	`hidden` boolean COMMENT 'This contact is hidden from the others',
+	`channel-only` boolean COMMENT 'This contact is displayed only in channels, but not in the network stream.',
 	`is-blocked` boolean COMMENT 'User is blocked by this contact',
 	`channel-frequency` tinyint unsigned COMMENT 'Controls the frequency of the appearance of this contact in channels',
 	`pending` boolean COMMENT '',
@@ -2877,36 +2878,6 @@ CREATE VIEW `tag-view` AS SELECT
 			LEFT JOIN `contact` ON `post-tag`.`cid` = `contact`.`id`;
 
 --
--- VIEW network-item-view
---
-DROP VIEW IF EXISTS `network-item-view`;
-CREATE VIEW `network-item-view` AS SELECT 
-	`post-user`.`uri-id` AS `uri-id`,
-	`post-thread-user`.`post-user-id` AS `parent`,
-	`post-user`.`received` AS `received`,
-	`post-thread-user`.`commented` AS `commented`,
-	`post-user`.`created` AS `created`,
-	`post-user`.`uid` AS `uid`,
-	`post-thread-user`.`starred` AS `starred`,
-	`post-thread-user`.`mention` AS `mention`,
-	`post-user`.`network` AS `network`,
-	`post-user`.`unseen` AS `unseen`,
-	`post-user`.`gravity` AS `gravity`,
-	`post-user`.`contact-id` AS `contact-id`,
-	`ownercontact`.`contact-type` AS `contact-type`
-	FROM `post-user`
-			INNER JOIN `post-thread-user` ON `post-thread-user`.`uri-id` = `post-user`.`parent-uri-id` AND `post-thread-user`.`uid` = `post-user`.`uid`
-			STRAIGHT_JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
-			STRAIGHT_JOIN `contact` AS `authorcontact` ON `authorcontact`.`id` = `post-thread-user`.`author-id`
-			STRAIGHT_JOIN `contact` AS `ownercontact` ON `ownercontact`.`id` = `post-thread-user`.`owner-id`
-			WHERE `post-user`.`visible` AND NOT `post-user`.`deleted`
-			AND (NOT `contact`.`readonly` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`)
-			AND (`post-user`.`hidden` IS NULL OR NOT `post-user`.`hidden`)
-			AND NOT `authorcontact`.`blocked` AND NOT `ownercontact`.`blocked`
-			AND NOT EXISTS(SELECT `cid`    FROM `user-contact` WHERE `uid` = `post-thread-user`.`uid` AND `cid` IN (`authorcontact`.`id`, `ownercontact`.`id`) AND (`blocked` OR `ignored`))
-			AND NOT EXISTS(SELECT `gsid`   FROM `user-gserver` WHERE `uid` = `post-thread-user`.`uid` AND `gsid` IN (`authorcontact`.`gsid`, `ownercontact`.`gsid`) AND `ignored`);
-
---
 -- VIEW network-thread-view
 --
 DROP VIEW IF EXISTS `network-thread-view`;
@@ -2931,8 +2902,8 @@ CREATE VIEW `network-thread-view` AS SELECT
 			AND (NOT `contact`.`readonly` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`)
 			AND (`post-thread-user`.`hidden` IS NULL OR NOT `post-thread-user`.`hidden`)
 			AND NOT `authorcontact`.`blocked` AND NOT `ownercontact`.`blocked`
-			AND NOT EXISTS(SELECT `cid`    FROM `user-contact` WHERE `uid` = `post-thread-user`.`uid` AND `cid` IN (`authorcontact`.`id`, `ownercontact`.`id`) AND (`blocked` OR `ignored`))
-			AND NOT EXISTS(SELECT `gsid`   FROM `user-gserver` WHERE `uid` = `post-thread-user`.`uid` AND `gsid` IN (`authorcontact`.`gsid`, `ownercontact`.`gsid`) AND `ignored`);
+			AND NOT EXISTS(SELECT `cid`  FROM `user-contact` WHERE `uid` = `post-thread-user`.`uid` AND `cid` IN (`post-thread-user`.`author-id`, `post-thread-user`.`owner-id`, `post-thread-user`.`causer-id`) AND (`blocked` OR `ignored` OR `channel-only`))
+			AND NOT EXISTS(SELECT `gsid` FROM `user-gserver` WHERE `uid` = `post-thread-user`.`uid` AND `gsid` IN (`authorcontact`.`gsid`, `ownercontact`.`gsid`) AND `ignored`);
 
 --
 -- VIEW owner-view
