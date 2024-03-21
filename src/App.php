@@ -64,7 +64,7 @@ class App
 {
 	const PLATFORM = 'Friendica';
 	const CODENAME = 'Yellow Archangel';
-	const VERSION  = '2024.03-rc';
+	const VERSION  = '2024.03';
 
 	// Allow themes to control internal parameters
 	// by changing App values in theme.php
