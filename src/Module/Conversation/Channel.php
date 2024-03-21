@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -115,7 +115,7 @@ class Channel extends Timeline
 
 			$this->page['aside'] .= Widget::accountTypes('channel/' . $this->selectedTab, $this->accountTypeString);
 
-			if (!in_array($this->selectedTab, [ChannelEntity::FOLLOWERS, ChannelEntity::FORYOU])) {
+			if (!in_array($this->selectedTab, [ChannelEntity::FOLLOWERS, ChannelEntity::FORYOU, ChannelEntity::DISCOVER])) {
 				$this->page['aside'] .= $this->getNoSharerWidget('channel');
 			}
 
@@ -128,7 +128,7 @@ class Channel extends Timeline
 		}
 
 		if ($this->channel->isTimeline($this->selectedTab) || $this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId())) {
-			$items = $this->getChannelItems();
+			$items = $this->getChannelItems($request);
 			$order = 'created';
 		} else {
 			$items = $this->getCommunityItems();

@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -433,17 +433,39 @@ class HTTPSignature
 			return [];
 		}
 
-		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
+		if (!$curlResult->isSuccess() || empty($curlResult->getBodyString())) {
 			Logger::debug('Fetching was unsuccessful', ['url' => $request, 'return-code' => $curlResult->getReturnCode(), 'error-number' => $curlResult->getErrorNumber(), 'error' => $curlResult->getError()]);
 			return [];
 		}
 
-		$content = json_decode($curlResult->getBody(), true);
+		$content = json_decode($curlResult->getBodyString(), true);
 		if (empty($content) || !is_array($content)) {
 			return [];
 		}
 
+		if (!self::isValidContentType($curlResult->getContentType(), $request)) {
+			return [];
+		}
+
 		return $content;
+	}
+
+	/**
+	 * Check if the provided content type is a valid LD JSON mime type
+	 *
+	 * @param string $contentType
+	 * @return boolean
+	 */
+	public static function isValidContentType(string $contentType, string $url = ''): bool
+	{
+		if (in_array(current(explode(';', $contentType)), ['application/activity+json', 'application/ld+json'])) {
+			return true;
+		}
+
+		if (current(explode(';', $contentType)) == 'application/json') {
+			Logger::notice('Unexpected content type, possibly from a remote system that is not standard compliant.', ['content-type' => $contentType, 'url' => $url]);
+		}
+		return false;
 	}
 
 	/**

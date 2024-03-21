@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -55,6 +55,10 @@ return [
 		// adjust_poll_frequency (Boolean)
 		// Automatically detect and set the best feed poll frequency.
 		'adjust_poll_frequency' => false,
+
+		// allow_relay_channels (Boolean)
+		// Allow Users to set remote_self
+		'allow_relay_channels' => true,
 
 		// allowed_themes (Comma-separated list)
 		// Themes users can change to in their settings.
@@ -166,12 +170,20 @@ return [
 		// Has to be one of these values: emergency, alert, critical, error, warning, notice, info, debug
 		'loglevel' => 'notice',
 
+		// max_author_posts_community_page (Integer)
+		// The maximum number of posts on the local community page from a single author.
+		'max_author_posts_community_page' => 0,
+
 		// max_image_length (Integer)
 		// An alternate way of limiting picture upload sizes.
 		// Specify the maximum pixel  length that pictures are allowed to be (for non-square pictures, it will apply to the longest side).
 		// Pictures longer than this length will be resized to be this length (on the longest side, the other side will be scaled appropriately).
 		// If you don't want to set a maximum length, set to -1.
 		'max_image_length' => -1,
+
+		// max_server_posts_community_page (Integer)
+		// The maximum number of posts on the global community page from a single server.
+		'max_server_posts_community_page' => 0,
 
 		// maximagesize (Integer)
 		// Maximum size in bytes of an uploaded photo.
@@ -224,6 +236,10 @@ return [
 		// relay_language_quality (Float)
 		// Minimum value for the language detection quality for relay posts. The value must be between 0 and 1.
 		'relay_language_quality' => 0,
+
+		// relay_max_tags (Integer)
+		// Maximum amount of tags in a post before it is rejected as spam.
+		'relay_max_tags' => 20,
 
 		// proxify_content (Boolean)
 		// Use the proxy functionality for fetching external content

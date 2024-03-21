@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -47,7 +47,7 @@ class CurlResultTest extends TestCase
 		self::assertFalse($curlResult->isTimeout());
 		self::assertFalse($curlResult->isRedirectUrl());
 		self::assertSame($headerArray, $curlResult->getHeaders());
-		self::assertSame($body, $curlResult->getBody());
+		self::assertSame($body, $curlResult->getBodyString());
 		self::assertSame('text/html; charset=utf-8', $curlResult->getContentType());
 		self::assertSame('https://test.local', $curlResult->getUrl());
 		self::assertSame('https://test.local', $curlResult->getRedirectUrl());
@@ -76,7 +76,7 @@ class CurlResultTest extends TestCase
 		self::assertFalse($curlResult->isTimeout());
 		self::assertTrue($curlResult->isRedirectUrl());
 		self::assertSame($headerArray, $curlResult->getHeaders());
-		self::assertSame($body, $curlResult->getBody());
+		self::assertSame($body, $curlResult->getBodyString());
 		self::assertSame('text/html; charset=utf-8', $curlResult->getContentType());
 		self::assertSame('https://test.local/test/it', $curlResult->getUrl());
 		self::assertSame('https://test.other/test/it', $curlResult->getRedirectUrl());
@@ -103,7 +103,7 @@ class CurlResultTest extends TestCase
 		self::assertTrue($curlResult->isTimeout());
 		self::assertFalse($curlResult->isRedirectUrl());
 		self::assertSame($headerArray, $curlResult->getHeaders());
-		self::assertSame($body, $curlResult->getBody());
+		self::assertSame($body, $curlResult->getBodyString());
 		self::assertSame('text/html; charset=utf-8', $curlResult->getContentType());
 		self::assertSame('https://test.local/test/it', $curlResult->getRedirectUrl());
 		self::assertSame('Tested error', $curlResult->getError());
@@ -131,7 +131,7 @@ class CurlResultTest extends TestCase
 		self::assertFalse($curlResult->isTimeout());
 		self::assertTrue($curlResult->isRedirectUrl());
 		self::assertSame($headerArray, $curlResult->getHeaders());
-		self::assertSame($body, $curlResult->getBody());
+		self::assertSame($body, $curlResult->getBodyString());
 		self::assertSame('text/html; charset=utf-8', $curlResult->getContentType());
 		self::assertSame('https://test.local/test/it?key=value', $curlResult->getUrl());
 		self::assertSame('https://test.other/some/?key=value', $curlResult->getRedirectUrl());

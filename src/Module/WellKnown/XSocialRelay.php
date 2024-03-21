@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -22,10 +22,10 @@
 namespace Friendica\Module\WellKnown;
 
 use Friendica\BaseModule;
-use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Search;
 use Friendica\Protocol\Relay;
+use Friendica\Util\Strings;
 
 /**
  * Node subscription preferences for social relay systems
@@ -43,13 +43,7 @@ class XSocialRelay extends BaseModule
 		$userTags = [];
 
 		if ($scope == Relay::SCOPE_TAGS) {
-			$server_tags = $config->get('system', 'relay_server_tags');
-			$tagitems = explode(',', $server_tags);
-
-			/// @todo Check if it was better to use "strtolower" on the tags
-			foreach ($tagitems as $tag) {
-				$systemTags[] = trim($tag, '# ');
-			}
+			$systemTags = Strings::getTagArrayByString($config->get('system', 'relay_server_tags'));
 
 			if ($config->get('system', 'relay_user_tags')) {
 				$userTags = Search::getUserTags();

@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -48,6 +48,7 @@ use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
 use Friendica\Util\Network;
+use Friendica\Util\Proxy;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 use GuzzleHttp\Psr7\Uri;
@@ -1602,7 +1603,7 @@ class Diaspora
 			$datarray['diaspora_signed_text'] = json_encode($data);
 		}
 
-		if (Item::isTooOld($datarray)) {
+		if (DI::contentItem()->isTooOld($datarray['created'], $datarray['uid'])) {
 			Logger::info('Comment is too old', ['created' => $datarray['created'], 'uid' => $datarray['uid'], 'guid' => $datarray['guid']]);
 			return false;
 		}
@@ -1860,7 +1861,7 @@ class Diaspora
 			$datarray['diaspora_signed_text'] = json_encode($data);
 		}
 
-		if (Item::isTooOld($datarray)) {
+		if (DI::contentItem()->isTooOld($datarray['created'], $datarray['uid'])) {
 			Logger::info('Like is too old', ['created' => $datarray['created'], 'uid' => $datarray['uid'], 'guid' => $datarray['guid']]);
 			return false;
 		}
@@ -2023,7 +2024,7 @@ class Diaspora
 		// Diaspora doesn't provide a date for a participation
 		$datarray['changed'] = $datarray['created'] = $datarray['edited'] = DateTimeFormat::utcNow();
 
-		if (Item::isTooOld($datarray)) {
+		if (DI::contentItem()->isTooOld($datarray['created'], $datarray['uid'])) {
 			Logger::info('Participation is too old', ['created' => $datarray['created'], 'uid' => $datarray['uid'], 'guid' => $datarray['guid']]);
 			return false;
 		}
@@ -2393,7 +2394,7 @@ class Diaspora
 
 		self::fetchGuid($datarray);
 
-		if (Item::isTooOld($datarray)) {
+		if (DI::contentItem()->isTooOld($datarray['created'], $datarray['uid'])) {
 			Logger::info('Reshare is too old', ['created' => $datarray['created'], 'uid' => $datarray['uid'], 'guid' => $datarray['guid']]);
 			return false;
 		}
@@ -2738,7 +2739,7 @@ class Diaspora
 
 		self::fetchGuid($datarray);
 
-		if (Item::isTooOld($datarray)) {
+		if (DI::contentItem()->isTooOld($datarray['created'], $datarray['uid'])) {
 			Logger::info('Status is too old', ['created' => $datarray['created'], 'uid' => $datarray['uid'], 'guid' => $datarray['guid']]);
 			return false;
 		}
@@ -3259,7 +3260,9 @@ class Diaspora
 		/// @todo - establish "all day" events in Friendica
 		$eventdata['all_day'] = 'false';
 
-		$eventdata['timezone'] = 'UTC';
+		// @todo Should be user timezone - but only if the event is supposed to be displayed
+		// in that specific timezone and not the user's timezone.
+		// $eventdata['timezone'] = 'UTC';
 
 		if ($event['start']) {
 			$eventdata['start'] = DateTimeFormat::utc($event['start'], $mask);
@@ -3403,8 +3406,7 @@ class Diaspora
 			if ($item['event-id'] > 0) {
 				$event = self::buildEvent($item['event-id']);
 				if (count($event)) {
-					// Deactivated, since Diaspora seems to have problems with the processing.
-					// $message['event'] = $event;
+					$message['event'] = $event;
 
 					if (
 						!empty($event['location']['address']) &&
@@ -3885,7 +3887,7 @@ class Diaspora
 	 */
 	private static function createProfileData(int $uid): array
 	{
-		$profile = DBA::selectFirst('owner-view', ['uid', 'addr', 'name', 'location', 'net-publish', 'dob', 'about', 'pub_keywords', 'updated'], ['uid' => $uid]);
+		$profile = User::getOwnerDataById($uid);
 
 		if (!DBA::isResult($profile)) {
 			return [];
@@ -3899,9 +3901,9 @@ class Diaspora
 			'full_name'        => $profile['name'],
 			'first_name'       => $split_name['first'],
 			'last_name'        => $split_name['last'],
-			'image_url'        => DI::baseUrl() . '/photo/custom/300/' . $profile['uid'] . '.jpg',
-			'image_url_medium' => DI::baseUrl() . '/photo/custom/100/' . $profile['uid'] . '.jpg',
-			'image_url_small'  => DI::baseUrl() . '/photo/custom/50/'  . $profile['uid'] . '.jpg',
+			'image_url'        => User::getAvatarUrl($profile, Proxy::SIZE_SMALL),
+			'image_url_medium' => User::getAvatarUrl($profile, Proxy::SIZE_THUMB),
+			'image_url_small'  => User::getAvatarUrl($profile, Proxy::SIZE_MICRO),
 			'bio'              => null,
 			'birthday'         => null,
 			'gender'           => null,

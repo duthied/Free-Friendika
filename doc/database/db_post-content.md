@@ -17,6 +17,7 @@ Fields
 | location        | text location where this item originated                                                                                  | varchar(255)   | NO   |     |         |       |
 | coord           | longitude/latitude pair representing location where this item originated                                                  | varchar(255)   | NO   |     |         |       |
 | language        | Language information about this post                                                                                      | text           | YES  |     | NULL    |       |
+| sensitive       | If true, this post contains sensitive content                                                                             | boolean        | YES  |     | NULL    |       |
 | app             | application which generated this item                                                                                     | varchar(255)   | NO   |     |         |       |
 | rendered-hash   |                                                                                                                           | varchar(32)    | NO   |     |         |       |
 | rendered-html   | item.body converted to html                                                                                               | mediumtext     | YES  |     | NULL    |       |
@@ -30,13 +31,12 @@ Fields
 Indexes
 ------------
 
-| Name                       | Fields                                 |
-| -------------------------- | -------------------------------------- |
-| PRIMARY                    | uri-id                                 |
-| plink                      | plink(191)                             |
-| resource-id                | resource-id                            |
-| title-content-warning-body | FULLTEXT, title, content-warning, body |
-| quote-uri-id               | quote-uri-id                           |
+| Name         | Fields       |
+| ------------ | ------------ |
+| PRIMARY      | uri-id       |
+| plink        | plink(191)   |
+| resource-id  | resource-id  |
+| quote-uri-id | quote-uri-id |
 
 Foreign Keys
 ------------

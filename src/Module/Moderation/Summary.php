@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -48,24 +48,23 @@ class Summary extends BaseModeration
 	protected function content(array $request = []): string
 	{
 		parent::content();
-
+	
 		$accounts = [
-			[$this->t('Normal Account'), 0],
-			[$this->t('Automatic Follower Account'), 0],
-			[$this->t('Public Group Account'), 0],
-			[$this->t('Automatic Friend Account'), 0],
-			[$this->t('Blog Account'), 0],
-			[$this->t('Private Group Account'), 0]
+			[$this->t('Personal Page'), 0],
+			[$this->t('Organisation Page'), 0],
+			[$this->t('News Page'), 0],
+			[$this->t('Community Group'), 0],
+			[$this->t('Channel Relay'), 0],
 		];
 
 		$users = 0;
 
-		$pageFlagsCountStmt = $this->database->p('SELECT `page-flags`, COUNT(`uid`) AS `count` FROM `user` WHERE `uid` != ? GROUP BY `page-flags`', 0);
-		while ($pageFlagsCount = $this->database->fetch($pageFlagsCountStmt)) {
-			$accounts[$pageFlagsCount['page-flags']][1] = $pageFlagsCount['count'];
-			$users += $pageFlagsCount['count'];
+		$accountTypeCountStmt = $this->database->p('SELECT `account-type`, COUNT(`uid`) AS `count` FROM `user` WHERE `uid` != ? GROUP BY `account-type`', 0);
+		while ($AccountTypeCount = $this->database->fetch($accountTypeCountStmt)) {
+			$accounts[$AccountTypeCount['account-type']][1] = $AccountTypeCount['count'];
+			$users += $AccountTypeCount['count'];
 		}
-		$this->database->close($pageFlagsCountStmt);
+		$this->database->close($accountTypeCountStmt);
 
 		$this->logger->debug('accounts', ['accounts' => $accounts]);
 

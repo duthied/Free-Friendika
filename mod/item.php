@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -278,6 +278,7 @@ function item_process(array $post, array $request, bool $preview, string $return
 		$post['quote-uri-id']   = Item::getQuoteUriId($post['body'], $post['uid']);
 		$post['body']           = BBCode::removeSharedData(Item::setHashtags($post['body']));
 		$post['writable']       = true;
+		$post['sensitive']      = false;
 
 		$o = DI::conversation()->render([$post], Conversation::MODE_SEARCH, false, true);
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -22,9 +22,9 @@
 namespace Friendica\Model\Post;
 
 use Friendica\Content\Text\BBCode;
+use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
-use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -39,28 +39,42 @@ use Friendica\Util\DateTimeFormat;
 
 class Engagement
 {
-	const KEYWORDS = ['source', 'server', 'from', 'to', 'group', 'tag', 'network', 'platform', 'visibility'];
+	const KEYWORDS     = ['source', 'server', 'from', 'to', 'group', 'application', 'tag', 'network', 'platform', 'visibility', 'language', 'media'];
+	const SHORTCUTS    = ['lang' => 'language', 'net' => 'network', 'relay' => 'application'];
+	const ALTERNATIVES = ['source:news' => 'source:service', 'source:relay' => 'source:application',
+		'media:picture' => 'media:image', 'media:photo' => 'media:image',
+		'network:activitypub' => 'network:apub', 'network:friendica' => 'network:dfrn',
+		'network:diaspora' => 'network:dspr', 'network:ostatus' => 'network:stat',
+		'network:discourse' => 'network:dscs', 'network:tumblr' => 'network:tmbl', 'network:bluesky' => 'network:bsky'];
+	const MEDIA_NONE = 0;
+	const MEDIA_IMAGE = 1;
+	const MEDIA_VIDEO = 2;
+	const MEDIA_AUDIO = 4;
+	const MEDIA_CARD = 8;
+	const MEDIA_POST = 16;
 
 	/**
 	 * Store engagement data from an item array
 	 *
 	 * @param array $item
-	 * @return void
+	 * @return int uri-id of the engagement post if newly inserted, 0 on update
 	 */
-	public static function storeFromItem(array $item)
+	public static function storeFromItem(array $item): int
 	{
 		if (in_array($item['verb'], [Activity::FOLLOW, Activity::VIEW, Activity::READ])) {
 			Logger::debug('Technical activities are not stored', ['uri-id' => $item['uri-id'], 'parent-uri-id' => $item['parent-uri-id'], 'verb' => $item['verb']]);
-			return;
+			return 0;
 		}
 
-		$parent = Post::selectFirst(['uri-id', 'created', 'author-id', 'owner-id', 'uid', 'private', 'contact-contact-type', 'language', 'network',
-			'title', 'content-warning', 'body', 'author-contact-type', 'author-nick', 'author-addr', 'author-gsid', 'owner-contact-type', 'owner-nick', 'owner-addr', 'owner-gsid'],
+		$parent = Post::selectFirst(['uri-id', 'created', 'uid', 'private', 'quote-uri-id',
+			'contact-contact-type', 'network', 'title', 'content-warning', 'body', 'language',
+			'author-id', 'author-contact-type', 'author-nick', 'author-addr', 'author-gsid',
+			'owner-id', 'owner-contact-type', 'owner-nick', 'owner-addr', 'owner-gsid'],
 			['uri-id' => $item['parent-uri-id']]);
 
 		if ($parent['created'] < self::getCreationDateLimit(false)) {
 			Logger::debug('Post is too old', ['uri-id' => $item['uri-id'], 'parent-uri-id' => $item['parent-uri-id'], 'created' => $parent['created']]);
-			return;
+			return 0;
 		}
 
 		$store = ($item['gravity'] != Item::GRAVITY_PARENT);
@@ -69,28 +83,30 @@ class Engagement
 			$store = Contact::hasFollowers($parent['owner-id']);
 		}
 
+		if (!$store && ($parent['owner-id'] != $parent['author-id'])) {
+			$store = Contact::hasFollowers($parent['author-id']);
+		}
+
 		if (!$store) {
 			$tagList = Relay::getSubscribedTags();
 			foreach (array_column(Tag::getByURIId($item['parent-uri-id'], [Tag::HASHTAG]), 'name') as $tag) {
-				if (in_array($tag, $tagList)) {
+				if (in_array(mb_strtolower($tag), $tagList)) {
 					$store = true;
 					break;
 				}
 			}
 		}
 
-		$mediatype = self::getMediaType($item['parent-uri-id']);
+		$mediatype = self::getMediaType($item['parent-uri-id'], $parent['quote-uri-id']);
 
 		if (!$store) {
 			$store = !empty($mediatype);
 		}
 
-		$searchtext = self::getSearchTextForItem($parent);
+		$searchtext = self::getSearchTextForItem($parent, $mediatype);
+		$language   = !empty($parent['language']) ? (array_key_first(json_decode($parent['language'], true)) ?? L10n::UNDETERMINED_LANGUAGE) : L10n::UNDETERMINED_LANGUAGE;
 		if (!$store) {
-			$content   = trim(($parent['title'] ?? '') . ' ' . ($parent['content-warning'] ?? '') . ' ' . ($parent['body'] ?? ''));
-			$languages = Item::getLanguageArray($content, 1, 0, $parent['author-id']);
-			$language  = !empty($languages) ? array_key_first($languages) : '';
-			$store     = DI::userDefinedChannel()->match($searchtext, $language);
+			$store = DI::userDefinedChannel()->match($searchtext, $language);
 		}
 
 		$engagement = [
@@ -98,9 +114,11 @@ class Engagement
 			'owner-id'     => $parent['owner-id'],
 			'contact-type' => $parent['contact-contact-type'],
 			'media-type'   => $mediatype,
-			'language'     => $parent['language'],
+			'language'     => $language,
 			'searchtext'   => $searchtext,
+			'size'         => self::getContentSize($parent),
 			'created'      => $parent['created'],
+			'network'      => $parent['network'],
 			'restricted'   => !in_array($item['network'], Protocol::FEDERATED) || ($parent['private'] != Item::PUBLIC),
 			'comments'     => DBA::count('post', ['parent-uri-id' => $item['parent-uri-id'], 'gravity' => Item::GRAVITY_COMMENT]),
 			'activities'   => DBA::count('post', [
@@ -111,10 +129,29 @@ class Engagement
 		];
 		if (!$store && ($engagement['comments'] == 0) && ($engagement['activities'] == 0)) {
 			Logger::debug('No media, follower, subscribed tags, comments or activities. Engagement not stored', ['fields' => $engagement]);
-			return;
+			return 0;
 		}
-		$ret = DBA::insert('post-engagement', $engagement, Database::INSERT_UPDATE);
-		Logger::debug('Engagement stored', ['fields' => $engagement, 'ret' => $ret]);
+		$exists = DBA::exists('post-engagement', ['uri-id' => $engagement['uri-id']]);
+		if ($exists) {
+			$ret = DBA::update('post-engagement', $engagement, ['uri-id' => $engagement['uri-id']]);
+			Logger::debug('Engagement updated', ['uri-id' => $engagement['uri-id'], 'ret' => $ret]);
+		} else {
+			$ret = DBA::insert('post-engagement', $engagement);
+			Logger::debug('Engagement inserted', ['uri-id' => $engagement['uri-id'], 'ret' => $ret]);
+		}
+		return ($ret && !$exists) ? $engagement['uri-id'] : 0;
+	}
+
+	public static function getContentSize(array $item): int 
+	{
+		$body = ' ' . $item['title'] . ' ' . $item['content-warning'] . ' ' . $item['body'];
+		$body = BBCode::removeAttachment($body);
+		$body = BBCode::removeSharedData($body);
+		$body = preg_replace('/[^@!#]\[url\=.*?\].*?\[\/url\]/ism', '', $body);
+		$body = BBCode::removeLinks($body);
+		$msg = BBCode::toPlaintext($body, false);
+
+		return mb_strlen($msg);
 	}
 
 	public static function getSearchTextForActivity(string $content, int $author_id, array $tags, array $receivers): string
@@ -137,7 +174,8 @@ class Engagement
 			'owner-contact-type'  => $author['contact-type'],
 			'owner-nick'          => $author['nick'],
 			'owner-addr'          => $author['addr'],
-			'author-gsid'         => $author['gsid'],
+			'owner-gsid'          => $author['gsid'],
+			'quote-uri-id'        => 0,
 		];
 
 		foreach ($receivers as $receiver) {
@@ -146,91 +184,142 @@ class Engagement
 			}
 		}
 
-		return self::getSearchText($item, $receivers, $tags);
+		return self::getSearchText($item, $receivers, $tags, 0);
 	}
 
-	private static function getSearchTextForItem(array $item): string
+	public static function getSearchTextForUriId(int $uri_id, bool $refresh = false): string
+	{
+		if (!$refresh) {
+			$engagement = DBA::selectFirst('post-engagement', ['searchtext'], ['uri-id' => $uri_id]);
+			if (!empty($engagement['searchtext'])) {
+				return $engagement['searchtext'];
+			}
+		}
+
+		$post = Post::selectFirstPost(['uri-id', 'network', 'title', 'content-warning', 'body', 'private',
+			'author-id', 'author-contact-type', 'author-nick', 'author-addr', 'author-gsid', 'quote-uri-id',
+			'owner-id', 'owner-contact-type', 'owner-nick', 'owner-addr', 'owner-gsid'], ['uri-id' => $uri_id]);
+		if (empty($post['uri-id'])) {
+			return '';
+		}
+		$mediatype = self::getMediaType($uri_id, $post['quote-uri-id']);
+		return self::getSearchTextForItem($post, $mediatype);
+	}
+
+	private static function getSearchTextForItem(array $item, int $mediatype): string
 	{
 		$receivers = array_column(Tag::getByURIId($item['uri-id'], [Tag::MENTION, Tag::IMPLICIT_MENTION, Tag::EXCLUSIVE_MENTION, Tag::AUDIENCE]), 'url');
 		$tags      = array_column(Tag::getByURIId($item['uri-id'], [Tag::HASHTAG]), 'name');
-		return self::getSearchText($item, $receivers, $tags);
+		return self::getSearchText($item, $receivers, $tags, $mediatype);
 	}
 
-	private static function getSearchText(array $item, array $receivers, array $tags): string
+	private static function getSearchText(array $item, array $receivers, array $tags, int $mediatype): string
 	{
-		$body = '[nosmile]network:' . $item['network'];
+		$body = '[nosmile]network_' . $item['network'];
 
 		if (!empty($item['author-gsid'])) {
 			$gserver = DBA::selectFirst('gserver', ['platform', 'nurl'], ['id' => $item['author-gsid']]);
-			$platform = preg_replace( '/[\W]/', '', $gserver['platform'] ?? '');
+			$platform = preg_replace('/[\W]/', '', $gserver['platform'] ?? '');
 			if (!empty($platform)) {
-				$body .= ' platform:' . $platform;
+				$body .= ' platform_' . $platform;
 			}
-			$body .= ' server:' . parse_url($gserver['nurl'], PHP_URL_HOST);
+			$body .= ' server_' . parse_url($gserver['nurl'], PHP_URL_HOST);
 		}
 
 		if (($item['owner-contact-type'] == Contact::TYPE_COMMUNITY) && !empty($item['owner-gsid']) && ($item['owner-gsid'] != ($item['author-gsid'] ?? 0))) {
 			$gserver = DBA::selectFirst('gserver', ['platform', 'nurl'], ['id' => $item['owner-gsid']]);
-			$platform = preg_replace( '/[\W]/', '', $gserver['platform'] ?? '');
-			if (!empty($platform) && !strpos($body, 'platform:' . $platform)) {
-				$body .= ' platform:' . $platform;
+			$platform = preg_replace('/[\W]/', '', $gserver['platform'] ?? '');
+			if (!empty($platform) && !strpos($body, 'platform_' . $platform)) {
+				$body .= ' platform_' . $platform;
 			}
-			$body .= ' server:' . parse_url($gserver['nurl'], PHP_URL_HOST);
+			$body .= ' server_' . parse_url($gserver['nurl'], PHP_URL_HOST);
 		}
 
 		switch ($item['private']) {
 			case Item::PUBLIC:
-				$body .= ' visibility:public';
+				$body .= ' visibility_public';
 				break;
 			case Item::UNLISTED:
-				$body .= ' visibility:unlisted';
+				$body .= ' visibility_unlisted';
 				break;
 			case Item::PRIVATE:
-				$body .= ' visibility:private';
+				$body .= ' visibility_private';
 				break;
 		}
 
 		if (in_array(Contact::TYPE_COMMUNITY, [$item['author-contact-type'], $item['owner-contact-type']])) {
-			$body .= ' source:group';
+			$body .= ' source_group';
 		} elseif ($item['author-contact-type'] == Contact::TYPE_PERSON) {
-			$body .= ' source:person';
+			$body .= ' source_person';
 		} elseif ($item['author-contact-type'] == Contact::TYPE_NEWS) {
-			$body .= ' source:service';
+			$body .= ' source_service';
 		} elseif ($item['author-contact-type'] == Contact::TYPE_ORGANISATION) {
-			$body .= ' source:organization';
+			$body .= ' source_organization';
 		} elseif ($item['author-contact-type'] == Contact::TYPE_RELAY) {
-			$body .= ' source:application';
+			$body .= ' source_application';
 		}
 
 		if ($item['author-contact-type'] == Contact::TYPE_COMMUNITY) {
-			$body .= ' group:' . $item['author-nick'] . ' group:' . $item['author-addr'];
+			$body .= ' group_' . $item['author-nick'] . ' group_' . $item['author-addr'];
+		} elseif ($item['author-contact-type'] == Contact::TYPE_RELAY) {
+			$body .= ' application_' . $item['author-nick'] . ' application_' . $item['author-addr'];
 		} elseif (in_array($item['author-contact-type'], [Contact::TYPE_PERSON, Contact::TYPE_NEWS, Contact::TYPE_ORGANISATION])) {
-			$body .= ' from:' . $item['author-nick'] . ' from:' . $item['author-addr'];
+			$body .= ' from_' . $item['author-nick'] . ' from_' . $item['author-addr'];
 		}
 
 		if ($item['author-id'] !=  $item['owner-id']) {
 			if ($item['owner-contact-type'] == Contact::TYPE_COMMUNITY) {
-				$body .= ' group:' . $item['owner-nick'] . ' group:' . $item['owner-addr'];
+				$body .= ' group_' . $item['owner-nick'] . ' group_' . $item['owner-addr'];
 			} elseif (in_array($item['owner-contact-type'], [Contact::TYPE_PERSON, Contact::TYPE_NEWS, Contact::TYPE_ORGANISATION])) {
-				$body .= ' from:' . $item['owner-nick'] . ' from:' . $item['owner-addr'];
+				$body .= ' from_' . $item['owner-nick'] . ' from_' . $item['owner-addr'];
 			}
 		}
 
+		$body = self::addResharers($body, $item['uri-id']);
+
 		foreach ($receivers as $receiver) {
+			if (empty($receiver)) {
+				continue;
+			}
 			$contact = Contact::getByURL($receiver, false, ['nick', 'addr', 'contact-type']);
 			if (empty($contact)) {
 				continue;
 			}
 
-			if (($contact['contact-type'] == Contact::TYPE_COMMUNITY) && !strpos($body, 'group:' . $contact['addr'])) {
-				$body .= ' group:' . $contact['nick'] . ' group:' . $contact['addr'];
+			if (($contact['contact-type'] == Contact::TYPE_COMMUNITY) && !strpos($body, 'group_' . $contact['addr'])) {
+				$body .= ' group_' . $contact['nick'] . ' group_' . $contact['addr'];
 			} elseif (in_array($contact['contact-type'], [Contact::TYPE_PERSON, Contact::TYPE_NEWS, Contact::TYPE_ORGANISATION])) {
-				$body .= ' to:' . $contact['nick'] . ' to:' . $contact['addr'];
+				$body .= ' to_' . $contact['nick'] . ' to_' . $contact['addr'];
 			}
 		}
 
 		foreach ($tags as $tag) {
-			$body .= ' tag:' . $tag;
+			$body .= ' tag_' . $tag;
+		}
+
+		if (!empty($item['language'])) {
+			$languages = json_decode($item['language'], true);
+			$body .= ' language_' . array_key_first($languages);
+		}
+
+		if ($mediatype & self::MEDIA_IMAGE) {
+			$body .= ' media_image';
+		}
+
+		if ($mediatype & self::MEDIA_VIDEO) {
+			$body .= ' media_video';
+		}
+
+		if ($mediatype & self::MEDIA_AUDIO) {
+			$body .= ' media_audio';
+		}
+
+		if ($mediatype & self::MEDIA_CARD) {
+			$body .= ' media_card';
+		}
+
+		if ($mediatype & self::MEDIA_POST) {
+			$body .= ' media_post';
 		}
 
 		$body .= ' ' . $item['title'] . ' ' . $item['content-warning'] . ' ' . $item['body'];
@@ -238,17 +327,46 @@ class Engagement
 		return BBCode::toSearchText($body, $item['uri-id']);
 	}
 
-	private static function getMediaType(int $uri_id): int
+	private static function addResharers(string $text, int $uri_id): string
+	{
+		$result = Post::selectPosts(['author-addr', 'author-nick', 'author-contact-type'],
+			['thr-parent-id' => $uri_id, 'gravity' => Item::GRAVITY_ACTIVITY, 'verb' => Activity::ANNOUNCE, 'author-contact-type' => [Contact::TYPE_RELAY, Contact::TYPE_COMMUNITY]]);
+		while ($reshare = Post::fetch($result)) {
+			switch ($reshare['author-contact-type']) {
+				case Contact::TYPE_RELAY:
+					$prefix = ' application_';
+					break;
+				case Contact::TYPE_COMMUNITY:
+					$prefix = ' group_';
+					break;
+			}
+			$nick = $prefix . $reshare['author-nick'];
+			$addr = $prefix . $reshare['author-addr'];
+
+			if (stripos($text, $addr) === false) {
+				$text .= $nick . $addr;
+			}
+		}
+		DBA::close($result);
+
+		return $text;
+	}
+
+	public static function getMediaType(int $uri_id, int $quote_uri_id = null): int
 	{
 		$media = Post\Media::getByURIId($uri_id);
-		$type  = 0;
+		$type  = !empty($quote_uri_id) ? self::MEDIA_POST : self::MEDIA_NONE;
 		foreach ($media as $entry) {
 			if ($entry['type'] == Post\Media::IMAGE) {
-				$type = $type | 1;
+				$type = $type | self::MEDIA_IMAGE;
 			} elseif ($entry['type'] == Post\Media::VIDEO) {
-				$type = $type | 2;
+				$type = $type | self::MEDIA_VIDEO;
 			} elseif ($entry['type'] == Post\Media::AUDIO) {
-				$type = $type | 4;
+				$type = $type | self::MEDIA_AUDIO;
+			} elseif ($entry['type'] == Post\Media::HTML) {
+				$type = $type | self::MEDIA_CARD;
+			} elseif ($entry['type'] == Post\Media::ACTIVITY) {
+				$type = $type | self::MEDIA_POST;
 			}
 		}
 		return $type;
@@ -283,5 +401,21 @@ class Engagement
 		}
 
 		return DateTimeFormat::utc('now - ' . DI::config()->get('channel', 'engagement_hours') . ' hour');
+	}
+
+	public static function escapeKeywords(string $fullTextSearch): string
+	{
+		foreach (SELF::SHORTCUTS as $search => $replace) {
+			$fullTextSearch = preg_replace('~' . $search . ':(.[\w\*@\.-]+)~', $replace . ':$1', $fullTextSearch);
+		}
+
+		foreach (SELF::ALTERNATIVES as $search => $replace) {
+			$fullTextSearch = str_replace($search, $replace, $fullTextSearch);
+		}
+
+		foreach (self::KEYWORDS as $keyword) {
+			$fullTextSearch = preg_replace('~(' . $keyword . '):(.[\w\*@\.-]+)~', '"$1_$2"', $fullTextSearch);
+		}
+		return $fullTextSearch;
 	}
 }

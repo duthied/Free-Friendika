@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -183,10 +183,7 @@ class BasicAuth
 			throw new UnauthorizedException("This API requires login");
 		}
 
-		// Don't refresh the login date more often than twice a day to spare database writes
-		$login_refresh = strcmp(DateTimeFormat::utc('now - 12 hours'), $record['login_date']) > 0;
-
-		DI::auth()->setForUser($a, $record, false, false, $login_refresh);
+		DI::auth()->setForUser($a, $record, false, false, false);
 
 		Hook::callAll('logged_in', $record);
 

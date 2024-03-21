@@ -34,8 +34,6 @@ Fields
 | blockwall                | Prohibit contacts to post to the profile page of the user                         | boolean            | NO   |     | 0                   |                |
 | hidewall                 | Hide profile details from unknown viewers                                         | boolean            | NO   |     | 0                   |                |
 | blocktags                | Prohibit contacts to tag the post of this user                                    | boolean            | NO   |     | 0                   |                |
-| unkmail                  | Permit unknown people to send private mails to this user                          | boolean            | NO   |     | 0                   |                |
-| cntunkmail               |                                                                                   | int unsigned       | NO   |     | 10                  |                |
 | notify-flags             | email notification options                                                        | smallint unsigned  | NO   |     | 65535               |                |
 | page-flags               | page/profile type                                                                 | tinyint unsigned   | NO   |     | 0                   |                |
 | account-type             |                                                                                   | tinyint unsigned   | NO   |     | 0                   |                |

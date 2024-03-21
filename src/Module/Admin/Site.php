@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -80,6 +80,7 @@ class Site extends BaseAdmin
 
 		$allowed_sites          = (!empty($_POST['allowed_sites'])           ? trim($_POST['allowed_sites'])  : '');
 		$allowed_email          = (!empty($_POST['allowed_email'])           ? trim($_POST['allowed_email'])  : '');
+		$disallowed_email       = (!empty($_POST['disallowed_email'])        ? trim($_POST['disallowed_email'])  : '');
 		$forbidden_nicknames    = (!empty($_POST['forbidden_nicknames'])     ? strtolower(trim($_POST['forbidden_nicknames'])) : '');
 		$system_actor_name      = (!empty($_POST['system_actor_name'])       ? trim($_POST['system_actor_name']) : '');
 		$no_oembed_rich_content = !empty($_POST['no_oembed_rich_content']);
@@ -92,6 +93,7 @@ class Site extends BaseAdmin
 		$private_addons         = !empty($_POST['private_addons']);
 		$disable_embedded       = !empty($_POST['disable_embedded']);
 		$allow_users_remote_self = !empty($_POST['allow_users_remote_self']);
+		$allow_relay_channels   = !empty($_POST['allow_relay_channels']);
 		$adjust_poll_frequency  = !empty($_POST['adjust_poll_frequency']);
 		$min_poll_interval      = (!empty($_POST['min_poll_interval']) ? intval(trim($_POST['min_poll_interval']))                : 0);
 		$explicit_content       = !empty($_POST['explicit_content']);
@@ -106,6 +108,7 @@ class Site extends BaseAdmin
 		$register_notification  = !empty($_POST['register_notification']);
 		$community_page_style   = (!empty($_POST['community_page_style']) ? intval(trim($_POST['community_page_style'])) : 0);
 		$max_author_posts_community_page = (!empty($_POST['max_author_posts_community_page']) ? intval(trim($_POST['max_author_posts_community_page'])) : 0);
+		$max_server_posts_community_page = (!empty($_POST['max_server_posts_community_page']) ? intval(trim($_POST['max_server_posts_community_page'])) : 0);
 
 		$verifyssl              = !empty($_POST['verifyssl']);
 		$proxyuser              = (!empty($_POST['proxyuser'])              ? trim($_POST['proxyuser']) : '');
@@ -138,6 +141,7 @@ class Site extends BaseAdmin
 		$temppath               = (!empty($_POST['temppath'])               ? trim($_POST['temppath'])   : '');
 		$singleuser             = (!empty($_POST['singleuser'])             ? trim($_POST['singleuser']) : '');
 		$only_tag_search        = !empty($_POST['only_tag_search']);
+		$search_age_days        = (!empty($_POST['search_age_days'])        ? intval($_POST['search_age_days'])               : 0);
 		$compute_circle_counts  = !empty($_POST['compute_circle_counts']);
 		$process_view           = !empty($_POST['process_view']);
 		$archival_days          = (!empty($_POST['archival_days'])          ? intval($_POST['archival_days'])                 : 0);
@@ -156,6 +160,7 @@ class Site extends BaseAdmin
 		$relay_scope       = (!empty($_POST['relay_scope'])       ? trim($_POST['relay_scope'])        : '');
 		$relay_server_tags = (!empty($_POST['relay_server_tags']) ? trim($_POST['relay_server_tags'])  : '');
 		$relay_deny_tags   = (!empty($_POST['relay_deny_tags'])   ? trim($_POST['relay_deny_tags'])    : '');
+		$relay_max_tags    = (!empty($_POST['relay_max_tags'])    ? intval($_POST['relay_max_tags'])   : 0);
 		$relay_user_tags   = !empty($_POST['relay_user_tags']);
 
 		$relay_deny_undetected_language = !empty($_POST['relay_deny_undetected_language']);
@@ -251,6 +256,7 @@ class Site extends BaseAdmin
 		$transactionConfig->set('config', 'register_text'          , $register_text);
 		$transactionConfig->set('system', 'allowed_sites'          , $allowed_sites);
 		$transactionConfig->set('system', 'allowed_email'          , $allowed_email);
+		$transactionConfig->set('system', 'disallowed_email'       , $disallowed_email);
 		$transactionConfig->set('system', 'forbidden_nicknames'    , $forbidden_nicknames);
 		$transactionConfig->set('system', 'system_actor_name'      , $system_actor_name);
 		$transactionConfig->set('system', 'no_oembed_rich_content' , $no_oembed_rich_content);
@@ -261,12 +267,13 @@ class Site extends BaseAdmin
 		$transactionConfig->set('system', 'enotify_no_content'     , $enotify_no_content);
 		$transactionConfig->set('system', 'disable_embedded'       , $disable_embedded);
 		$transactionConfig->set('system', 'allow_users_remote_self', $allow_users_remote_self);
+		$transactionConfig->set('system', 'allow_relay_channels'   , $allow_relay_channels);
 		$transactionConfig->set('system', 'adjust_poll_frequency'  , $adjust_poll_frequency);
 		$transactionConfig->set('system', 'min_poll_interval'      , $min_poll_interval);
 		$transactionConfig->set('system', 'explicit_content'       , $explicit_content);
 		$transactionConfig->set('system', 'proxify_content'        , $proxify_content);
 		$transactionConfig->set('system', 'local_search'           , $local_search);
-		$transactionConfig->set('system', 'blocked_tags'           , $blocked_tags);
+		$transactionConfig->set('system', 'blocked_tags'           , Strings::cleanTags($blocked_tags));
 		$transactionConfig->set('system', 'cache_contact_avatar'   , $cache_contact_avatar);
 		$transactionConfig->set('system', 'check_new_version_url'  , $check_new_version_url);
 
@@ -276,6 +283,7 @@ class Site extends BaseAdmin
 		$transactionConfig->set('system', 'register_notification'  , $register_notification);
 		$transactionConfig->set('system', 'community_page_style'   , $community_page_style);
 		$transactionConfig->set('system', 'max_author_posts_community_page', $max_author_posts_community_page);
+		$transactionConfig->set('system', 'max_server_posts_community_page', $max_server_posts_community_page);
 		$transactionConfig->set('system', 'verifyssl'              , $verifyssl);
 		$transactionConfig->set('system', 'proxyuser'              , $proxyuser);
 		$transactionConfig->set('system', 'proxy'                  , $proxy);
@@ -310,7 +318,8 @@ class Site extends BaseAdmin
 
 		$transactionConfig->set('system', 'temppath', $temppath);
 
-		$transactionConfig->set('system', 'only_tag_search'  , $only_tag_search);
+		$transactionConfig->set('system', 'only_tag_search', $only_tag_search);
+		$transactionConfig->set('system', 'search_age_days', $search_age_days);
 		$transactionConfig->set('system', 'compute_circle_counts', $compute_circle_counts);
 		$transactionConfig->set('system', 'process_view', $process_view);
 		$transactionConfig->set('system', 'archival_days', $archival_days);
@@ -325,8 +334,9 @@ class Site extends BaseAdmin
 		
 		$transactionConfig->set('system', 'relay_directly'                , $relay_directly);
 		$transactionConfig->set('system', 'relay_scope'                   , $relay_scope);
-		$transactionConfig->set('system', 'relay_server_tags'             , $relay_server_tags);
-		$transactionConfig->set('system', 'relay_deny_tags'               , $relay_deny_tags);
+		$transactionConfig->set('system', 'relay_server_tags'             , Strings::cleanTags($relay_server_tags));
+		$transactionConfig->set('system', 'relay_deny_tags'               , Strings::cleanTags($relay_deny_tags));
+		$transactionConfig->set('system', 'relay_max_tags'                , $relay_max_tags);
 		$transactionConfig->set('system', 'relay_user_tags'               , $relay_user_tags);
 		$transactionConfig->set('system', 'relay_deny_undetected_language', $relay_deny_undetected_language);
 		$transactionConfig->set('system', 'relay_language_quality'        , $relay_language_quality);
@@ -497,6 +507,7 @@ class Site extends BaseAdmin
 			'$abandon_days'           => ['abandon_days', DI::l10n()->t('Accounts abandoned after x days'), DI::config()->get('system', 'account_abandon_days'), DI::l10n()->t('Will not waste system resources polling external sites for abandonded accounts. Enter 0 for no time limit.')],
 			'$allowed_sites'          => ['allowed_sites', DI::l10n()->t('Allowed friend domains'), DI::config()->get('system', 'allowed_sites'), DI::l10n()->t('Comma separated list of domains which are allowed to establish friendships with this site. Wildcards are accepted. Empty to allow any domains')],
 			'$allowed_email'          => ['allowed_email', DI::l10n()->t('Allowed email domains'), DI::config()->get('system', 'allowed_email'), DI::l10n()->t('Comma separated list of domains which are allowed in email addresses for registrations to this site. Wildcards are accepted. Empty to allow any domains')],
+			'$disallowed_email'       => ['disallowed_email', DI::l10n()->t('Disallowed email domains'), DI::config()->get('system', 'disallowed_email'), DI::l10n()->t('Comma separated list of domains which are rejected as email addresses for registrations to this site. Wildcards are accepted.')],
 			'$no_oembed_rich_content' => ['no_oembed_rich_content', DI::l10n()->t('No OEmbed rich content'), DI::config()->get('system', 'no_oembed_rich_content'), DI::l10n()->t('Don\'t show the rich content (e.g. embedded PDF), except from the domains listed below.')],
 			'$allowed_oembed'         => ['allowed_oembed', DI::l10n()->t('Trusted third-party domains'), DI::config()->get('system', 'allowed_oembed'), DI::l10n()->t('Comma separated list of domains from which content is allowed to be embedded in posts like with OEmbed. All sub-domains of the listed domains are allowed as well.')],
 			'$block_public'           => ['block_public', DI::l10n()->t('Block public'), DI::config()->get('system', 'block_public'), DI::l10n()->t('Check to block public access to all otherwise public personal pages on this site unless you are currently logged in.')],
@@ -512,6 +523,7 @@ class Site extends BaseAdmin
 			'$blocked_tags'           => ['blocked_tags', DI::l10n()->t('Blocked tags for trending tags'), DI::config()->get('system', 'blocked_tags'), DI::l10n()->t("Comma separated list of hashtags that shouldn't be displayed in the trending tags.")],
 			'$cache_contact_avatar'   => ['cache_contact_avatar', DI::l10n()->t('Cache contact avatars'), DI::config()->get('system', 'cache_contact_avatar'), DI::l10n()->t('Locally store the avatar pictures of the contacts. This uses a lot of storage space but it increases the performance.')],
 			'$allow_users_remote_self'=> ['allow_users_remote_self', DI::l10n()->t('Allow Users to set remote_self'), DI::config()->get('system', 'allow_users_remote_self'), DI::l10n()->t('With checking this, every user is allowed to mark every contact as a remote_self in the repair contact dialog. Setting this flag on a contact causes mirroring every posting of that contact in the users stream.')],
+			'$allow_relay_channels'   => ['allow_relay_channels', DI::l10n()->t('Allow Users to set up relay channels'), DI::config()->get('system', 'allow_relay_channels'), DI::l10n()->t('If enabled, it is possible to create relay users that are used to reshare content based on user defined channels.')],
 			'$adjust_poll_frequency'  => ['adjust_poll_frequency', DI::l10n()->t('Adjust the feed poll frequency'), DI::config()->get('system', 'adjust_poll_frequency'), DI::l10n()->t('Automatically detect and set the best feed poll frequency.')],
 			'$min_poll_interval'      => ['min_poll_interval', DI::l10n()->t('Minimum poll interval'), DI::config()->get('system', 'min_poll_interval'), DI::l10n()->t('Minimal distance in minutes between two polls for mail and feed contacts. Reasonable values are between 1 and 59.')],
 			'$enable_multi_reg'       => ['enable_multi_reg', DI::l10n()->t('Enable multiple registrations'), !DI::config()->get('system', 'block_extended_register'), DI::l10n()->t('Enable users to register additional accounts for use as pages.')],
@@ -519,7 +531,8 @@ class Site extends BaseAdmin
 			'$enable_regfullname'     => ['enable_regfullname', DI::l10n()->t('Enable full name check'), !DI::config()->get('system', 'no_regfullname'), DI::l10n()->t('Prevents users from registering with a display name with fewer than two parts separated by spaces.')],
 			'$register_notification'  => ['register_notification', DI::l10n()->t('Email administrators on new registration'), DI::config()->get('system', 'register_notification'), DI::l10n()->t('If enabled and the system is set to an open registration, an email for each new registration is sent to the administrators.')],
 			'$community_page_style'   => ['community_page_style', DI::l10n()->t('Community pages for visitors'), DI::config()->get('system', 'community_page_style'), DI::l10n()->t('Which community pages should be available for visitors. Local users always see both pages.'), $community_page_style_choices],
-			'$max_author_posts_community_page' => ['max_author_posts_community_page', DI::l10n()->t('Posts per user on community page'), DI::config()->get('system', 'max_author_posts_community_page'), DI::l10n()->t('The maximum number of posts per user on the community page. (Not valid for "Global Community")')],
+			'$max_author_posts_community_page' => ['max_author_posts_community_page', DI::l10n()->t('Posts per user on community page'), DI::config()->get('system', 'max_author_posts_community_page'), DI::l10n()->t('The maximum number of posts per user on the local community page. This is useful, when a single user floods the local community page.')],
+			'$max_server_posts_community_page' => ['max_server_posts_community_page', DI::l10n()->t('Posts per server on community page'), DI::config()->get('system', 'max_server_posts_community_page'), DI::l10n()->t('The maximum number of posts per server on the global community page. This is useful, when posts from a single server flood the global community page.')],
 			'$mail_able'              => function_exists('imap_open'),
 			'$mail_enabled'           => ['mail_enabled', DI::l10n()->t('Enable Mail support'), !DI::config()->get('system', 'imap_disabled', !function_exists('imap_open')), DI::l10n()->t('Enable built-in mail support to poll IMAP folders and to reply via mail.')],
 			'$mail_not_able'          => DI::l10n()->t('Mail support can\'t be enabled because the PHP IMAP module is not installed.'),
@@ -561,6 +574,7 @@ class Site extends BaseAdmin
 			'$itemspage_network_mobile' => ['itemspage_network_mobile', DI::l10n()->t('Items per page for mobile devices'), DI::config()->get('system', 'itemspage_network_mobile'), DI::l10n()->t('Number of items per page in stream pages (network, community, profile/contact statuses, search) for mobile devices.')],
 			'$temppath'               => ['temppath', DI::l10n()->t('Temp path'), DI::config()->get('system', 'temppath'), DI::l10n()->t('If you have a restricted system where the webserver can\'t access the system temp path, enter another path here.')],
 			'$only_tag_search'        => ['only_tag_search', DI::l10n()->t('Only search in tags'), DI::config()->get('system', 'only_tag_search'), DI::l10n()->t('On large systems the text search can slow down the system extremely.')],
+			'$search_age_days'        => ['search_age_days', DI::l10n()->t('Maximum age of items in the search table'), DI::config()->get('system', 'search_age_days'), DI::l10n()->t('Maximum age of items in the search table in days. Lower values will increase the performance and reduce disk usage. 0 means no age restriction.')],
 			'$compute_circle_counts'  => ['compute_circle_counts', DI::l10n()->t('Generate counts per contact circle when calculating network count'), DI::config()->get('system', 'compute_circle_counts'), DI::l10n()->t('On systems with users that heavily use contact circles the query can be very expensive.')],
 			'$process_view'           => ['process_view', DI::l10n()->t('Process "view" activities'), DI::config()->get('system', 'process_view'), DI::l10n()->t('"view" activities are mostly geberated by Peertube systems. Per default they are not processed for performance reasons. Only activate this option on performant system.')],
 			'$archival_days'          => ['archival_days', DI::l10n()->t('Days, after which a contact is archived'), DI::config()->get('system', 'archival_days'), DI::l10n()->t('Number of days that we try to deliver content or to update the contact data before we archive a contact.')],
@@ -577,6 +591,7 @@ class Site extends BaseAdmin
 			'$relay_scope'                    => ['relay_scope', DI::l10n()->t('Relay scope'), DI::config()->get('system', 'relay_scope'), DI::l10n()->t('Can be "all" or "tags". "all" means that every public post should be received. "tags" means that only posts with selected tags should be received.'), [Relay::SCOPE_NONE => DI::l10n()->t('Disabled'), Relay::SCOPE_ALL => DI::l10n()->t('all'), Relay::SCOPE_TAGS => DI::l10n()->t('tags')]],
 			'$relay_server_tags'              => ['relay_server_tags', DI::l10n()->t('Server tags'), DI::config()->get('system', 'relay_server_tags'), DI::l10n()->t('Comma separated list of tags for the "tags" subscription.')],
 			'$relay_deny_tags'                => ['relay_deny_tags', DI::l10n()->t('Deny Server tags'), DI::config()->get('system', 'relay_deny_tags'), DI::l10n()->t('Comma separated list of tags that are rejected.')],
+			'$relay_max_tags'                 => ['relay_max_tags', DI::l10n()->t('Maximum amount of tags'), DI::config()->get('system', 'relay_max_tags'), DI::l10n()->t('Maximum amount of tags in a post before it is rejected as spam. The post has to contain at least one link. Posts from subscribed accounts will not be rejected.')],
 			'$relay_user_tags'                => ['relay_user_tags', DI::l10n()->t('Allow user tags'), DI::config()->get('system', 'relay_user_tags'), DI::l10n()->t('If enabled, the tags from the saved searches will used for the "tags" subscription in addition to the "relay_server_tags".')],
 			'$relay_deny_undetected_language' => ['relay_deny_undetected_language', DI::l10n()->t('Deny undetected languages'), DI::config()->get('system', 'relay_deny_undetected_language'), DI::l10n()->t('If enabled, posts with undetected languages will be rejected.')],
 			'$relay_language_quality'         => ['relay_language_quality', DI::l10n()->t('Language Quality'), DI::config()->get('system', 'relay_language_quality'), DI::l10n()->t('The minimum language quality that is required to accept the post.')],

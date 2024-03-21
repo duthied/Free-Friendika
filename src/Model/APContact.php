@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -198,16 +198,18 @@ class APContact
 
 			try {
 				$curlResult = HTTPSignature::fetchRaw($url);
-				$failed = empty($curlResult) || empty($curlResult->getBody()) ||
+				$failed = empty($curlResult) || empty($curlResult->getBodyString()) ||
 					(!$curlResult->isSuccess() && ($curlResult->getReturnCode() != 410));
 
 				if (!$failed) {
-					$data = json_decode($curlResult->getBody(), true);
+					$data = json_decode($curlResult->getBodyString(), true);
 					$failed = empty($data) || !is_array($data);
 				}
 
 				if (!$failed && ($curlResult->getReturnCode() == 410)) {
 					$data = ['@context' => ActivityPub::CONTEXT, 'id' => $url, 'type' => 'Tombstone'];
+				} elseif (!$failed && !HTTPSignature::isValidContentType($curlResult->getContentType(), $url)) {
+					$failed = true;
 				}
 			} catch (\Exception $exception) {
 				Logger::notice('Error fetching url', ['url' => $url, 'exception' => $exception]);
@@ -374,6 +376,9 @@ class APContact
 		}
 
 		$apcontact['discoverable'] = JsonLD::fetchElement($compacted, 'toot:discoverable', '@value');
+		if (is_null($apcontact['discoverable']) && ($apcontact['type'] == 'Application')) {
+			$apcontact['discoverable'] = false;
+		}
 
 		if (!empty($apcontact['photo'])) {
 			$apcontact['photo'] = Network::addBasePath($apcontact['photo'], $apcontact['url']);

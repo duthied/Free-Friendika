@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -72,7 +72,7 @@ class Post
 				if (array_key_exists('title', $row)) {
 					$row['title'] = '';
 				}
-				if (array_key_exists('body', $row)) {
+				if (array_key_exists('body', $row) && empty($row['body'])) {
 					$row['body'] = $row['verb'];
 				}
 				if (array_key_exists('object', $row)) {

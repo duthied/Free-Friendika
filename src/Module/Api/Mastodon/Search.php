@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -23,7 +23,6 @@ namespace Friendica\Module\Api\Mastodon;
 
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -138,6 +137,10 @@ class Search extends BaseApi
 	private static function searchStatuses(int $uid, string $q, string $account_id, int $max_id, int $min_id, int $limit, int $offset)
 	{
 		if (Network::isValidHttpUrl($q)) {
+			// Unique post search, any offset greater than 0 should return empty result
+			if ($offset > 0) {
+				return [];
+			}
 			$q = Network::convertToIdn($q);
 			// If the user-specific search failed, we search and probe a public post
 			$item_id = Item::fetchByLink($q, $uid) ?: Item::fetchByLink($q);
@@ -154,10 +157,13 @@ class Search extends BaseApi
 				substr($q, 1), 0, $uid, Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, $uid, 0];
 			$table = 'tag-search-view';
 		} else {
-			$condition = ["`uri-id` IN (SELECT `uri-id` FROM `post-content` WHERE MATCH (`title`, `content-warning`, `body`) AGAINST (? IN BOOLEAN MODE))
-				AND (`uid` = ? OR (`uid` = ? AND NOT `global`)) AND (`network` IN (?, ?, ?, ?) OR (`uid` = ? AND `uid` != ?))",
-				str_replace('@', ' ', $q), 0, $uid, Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, $uid, 0];
-			$table = 'post-user-view';
+			$q = Post\Engagement::escapeKeywords($q);
+			$condition = ["MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE) AND (NOT `restricted` OR `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `uid` = ?))", $q, $uid];
+			$table = 'post-searchindex';
+		}
+
+		if (!empty($account_id)) {
+			$condition = DBA::mergeConditions($condition, ["`author-id` = ?", $account_id]);
 		}
 
 		if (!empty($max_id)) {

@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -106,14 +106,12 @@ class GroupManager
 	 * Sidebar widget to show subscribed Friendica groups. If activated
 	 * in the settings, it appears in the network page sidebar
 	 *
-	 * @param string $baseurl Base module path
-	 * @param int    $uid     The ID of the User
-	 * @param int    $cid     The contact id which is used to mark a group as "selected"
+	 * @param int $uid The ID of the User
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function widget(string $baseurl, int $uid, int $cid = 0)
+	public static function widget(int $uid)
 	{
 		$o = '';
 
@@ -130,14 +128,11 @@ class GroupManager
 			$entries = [];
 
 			foreach ($contacts as $contact) {
-				$selected = (($cid == $contact['id']) ? ' group-selected' : '');
-
 				$entry = [
-					'url' => $baseurl . '/' . $contact['id'],
+					'url' => 'contact/' . $contact['id'] . '/conversations',
 					'external_url' => Contact::magicLinkByContact($contact),
 					'name' => $contact['name'],
 					'cid' => $contact['id'],
-					'selected' 	=> $selected,
 					'micro' => DI::baseUrl()->remove(Contact::getMicro($contact)),
 					'id' => ++$id,
 				];

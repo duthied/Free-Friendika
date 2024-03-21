@@ -1,6 +1,6 @@
 -- ------------------------------------------
--- Friendica 2023.12 (Yellow archangel)
--- DB_UPDATE_VERSION 1542
+-- Friendica 2024.03-rc (Yellow Archangel)
+-- DB_UPDATE_VERSION 1557
 -- ------------------------------------------
 
 
@@ -73,8 +73,6 @@ CREATE TABLE IF NOT EXISTS `user` (
 	`blockwall` boolean NOT NULL DEFAULT '0' COMMENT 'Prohibit contacts to post to the profile page of the user',
 	`hidewall` boolean NOT NULL DEFAULT '0' COMMENT 'Hide profile details from unknown viewers',
 	`blocktags` boolean NOT NULL DEFAULT '0' COMMENT 'Prohibit contacts to tag the post of this user',
-	`unkmail` boolean NOT NULL DEFAULT '0' COMMENT 'Permit unknown people to send private mails to this user',
-	`cntunkmail` int unsigned NOT NULL DEFAULT 10 COMMENT '',
 	`notify-flags` smallint unsigned NOT NULL DEFAULT 65535 COMMENT 'email notification options',
 	`page-flags` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'page/profile type',
 	`account-type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
@@ -504,8 +502,13 @@ CREATE TABLE IF NOT EXISTS `channel` (
 	`access-key` varchar(1) COMMENT 'Access key',
 	`include-tags` varchar(1023) COMMENT 'Comma separated list of tags that will be included in the channel',
 	`exclude-tags` varchar(1023) COMMENT 'Comma separated list of tags that aren\'t allowed in the channel',
+	`min-size` int unsigned COMMENT 'Minimum post size',
+	`max-size` int unsigned COMMENT 'Maximum post size',
 	`full-text-search` varchar(1023) COMMENT 'Full text search pattern, see https://mariadb.com/kb/en/full-text-index-overview/#in-boolean-mode',
 	`media-type` smallint unsigned COMMENT 'Filtered media types',
+	`languages` mediumtext COMMENT 'Desired languages',
+	`publish` boolean COMMENT 'publish channel content',
+	`valid` boolean COMMENT 'Set, when the full-text-search is valid',
 	 PRIMARY KEY(`id`),
 	 INDEX `uid` (`uid`),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
@@ -536,6 +539,7 @@ CREATE TABLE IF NOT EXISTS `contact-relation` (
 	`relation-score` smallint unsigned COMMENT 'score for interactions of relation-cid on cid',
 	`thread-score` smallint unsigned COMMENT 'score for interactions of cid on threads of relation-cid',
 	`relation-thread-score` smallint unsigned COMMENT 'score for interactions of relation-cid on threads of cid',
+	`post-score` smallint unsigned COMMENT 'score for the amount of posts from cid that can be seen by relation-cid',
 	 PRIMARY KEY(`cid`,`relation-cid`),
 	 INDEX `relation-cid` (`relation-cid`),
 	FOREIGN KEY (`cid`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
@@ -1237,6 +1241,23 @@ CREATE TABLE IF NOT EXISTS `post-category` (
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='post relation to categories';
 
 --
+-- TABLE post-counts
+--
+CREATE TABLE IF NOT EXISTS `post-counts` (
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`vid` smallint unsigned NOT NULL COMMENT 'Id of the verb table entry that contains the activity verbs',
+	`reaction` varchar(4) NOT NULL COMMENT 'Emoji Reaction',
+	`parent-uri-id` int unsigned COMMENT 'Id of the item-uri table that contains the parent uri',
+	`count` int unsigned DEFAULT 0 COMMENT 'Number of activities',
+	 PRIMARY KEY(`uri-id`,`vid`,`reaction`),
+	 INDEX `vid` (`vid`),
+	 INDEX `parent-uri-id` (`parent-uri-id`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`vid`) REFERENCES `verb` (`id`) ON UPDATE RESTRICT ON DELETE RESTRICT,
+	FOREIGN KEY (`parent-uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Original remote activity';
+
+--
 -- TABLE post-collection
 --
 CREATE TABLE IF NOT EXISTS `post-collection` (
@@ -1263,6 +1284,7 @@ CREATE TABLE IF NOT EXISTS `post-content` (
 	`location` varchar(255) NOT NULL DEFAULT '' COMMENT 'text location where this item originated',
 	`coord` varchar(255) NOT NULL DEFAULT '' COMMENT 'longitude/latitude pair representing location where this item originated',
 	`language` text COMMENT 'Language information about this post',
+	`sensitive` boolean COMMENT 'If true, this post contains sensitive content',
 	`app` varchar(255) NOT NULL DEFAULT '' COMMENT 'application which generated this item',
 	`rendered-hash` varchar(32) NOT NULL DEFAULT '' COMMENT '',
 	`rendered-html` mediumtext COMMENT 'item.body converted to html',
@@ -1275,7 +1297,6 @@ CREATE TABLE IF NOT EXISTS `post-content` (
 	 PRIMARY KEY(`uri-id`),
 	 INDEX `plink` (`plink`(191)),
 	 INDEX `resource-id` (`resource-id`),
-	 FULLTEXT INDEX `title-content-warning-body` (`title`,`content-warning`,`body`),
 	 INDEX `quote-uri-id` (`quote-uri-id`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
 	FOREIGN KEY (`quote-uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
@@ -1327,9 +1348,11 @@ CREATE TABLE IF NOT EXISTS `post-engagement` (
 	`owner-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Item owner',
 	`contact-type` tinyint NOT NULL DEFAULT 0 COMMENT 'Person, organisation, news, community, relay',
 	`media-type` tinyint NOT NULL DEFAULT 0 COMMENT 'Type of media in a bit array (1 = image, 2 = video, 4 = audio',
-	`language` varbinary(128) COMMENT 'Language information about this post',
+	`language` char(2) COMMENT 'Language information about this post in the ISO 639-1 format',
 	`searchtext` mediumtext COMMENT 'Simplified text for the full text search',
+	`size` int unsigned COMMENT 'Body size',
 	`created` datetime COMMENT '',
+	`network` char(4) COMMENT '',
 	`restricted` boolean NOT NULL DEFAULT '0' COMMENT 'If true, this post is either unlisted or not from a federated network',
 	`comments` mediumint unsigned COMMENT 'Number of comments',
 	`activities` mediumint unsigned COMMENT 'Number of activities (like, dislike, ...)',
@@ -1441,6 +1464,26 @@ CREATE TABLE IF NOT EXISTS `post-question-option` (
 	 PRIMARY KEY(`uri-id`,`id`),
 	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Question option';
+
+--
+-- TABLE post-searchindex
+--
+CREATE TABLE IF NOT EXISTS `post-searchindex` (
+	`uri-id` int unsigned NOT NULL COMMENT 'Id of the item-uri table entry that contains the item uri',
+	`owner-id` int unsigned NOT NULL DEFAULT 0 COMMENT 'Item owner',
+	`media-type` tinyint NOT NULL DEFAULT 0 COMMENT 'Type of media in a bit array (1 = image, 2 = video, 4 = audio',
+	`language` char(2) COMMENT 'Language information about this post in the ISO 639-1 format',
+	`searchtext` mediumtext COMMENT 'Simplified text for the full text search',
+	`size` int unsigned COMMENT 'Body size',
+	`created` datetime COMMENT '',
+	`restricted` boolean NOT NULL DEFAULT '0' COMMENT 'If true, this post is either unlisted or not from a federated network',
+	 PRIMARY KEY(`uri-id`),
+	 INDEX `owner-id` (`owner-id`),
+	 INDEX `created` (`created`),
+	 FULLTEXT INDEX `searchtext` (`searchtext`),
+	FOREIGN KEY (`uri-id`) REFERENCES `item-uri` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE,
+	FOREIGN KEY (`owner-id`) REFERENCES `contact` (`id`) ON UPDATE RESTRICT ON DELETE CASCADE
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Content for all posts';
 
 --
 -- TABLE post-tag
@@ -1693,7 +1736,6 @@ CREATE TABLE IF NOT EXISTS `profile` (
 	`net-publish` boolean NOT NULL DEFAULT '0' COMMENT 'publish profile in global directory',
 	 PRIMARY KEY(`id`),
 	 INDEX `uid_is-default` (`uid`,`is-default`),
-	 FULLTEXT INDEX `pub_keywords` (`pub_keywords`),
 	FOREIGN KEY (`uid`) REFERENCES `user` (`uid`) ON UPDATE RESTRICT ON DELETE CASCADE
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='user profiles data';
 
@@ -1975,7 +2017,8 @@ CREATE VIEW `application-view` AS SELECT
 	`application-token`.`follow` AS `follow`,
 	`application-token`.`push` AS `push`
 	FROM `application-token`
-			INNER JOIN `application` ON `application-token`.`application-id` = `application`.`id`;
+			INNER JOIN `application` ON `application-token`.`application-id` = `application`.`id`
+			INNER JOIN `user` ON `user`.`uid` = `application-token`.`uid` AND `user`.`verified` AND NOT `user`.`blocked` AND NOT `user`.`account_removed` AND NOT `user`.`account_expired`;
 
 --
 -- VIEW circle-member-view
@@ -2007,6 +2050,20 @@ CREATE VIEW `circle-member-view` AS SELECT
 	FROM `group_member`
 			INNER JOIN `contact` ON `group_member`.`contact-id` = `contact`.`id`
 			INNER JOIN `group` ON `group_member`.`gid` = `group`.`id`;
+
+--
+-- VIEW post-counts-view
+--
+DROP VIEW IF EXISTS `post-counts-view`;
+CREATE VIEW `post-counts-view` AS SELECT 
+	`post-counts`.`uri-id` AS `uri-id`,
+	`post-counts`.`vid` AS `vid`,
+	`verb`.`name` AS `verb`,
+	`post-counts`.`reaction` AS `reaction`,
+	`post-counts`.`parent-uri-id` AS `parent-uri-id`,
+	`post-counts`.`count` AS `count`
+	FROM `post-counts`
+			INNER JOIN `verb` ON `verb`.`id` = `post-counts`.`vid`;
 
 --
 -- VIEW post-timeline-view
@@ -2052,6 +2109,38 @@ CREATE VIEW `post-timeline-view` AS SELECT
 			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `post-user`.`author-id`
 			STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = `post-user`.`owner-id`
 			LEFT JOIN `contact` AS `causer` ON `causer`.`id` = `post-user`.`causer-id`;
+
+--
+-- VIEW post-searchindex-user-view
+--
+DROP VIEW IF EXISTS `post-searchindex-user-view`;
+CREATE VIEW `post-searchindex-user-view` AS SELECT 
+	`post-thread-user`.`uid` AS `uid`,
+	`post-searchindex`.`uri-id` AS `uri-id`,
+	`post-searchindex`.`owner-id` AS `owner-id`,
+	`post-searchindex`.`media-type` AS `media-type`,
+	`post-searchindex`.`language` AS `language`,
+	`post-searchindex`.`searchtext` AS `searchtext`,
+	`post-searchindex`.`size` AS `size`,
+	`post-thread-user`.`commented` AS `commented`,
+	`post-thread-user`.`received` AS `received`,
+	`post-thread-user`.`created` AS `created`,
+	`post-thread-user`.`network` AS `network`,
+	`post-searchindex`.`language` AS `restricted`,
+	0 AS `comments`,
+	0 AS `activities`
+	FROM `post-thread-user`
+			INNER JOIN `post-searchindex` ON `post-searchindex`.`uri-id` = `post-thread-user`.`uri-id`
+			INNER JOIN `post-user` ON `post-user`.`id` = `post-thread-user`.`post-user-id`
+			STRAIGHT_JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
+			STRAIGHT_JOIN `contact` AS `authorcontact` ON `authorcontact`.`id` = `post-thread-user`.`author-id`
+			STRAIGHT_JOIN `contact` AS `ownercontact` ON `ownercontact`.`id` = `post-thread-user`.`owner-id`
+			WHERE `post-user`.`visible` AND NOT `post-user`.`deleted`
+			AND (NOT `contact`.`readonly` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`)
+			AND (`post-thread-user`.`hidden` IS NULL OR NOT `post-thread-user`.`hidden`)
+			AND NOT `authorcontact`.`blocked` AND NOT `ownercontact`.`blocked`
+			AND NOT EXISTS(SELECT `cid`  FROM `user-contact` WHERE `uid` = `post-thread-user`.`uid` AND `cid` IN (`authorcontact`.`id`, `ownercontact`.`id`) AND (`blocked` OR `ignored`))
+			AND NOT EXISTS(SELECT `gsid` FROM `user-gserver` WHERE `uid` = `post-thread-user`.`uid` AND `gsid` IN (`authorcontact`.`gsid`, `ownercontact`.`gsid`) AND `ignored`);
 
 --
 -- VIEW post-user-view
@@ -2110,6 +2199,7 @@ CREATE VIEW `post-user-view` AS SELECT
 	`post-content`.`plink` AS `plink`,
 	`post-content`.`location` AS `location`,
 	`post-content`.`coord` AS `coord`,
+	`post-content`.`sensitive` AS `sensitive`,
 	`post-content`.`app` AS `app`,
 	`post-content`.`object-type` AS `object-type`,
 	`post-content`.`object` AS `object`,
@@ -2294,6 +2384,7 @@ CREATE VIEW `post-thread-user-view` AS SELECT
 	`post-content`.`plink` AS `plink`,
 	`post-content`.`location` AS `location`,
 	`post-content`.`coord` AS `coord`,
+	`post-content`.`sensitive` AS `sensitive`,
 	`post-content`.`app` AS `app`,
 	`post-content`.`object-type` AS `object-type`,
 	`post-content`.`object` AS `object`,
@@ -2464,6 +2555,7 @@ CREATE VIEW `post-view` AS SELECT
 	`post-content`.`plink` AS `plink`,
 	`post-content`.`location` AS `location`,
 	`post-content`.`coord` AS `coord`,
+	`post-content`.`sensitive` AS `sensitive`,
 	`post-content`.`app` AS `app`,
 	`post-content`.`object-type` AS `object-type`,
 	`post-content`.`object` AS `object`,
@@ -2610,6 +2702,7 @@ CREATE VIEW `post-thread-view` AS SELECT
 	`post-content`.`plink` AS `plink`,
 	`post-content`.`location` AS `location`,
 	`post-content`.`coord` AS `coord`,
+	`post-content`.`sensitive` AS `sensitive`,
 	`post-content`.`app` AS `app`,
 	`post-content`.`object-type` AS `object-type`,
 	`post-content`.`object` AS `object`,
@@ -2936,8 +3029,6 @@ CREATE VIEW `owner-view` AS SELECT
 	`user`.`blockwall` AS `blockwall`,
 	`user`.`hidewall` AS `hidewall`,
 	`user`.`blocktags` AS `blocktags`,
-	`user`.`unkmail` AS `unkmail`,
-	`user`.`cntunkmail` AS `cntunkmail`,
 	`user`.`notify-flags` AS `notify-flags`,
 	`user`.`page-flags` AS `page-flags`,
 	`user`.`account-type` AS `account-type`,

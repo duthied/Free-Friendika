@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -634,6 +634,16 @@ class Receiver
 
 		if (is_array($activity['as:object'])) {
 			$attributed_to = JsonLD::fetchElement($activity['as:object'], 'as:attributedTo', '@id');
+			$published     = JsonLD::fetchElement($activity['as:object'], 'as:published', '@value');
+			$object_type   = JsonLD::fetchElement($activity['as:object'], '@type');
+			$id            = JsonLD::fetchElement($activity, '@id');
+			$object_id     = JsonLD::fetchElement($activity, 'as:object', '@id');
+
+			if (!empty($published) && !empty($object_id) && in_array($type, ['as:Create', 'as:Update']) && in_array($object_type, self::CONTENT_TYPES)
+				&& ($push || ($completion != self::COMPLETION_MANUAL)) && DI::contentItem()->isTooOld($published) && !Post::exists(['uri' => $object_id])) {
+				Logger::debug('Activity is too old. It will not be processed', ['push' => $push, 'completion' => $completion, 'type' =>  $type,  'object-type' => $object_type, 'published' => $published, 'id' => $id, 'object-id' => $object_id]);
+				return true;
+			}
 		} else {
 			$attributed_to = '';
 		}
@@ -652,7 +662,6 @@ class Receiver
 		// For announced "create" activities we remove the middle layer.
 		// For the rest (like, dislike, update, ...) we just process the activity directly.
 		$original_actor = '';
-		$object_type = JsonLD::fetchElement($activity['as:object'] ?? [], '@type');
 		if (($type == 'as:Announce') && !empty($object_type) && !in_array($object_type, self::CONTENT_TYPES) && self::isGroup($actor)) {
 			$object_object_type = JsonLD::fetchElement($activity['as:object']['as:object'] ?? [], '@type');
 			if (in_array($object_type, ['as:Create']) && in_array($object_object_type, self::CONTENT_TYPES)) {
@@ -1270,6 +1279,11 @@ class Receiver
 					$receivers[$contact['uid']] = ['uid' => $contact['uid'], 'type' => $type];
 				}
 			}
+		}
+
+		if (empty($receivers) && !empty($parent['parent-author-link'])) {
+			$uid = User::getIdForURL($parent['parent-author-link']);
+			$receivers[$uid] = ['uid' => $uid, 'type' => self::TARGET_BTO];
 		}
 
 		if (!empty($reply) && (!empty($receivers[0]) || !empty($receivers[-1]))) {

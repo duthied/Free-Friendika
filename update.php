@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -63,6 +63,7 @@ use Friendica\Protocol\Activity;
 use Friendica\Protocol\Delivery;
 use Friendica\Security\PermissionSet\Repository\PermissionSet;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Worker\UpdateContact;
 
 // Post-update script of PR 5751
 function update_1298()
@@ -1409,5 +1410,51 @@ function update_1539()
 	}
 	DBA::close($users);
 
+	return Update::SUCCESS;
+}
+
+function pre_update_1550()
+{
+	if (DBStructure::existsTable('post-engagement') && DBStructure::existsColumn('post-engagement', ['language'])) {
+		DBA::e("ALTER TABLE `post-engagement` DROP `language`");
+	}
+	if (DBStructure::existsTable('post-searchindex') && DBStructure::existsColumn('post-searchindex', ['network'])) {
+		DBA::e("ALTER TABLE `post-searchindex` DROP `network`, DROP `private`");
+	}
+	return Update::SUCCESS;
+}
+
+function update_1552()
+{
+	DBA::e("UPDATE `post-content` INNER JOIN `post-tag` ON `post-tag`.`uri-id` = `post-content`.`uri-id` INNER JOIN `tag` ON `tag`.`id` = `post-tag`.`tid` SET `sensitive` = ? WHERE `name` = ?", true, 'nsfw');
+
+	return Update::SUCCESS;
+}
+
+function update_1554()
+{
+	DBA::e("UPDATE `post-engagement` INNER JOIN `post` ON `post`.`uri-id` = `post-engagement`.`uri-id` SET `post-engagement`.`network` = `post`.`network`");
+
+	return Update::SUCCESS;
+}
+
+function update_1556()
+{
+	$users = DBA::select('user', ['uid'], ['verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false]);
+	while ($user = DBA::fetch($users)) {
+		Worker::add(Worker::PRIORITY_LOW, 'ProfileUpdate', $user['uid']);
+	}
+	DBA::close($users);
+
+	return Update::SUCCESS;
+}
+
+function update_1557()
+{
+	$contacts = DBA::select('account-view', ['id'], ['platform' => 'friendica', 'contact-type' => Contact::TYPE_RELAY]);
+	while ($contact = DBA::fetch($contacts)) {
+		UpdateContact::add(Worker::PRIORITY_LOW, $contact['id']);
+	}
+	DBA::close($contacts);
 	return Update::SUCCESS;
 }

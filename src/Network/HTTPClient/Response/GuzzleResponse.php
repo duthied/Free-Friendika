@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -163,8 +163,7 @@ class GuzzleResponse extends Response implements ICanHandleHttpResponses, Respon
 		return $this->isTimeout;
 	}
 
-	/// @todo - fix mismatching use of "getBody()" as string here and parent "getBody()" as streaminterface
-	public function getBody(): string
+	public function getBodyString(): string
 	{
 		return (string) parent::getBody();
 	}

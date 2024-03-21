@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -201,7 +201,7 @@ class Post
 		$indent = '';
 		$shiny = '';
 		$osparkle = '';
-		$total_children = $this->countDescendants();
+		$total_children = $item['counts'] ?? $this->countDescendants();
 
 		$conv = $this->getThread();
 
@@ -695,6 +695,11 @@ class Post
 				case Activity::VIEW:
 					$title = DI::l10n()->t('Viewed by: %s', $actors);
 					$icon  = ['fa' => 'fa-eye', 'icon' => 'icon-eye-open'];
+					break;
+
+				case Activity::READ:
+					$title = DI::l10n()->t('Read by: %s', $actors);
+					$icon  = ['fa' => 'fa-book', 'icon' => 'icon-book'];
 					break;
 
 				case Activity::LIKE:

@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -21,10 +21,7 @@
 
 namespace Friendica\Module\OAuth;
 
-use Friendica\Core\Logger;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\DI;
 use Friendica\Module\BaseApi;
 use Friendica\Module\Special\HTTPException;
 use Psr\Http\Message\ResponseInterface;

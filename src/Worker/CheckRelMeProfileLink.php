@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -70,7 +70,7 @@ class CheckRelMeProfileLink
 			return;
 		}
 
-		$content = $curlResult->getBody();
+		$content = $curlResult->getBodyString();
 		if (!$content) {
 			Logger::notice('Empty body of the fetched homepage link). Cannot verify the relation to profile of UID %s.', ['uid' => $uid, 'owner homepage' => $owner['homepage']]);
 			return;

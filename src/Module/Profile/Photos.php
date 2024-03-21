@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -184,8 +184,6 @@ class Photos extends \Friendica\Module\BaseProfile
 			return;
 		}
 
-		$type = Images::getMimeTypeBySource($src, $filename, $type);
-
 		$this->logger->info('photos: upload: received file: ' . $filename . ' as ' . $src . ' ('. $type . ') ' . $filesize . ' bytes');
 
 		$maximagesize = Strings::getBytesFromShorthand($this->config->get('system', 'maximagesize'));
@@ -210,7 +208,7 @@ class Photos extends \Friendica\Module\BaseProfile
 
 		$imagedata = @file_get_contents($src);
 
-		$image = new Image($imagedata, $type);
+		$image = new Image($imagedata, $type, $filename);
 
 		if (!$image->isValid()) {
 			$this->logger->notice('unable to process image');
@@ -322,12 +320,12 @@ class Photos extends \Friendica\Module\BaseProfile
 		$photos = $this->database->toArray($this->database->p(
 			"SELECT
 				`resource-id`,
-				ANY_VALUE(`id`) AS `id`,
-				ANY_VALUE(`filename`) AS `filename`,
-				ANY_VALUE(`type`) AS `type`,
-				ANY_VALUE(`album`) AS `album`,
-				max(`scale`) AS `scale`,
-				ANY_VALUE(`created`) AS `created`
+				MIN(`id`) AS `id`,
+				MIN(`filename`) AS `filename`,
+				MIN(`type`) AS `type`,
+				MIN(`album`) AS `album`,
+				MAX(`scale`) AS `scale`,
+				MIN(`created`) AS `created`
 			FROM `photo`
 			WHERE `uid` = ?
 			  AND `photo-type` = ?
@@ -341,14 +339,12 @@ class Photos extends \Friendica\Module\BaseProfile
 			$pager->getItemsPerPage()
 		));
 
-		$phototypes = Images::supportedTypes();
-
-		$photos = array_map(function ($photo) use ($phototypes) {
+		$photos = array_map(function ($photo){
 			return [
 				'id'    => $photo['id'],
 				'link'  => 'photos/' . $this->owner['nickname'] . '/image/' . $photo['resource-id'],
 				'title' => $this->t('View Photo'),
-				'src'   => 'photo/' . $photo['resource-id'] . '-' . ((($photo['scale']) == 6) ? 4 : $photo['scale']) . '.' . $phototypes[$photo['type']],
+				'src'   => 'photo/' . $photo['resource-id'] . '-' . ((($photo['scale']) == 6) ? 4 : $photo['scale']) . Images::getExtensionByMimeType($photo['type']),
 				'alt'   => $photo['filename'],
 				'album' => [
 					'link' => 'photos/' . $this->owner['nickname'] . '/album/' . bin2hex($photo['album']),

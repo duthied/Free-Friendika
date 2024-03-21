@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -67,10 +67,12 @@ class Poll extends BaseFactory
 
 		if (empty($uid)) {
 			$ownvotes = null;
+			$voted    = null;
 		} else {
 			$ownvotes = [];
+			$voted    = false;
 		}
 
-		return new \Friendica\Object\Api\Mastodon\Poll($question, $options, $expired, $votes, $ownvotes);
+		return new \Friendica\Object\Api\Mastodon\Poll($question, $options, $expired, $votes, $ownvotes, $voted);
 	}
 }

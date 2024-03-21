@@ -38,6 +38,9 @@
 		{{include file="field_checkbox.tpl" field=$enable_openid}}
 		{{include file="field_checkbox.tpl" field=$enable_regfullname}}
 		{{include file="field_checkbox.tpl" field=$register_notification}}
+		{{include file="field_textarea.tpl" field=$allowed_email}}
+		{{include file="field_textarea.tpl" field=$disallowed_email}}
+		{{include file="field_textarea.tpl" field=$forbidden_nicknames}}
 		<div class="submit"><input type="submit" name="page_site" value="{{$submit}}"/></div>
 
 		<h2>{{$upload}}</h2>
@@ -48,14 +51,13 @@
 
 		<h2>{{$corporate}}</h2>
 		{{include file="field_input.tpl" field=$allowed_sites}}
-		{{include file="field_input.tpl" field=$allowed_email}}
-		{{include file="field_input.tpl" field=$forbidden_nicknames}}
 		{{include file="field_checkbox.tpl" field=$no_oembed_rich_content}}
 		{{include file="field_input.tpl" field=$allowed_oembed}}
 		{{include file="field_checkbox.tpl" field=$block_public}}
 		{{include file="field_checkbox.tpl" field=$force_publish}}
 		{{include file="field_select.tpl" field=$community_page_style}}
 		{{include file="field_input.tpl" field=$max_author_posts_community_page}}
+		{{include file="field_input.tpl" field=$max_server_posts_community_page}}
 
 		{{if $mail_able}}
 			{{include file="field_checkbox.tpl" field=$mail_enabled}}
@@ -83,6 +85,7 @@
 		{{include file="field_checkbox.tpl" field=$private_addons}}
 		{{include file="field_checkbox.tpl" field=$disable_embedded}}
 		{{include file="field_checkbox.tpl" field=$allow_users_remote_self}}
+		{{include file="field_checkbox.tpl" field=$allow_relay_channels}}
 		{{include file="field_checkbox.tpl" field=$adjust_poll_frequency}}
 		{{include file="field_checkbox.tpl" field=$explicit_content}}
 		{{include file="field_checkbox.tpl" field=$proxify_content}}
@@ -114,6 +117,7 @@
 		<h2>{{$performance}}</h2>
 		{{include file="field_checkbox.tpl" field=$compute_circle_counts}}
 		{{include file="field_checkbox.tpl" field=$only_tag_search}}
+		{{include file="field_input.tpl" field=$search_age_days}}
 		{{include file="field_input.tpl" field=$max_comments}}
 		{{include file="field_input.tpl" field=$max_display_comments}}
 		{{include file="field_input.tpl" field=$itemspage_network}}
@@ -157,6 +161,7 @@
 		{{include file="field_select.tpl" field=$relay_scope}}
 		{{include file="field_input.tpl" field=$relay_server_tags}}
 		{{include file="field_input.tpl" field=$relay_deny_tags}}
+		{{include file="field_input.tpl" field=$relay_max_tags}}
 		{{include file="field_checkbox.tpl" field=$relay_user_tags}}
 		{{include file="field_checkbox.tpl" field=$relay_directly}}
 		{{include file="field_checkbox.tpl" field=$relay_deny_undetected_language}}

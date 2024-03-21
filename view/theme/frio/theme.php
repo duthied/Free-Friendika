@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -40,6 +40,9 @@ const FRIO_SCHEME_ACCENT_RED    = '#b50404';
 const FRIO_SCHEME_ACCENT_PURPLE = '#a54bad';
 const FRIO_SCHEME_ACCENT_GREEN  = '#218f39';
 const FRIO_SCHEME_ACCENT_PINK   = '#d900a9';
+
+const FRIO_DEFAULT_SCHEME = 'light';
+const FRIO_CUSTOM_SCHEME = '---';
 
 /*
  * This script can be included even when the app is in maintenance mode which requires us to avoid any config call

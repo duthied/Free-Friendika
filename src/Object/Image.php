@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -45,25 +45,39 @@ class Image
 	private $width;
 	private $height;
 	private $valid;
-	private $type;
-	private $types;
+	private $outputType;
+	private $originType;
+	private $filename;
 
 	/**
 	 * Constructor
 	 *
-	 * @param string $data Image data
-	 * @param string $type optional, default null
+	 * @param string $data     Image data
+	 * @param string $type     optional, default ''
+	 * @param string $filename optional, default ''
+	 * @param string $imagick  optional, default 'true'
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public function __construct(string $data, string $type = null)
+	public function __construct(string $data, string $type = '', string $filename = '', bool $imagick = true)
 	{
-		$this->imagick = class_exists('Imagick');
-		$this->types = Images::supportedTypes();
-		if (!array_key_exists($type, $this->types)) {
-			$type = 'image/jpeg';
+		$this->filename = $filename;
+		$type = Images::addMimeTypeByDataIfInvalid($type, $data);
+		$type = Images::addMimeTypeByExtensionIfInvalid($type, $filename);
+
+		if (Images::isSupportedMimeType($type)) {
+			$this->originType = $this->outputType = Images::getImageTypeByMimeType($type);
+		} elseif (($type == '') || substr($type, 0, 6) == 'image/' || substr($type, 0, 12) == ' application/') {
+			$this->originType = IMAGETYPE_UNKNOWN;
+			$this->outputType = IMAGETYPE_WEBP;
+			DI::logger()->debug('Unhandled image mime type, use WebP instead', ['type' => $type, 'filename' => $filename, 'size' => strlen($data)]);
+		} else {
+			DI::logger()->debug('Unhandled mime type', ['type' => $type, 'filename' => $filename, 'size' => strlen($data)]);
+			$this->valid = false;
+			return;
 		}
-		$this->type = $type;
+
+		$this->imagick = $imagick && $this->useImagick($data);
 
 		if ($this->isImagick() && (empty($data) || $this->loadData($data))) {
 			$this->valid = !empty($data);
@@ -73,6 +87,53 @@ class Image
 			$this->imagick = false;
 		}
 		$this->loadData($data);
+	}
+
+	/**
+	 * Check if Imagick will be used
+	 *
+	 * @param string $data
+	 * @return boolean
+	 */
+	private function useImagick(string $data): bool
+	{
+		if (!class_exists('Imagick')) {
+			return false;
+		}
+
+		if ($this->outputType == IMAGETYPE_PNG) {
+			return true;
+		}
+
+		if ($this->originType == IMAGETYPE_GIF) {
+			$count = preg_match_all("#\\x00\\x21\\xF9\\x04.{4}\\x00[\\x2C\\x21]#s", $data);
+			return ($count > 0);
+		}
+
+		return (($this->originType == IMAGETYPE_WEBP) && $this->isAnimatedWebP(substr($data, 0, 90)));
+	}
+
+	/**
+	 * Detect if a WebP image is animated.
+	 * @see https://www.php.net/manual/en/function.imagecreatefromwebp.php#126269
+	 * @param string $data
+	 * @return boolean
+	 */
+	private function isAnimatedWebP(string $data) {
+		$header_format = 'A4Riff/I1Filesize/A4Webp/A4Vp/A74Chunk';
+		$header = @unpack($header_format, $data);
+
+		if (!isset($header['Riff']) || strtoupper($header['Riff']) !== 'RIFF') {
+			return false;
+		}
+		if (!isset($header['Webp']) || strtoupper($header['Webp']) !== 'WEBP') {
+			return false;
+		}
+		if (!isset($header['Vp']) || strpos(strtoupper($header['Vp']), 'VP8') === false) {
+			return false;
+		}
+
+		return strpos(strtoupper($header['Chunk']), 'ANIM') !== false || strpos(strtoupper($header['Chunk']), 'ANMF') !== false;
 	}
 
 	/**
@@ -118,28 +179,28 @@ class Image
 				$this->image->readImageBlob($data);
 			} catch (Exception $e) {
 				// Imagick couldn't use the data
+				DI::logger()->debug('Error during readImageBlob', ['message' => $e->getMessage(), 'code' => $e->getCode(), 'trace' => $e->getTraceAsString(), 'previous' => $e->getPrevious(), 'file' => $this->filename]);
 				return false;
 			}
 
 			/*
 			 * Setup the image to the format it will be saved to
 			 */
-			$map = Images::getFormatsMap();
-			$format = $map[$this->type];
-			$this->image->setFormat($format);
+			$this->image->setFormat(Images::getImagickFormatByImageType($this->outputType));
 
 			// Always coalesce, if it is not a multi-frame image it won't hurt anyway
 			try {
 				$this->image = $this->image->coalesceImages();
 			} catch (Exception $e) {
+				DI::logger()->debug('Error during coalesceImages', ['message' => $e->getMessage(), 'code' => $e->getCode(), 'trace' => $e->getTraceAsString(), 'previous' => $e->getPrevious(), 'file' => $this->filename]);
 				return false;
 			}
 
 			/*
 			 * setup the compression here, so we'll do it only once
 			 */
-			switch ($this->getType()) {
-				case 'image/png':
+			switch ($this->getImageType()) {
+				case IMAGETYPE_PNG:
 					$quality = DI::config()->get('system', 'png_quality');
 					/*
 					 * From http://www.imagemagick.org/script/command-line-options.php#quality:
@@ -150,13 +211,12 @@ class Image
 					 * unless the image has a color map, in which case it means compression level 7 with no PNG filtering'
 					 */
 					$quality = $quality * 10;
-					$this->image->setCompressionQuality($quality);
+					$this->image->setImageCompressionQuality($quality);
 					break;
 
-				case 'image/jpg':
-				case 'image/jpeg':
+				case IMAGETYPE_JPEG:
 					$quality = DI::config()->get('system', 'jpeg_quality');
-					$this->image->setCompressionQuality($quality);
+					$this->image->setImageCompressionQuality($quality);
 			}
 
 			$this->width  = $this->image->getImageWidth();
@@ -175,15 +235,16 @@ class Image
 				$this->valid  = true;
 				imagealphablending($this->image, false);
 				imagesavealpha($this->image, true);
+				imageinterlace($this->image, true);
 
 				return true;
 			}
 		} catch (\Throwable $error) {
 			/** @see https://github.com/php/doc-en/commit/d09a881a8e9059d11e756ee59d75bf404d6941ed */
 			if (strstr($error->getMessage(), "gd-webp cannot allocate temporary buffer")) {
-				DI::logger()->notice('Image is probably animated and therefore unsupported', ['error' => $error]);
+				DI::logger()->notice('Image is probably animated and therefore unsupported', ['message' => $error->getMessage(), 'code' => $error->getCode(), 'trace' => $error->getTraceAsString(), 'file' => $this->filename]);
 			} else {
-				DI::logger()->warning('Unexpected throwable.', ['error' => $error]);
+				DI::logger()->warning('Unexpected throwable.', ['message' => $error->getMessage(), 'code' => $error->getCode(), 'trace' => $error->getTraceAsString(), 'file' => $this->filename]);
 			}
 		}
 
@@ -255,7 +316,19 @@ class Image
 			return false;
 		}
 
-		return $this->type;
+		return image_type_to_mime_type($this->outputType);
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getImageType()
+	{
+		if (!$this->isValid()) {
+			return false;
+		}
+
+		return $this->outputType;
 	}
 
 	/**
@@ -267,7 +340,7 @@ class Image
 			return false;
 		}
 
-		return $this->types[$this->getType()];
+		return Images::getExtensionByImageType($this->outputType);
 	}
 
 	/**
@@ -397,7 +470,7 @@ class Image
 			return false;
 		}
 
-		if ((!function_exists('exif_read_data')) || ($this->getType() !== 'image/jpeg')) {
+		if ((!function_exists('exif_read_data')) || ($this->getImageType() !== IMAGETYPE_JPEG)) {
 			return;
 		}
 
@@ -544,7 +617,7 @@ class Image
 			imagealphablending($dest, false);
 			imagesavealpha($dest, true);
 
-			if ($this->type=='image/png') {
+			if ($this->outputType == IMAGETYPE_PNG) {
 				imagefill($dest, 0, 0, imagecolorallocatealpha($dest, 0, 0, 0, 127)); // fill with alpha
 			}
 
@@ -569,13 +642,13 @@ class Image
 	 */
 	public function toStatic()
 	{
-		if ($this->type != 'image/gif') {
+		if ($this->outputType != IMAGETYPE_GIF) {
 			return;
 		}
 
 		if ($this->isImagick()) {
-			$this->type == 'image/png';
-			$this->image->setFormat('png');
+			$this->outputType = IMAGETYPE_PNG;
+			$this->image->setFormat(Images::getImagickFormatByImageType($this->outputType));
 		}
 	}
 
@@ -613,7 +686,7 @@ class Image
 		imagealphablending($dest, false);
 		imagesavealpha($dest, true);
 
-		if ($this->type=='image/png') {
+		if ($this->outputType == IMAGETYPE_PNG) {
 			imagefill($dest, 0, 0, imagecolorallocatealpha($dest, 0, 0, 0, 127)); // fill with alpha
 		}
 		imagecopyresampled($dest, $this->image, 0, 0, $x, $y, $max, $max, $w, $h);
@@ -667,19 +740,27 @@ class Image
 
 		$stream = fopen('php://memory','r+');
 
-		// Enable interlacing
-		imageinterlace($this->image, true);
-
-		switch ($this->getType()) {
-			case 'image/png':
+		switch ($this->getImageType()) {
+			case IMAGETYPE_PNG:
 				$quality = DI::config()->get('system', 'png_quality');
 				imagepng($this->image, $stream, $quality);
 				break;
 
-			case 'image/jpeg':
-			case 'image/jpg':
+			case IMAGETYPE_JPEG:
 				$quality = DI::config()->get('system', 'jpeg_quality');
 				imagejpeg($this->image, $stream, $quality);
+				break;
+
+			case IMAGETYPE_GIF:
+				imagegif($this->image, $stream);
+				break;
+
+			case IMAGETYPE_WEBP:
+				@imagewebp($this->image, $stream, DI::config()->get('system', 'jpeg_quality'));
+				break;
+
+			case IMAGETYPE_BMP:
+				imagebmp($this->image, $stream);
 				break;
 		}
 		rewind($stream);
@@ -694,7 +775,7 @@ class Image
 	 */
 	public function getBlurHash(): string
 	{
-		$image = New Image($this->asString());
+		$image = New Image($this->asString(), $this->getType(), $this->filename, false);
 		if (empty($image) || !$this->isValid()) {
 			return '';
 		}

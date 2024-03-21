@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -25,6 +25,7 @@ use Friendica\App;
 use Friendica\App\Mode;
 use Friendica\Content\BoundariesPager;
 use Friendica\Content\Conversation;
+use Friendica\Content\Conversation\Entity\Channel;
 use Friendica\Content\Conversation\Entity\Network as NetworkEntity;
 use Friendica\Content\Conversation\Factory\Timeline as TimelineFactory;
 use Friendica\Content\Conversation\Repository\UserDefinedChannel;
@@ -50,27 +51,19 @@ use Friendica\Database\DBA;
 use Friendica\Database\Database;
 use Friendica\Model\Contact;
 use Friendica\Model\Circle;
-use Friendica\Model\Item;
 use Friendica\Model\Profile;
-use Friendica\Model\Verb;
-use Friendica\Module\Contact as ModuleContact;
 use Friendica\Module\Response;
 use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException;
 use Friendica\Navigation\SystemMessages;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Profiler;
-use Friendica\Protocol\Activity;
 use Psr\Log\LoggerInterface;
 
 class Network extends Timeline
 {
 	/** @var int */
 	protected $circleId;
-	/** @var int */
-	protected $groupContactId;
-	/** @var string */
-	protected $network;
 	/** @var string */
 	protected $dateFrom;
 	/** @var string */
@@ -79,8 +72,6 @@ class Network extends Timeline
 	protected $star;
 	/** @var int */
 	protected $mention;
-	/** @var string */
-	protected $order;
 
 	/** @var App */
 	protected $app;
@@ -140,13 +131,18 @@ class Network extends Timeline
 		$o = '';
 
 		$this->page['aside'] .= Circle::sidebarWidget($module, $module . '/circle', 'standard', $this->circleId);
-		$this->page['aside'] .= GroupManager::widget($module . '/group', $this->session->getLocalUserId(), $this->groupContactId);
+		$this->page['aside'] .= GroupManager::widget($this->session->getLocalUserId());
 		$this->page['aside'] .= Widget::postedByYear($module . '/archive', $this->session->getLocalUserId(), false);
-		$this->page['aside'] .= Widget::networks($module, !$this->groupContactId ? $this->network : '');
+		$this->page['aside'] .= Widget::networks($module, $this->network);
 		$this->page['aside'] .= Widget::accountTypes($module, $this->accountTypeString);
 		$this->page['aside'] .= Widget::channels($module, $this->selectedTab, $this->session->getLocalUserId());
 		$this->page['aside'] .= Widget\SavedSearches::getHTML($this->args->getQueryString());
 		$this->page['aside'] .= Widget::fileAs('filed', '');
+
+		if (($this->channel->isTimeline($this->selectedTab) || $this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId())) &&
+			!in_array($this->selectedTab, [Channel::FOLLOWERS, Channel::FORYOU, Channel::DISCOVER])) {
+			$this->page['aside'] .= $this->getNoSharerWidget('network');
+		}
 
 		if (Feature::isEnabled($this->session->getLocalUserId(), 'trending_tags')) {
 			$this->page['aside'] .= TrendingTags::getHTML($this->selectedTab);
@@ -162,26 +158,13 @@ class Network extends Timeline
 
 			Nav::setSelected($this->args->get(0));
 
-			$content = '';
-
-			if ($this->groupContactId) {
-				// If $this->groupContactId belongs to a community group or a private group, add a mention to the status editor
-				$condition = ["`id` = ? AND `contact-type` = ?", $this->groupContactId, Contact::TYPE_COMMUNITY];
-				$contact = $this->database->selectFirst('contact', ['addr'], $condition);
-				if (!empty($contact['addr'])) {
-					$content = '!' . $contact['addr'];
-				}
-			}
-
 			$default_permissions = [];
 			if ($this->circleId) {
 				$default_permissions['allow_gid'] = [$this->circleId];
 			}
 
 			$allowedCids = [];
-			if ($this->groupContactId) {
-				$allowedCids[] = (int) $this->groupContactId;
-			} elseif ($this->network) {
+			if ($this->network) {
 				$condition = [
 					'uid'     => $this->session->getLocalUserId(),
 					'network' => $this->network,
@@ -203,10 +186,10 @@ class Network extends Timeline
 			}
 
 			$x = [
-				'lockstate' => $this->circleId || $this->groupContactId || $this->network || ACL::getLockstateForUserId($this->session->getLocalUserId()) ? 'lock' : 'unlock',
+				'lockstate' => $this->circleId || $this->network || ACL::getLockstateForUserId($this->session->getLocalUserId()) ? 'lock' : 'unlock',
 				'acl' => ACL::getFullSelectorHTML($this->page, $this->session->getLocalUserId(), true, $default_permissions),
-				'bang' => (($this->circleId || $this->groupContactId || $this->network) ? '!' : ''),
-				'content' => $content,
+				'bang' => (($this->circleId || $this->network) ? '!' : ''),
+				'content' => '',
 			];
 
 			$o .= $this->conversation->statusEditor($x);
@@ -220,16 +203,6 @@ class Network extends Timeline
 				$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'), [
 					'$title' => $this->l10n->t('Circle: %s', $circle['name'])
 				]) . $o;
-			} elseif ($this->groupContactId) {
-				$contact = Contact::getById($this->groupContactId);
-				if ($this->database->isResult($contact)) {
-					$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('contact/list.tpl'), [
-						'contacts' => [ModuleContact::getContactTemplateVars($contact)],
-						'id' => $this->args->get(0),
-					]) . $o;
-				} else {
-					$this->systemMessages->addNotice($this->l10n->t('Invalid contact.'));
-				}
 			} elseif (Profile::shouldDisplayEventList($this->session->getLocalUserId(), $this->mode)) {
 				$o .= Profile::getBirthdays($this->session->getLocalUserId());
 				$o .= Profile::getEventsReminderHTML($this->session->getLocalUserId(), $this->session->getPublicContactId());
@@ -238,7 +211,7 @@ class Network extends Timeline
 
 		try {
 			if ($this->channel->isTimeline($this->selectedTab) || $this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId())) {
-				$items = $this->getChannelItems();
+				$items = $this->getChannelItems($request);
 			} elseif ($this->community->isTimeline($this->selectedTab)) {
 				$items = $this->getCommunityItems();
 			} else {
@@ -321,15 +294,13 @@ class Network extends Timeline
 
 		$this->circleId = (int)($this->parameters['circle_id'] ?? 0);
 
-		$this->groupContactId = (int)($this->parameters['contact_id'] ?? 0);
-
 		if (!$this->selectedTab) {
 			$this->selectedTab = self::getTimelineOrderBySession($this->session, $this->pConfig);
 		} elseif (!$this->networkFactory->isTimeline($this->selectedTab) && !$this->channel->isTimeline($this->selectedTab) && !$this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId()) && !$this->community->isTimeline($this->selectedTab)) {
 			throw new HTTPException\BadRequestException($this->l10n->t('Network feed not available.'));
 		}
 
-		if (($this->network || $this->circleId || $this->groupContactId) && ($this->channel->isTimeline($this->selectedTab) || $this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId()) || $this->community->isTimeline($this->selectedTab))) {
+		if (($this->network || $this->circleId) && ($this->channel->isTimeline($this->selectedTab) || $this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId()) || $this->community->isTimeline($this->selectedTab))) {
 			$this->selectedTab = NetworkEntity::RECEIVED;
 		}
 
@@ -385,24 +356,7 @@ class Network extends Timeline
 		$this->dateFrom = $this->parameters['from'] ?? '';
 		$this->dateTo = $this->parameters['to'] ?? '';
 
-		switch ($this->order) {
-			case 'received':
-				$this->maxId = $request['last_received'] ?? $this->maxId;
-				$this->minId = $request['first_received'] ?? $this->minId;
-				break;
-			case 'created':
-				$this->maxId = $request['last_created'] ?? $this->maxId;
-				$this->minId = $request['first_created'] ?? $this->minId;
-				break;
-			case 'uriid':
-				$this->maxId = $request['last_uriid'] ?? $this->maxId;
-				$this->minId = $request['first_uriid'] ?? $this->minId;
-				break;
-			default:
-				$this->order = 'commented';
-				$this->maxId = $request['last_commented'] ?? $this->maxId;
-				$this->minId = $request['first_commented'] ?? $this->minId;
-		}
+		$this->setMaxMinByOrder($request);
 	}
 
 	protected function getItems()
@@ -433,10 +387,6 @@ class Network extends Timeline
 
 		if ($this->circleId) {
 			$conditionStrings = DBA::mergeConditions($conditionStrings, ["`contact-id` IN (SELECT `contact-id` FROM `group_member` WHERE `gid` = ?)", $this->circleId]);
-		} elseif ($this->groupContactId) {
-			$conditionStrings = DBA::mergeConditions($conditionStrings,
-				["((`contact-id` = ?) OR `uri-id` IN (SELECT `parent-uri-id` FROM `post-user-view` WHERE (`contact-id` = ? AND `gravity` = ? AND `vid` = ? AND `uid` = ?)))",
-				$this->groupContactId, $this->groupContactId, Item::GRAVITY_ACTIVITY, Verb::getID(Activity::ANNOUNCE), $this->session->getLocalUserId()]);
 		}
 
 		// Currently only the order modes "received" and "commented" are in use
@@ -505,7 +455,7 @@ class Network extends Timeline
 		// We aren't going to try and figure out at the item, circle, and page
 		// level which items you've seen and which you haven't. If you're looking
 		// at the top level network page just mark everything seen.
-		if (!$this->circleId && !$this->groupContactId && !$this->star && !$this->mention) {
+		if (!$this->circleId && !$this->star && !$this->mention) {
 			$condition = ['unseen' => true, 'uid' => $this->session->getLocalUserId()];
 			$this->setItemsSeenByCondition($condition);
 		} elseif (!empty($parents)) {

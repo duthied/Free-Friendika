@@ -29,12 +29,12 @@
 		"ext-xml": "*",
 		"asika/simple-console": "^1.0",
 		"bacon/bacon-qr-code": "^2.0.0",
-		"divineomega/password_exposed": "^2.8",
+		"divineomega/password_exposed": "^3",
 		"enyo/dropzone": "^5.9",
 		"ezyang/htmlpurifier": "^4.7",
 		"friendica/json-ld": "^1.0",
 		"geekwright/po": "^2.0",
-		"guzzlehttp/guzzle": "^6.5",
+		"guzzlehttp/guzzle": "^7",
 		"guzzlehttp/oauth-subscriber": "^0.6",
 		"kornrunner/blurhash": "^1.2",
 		"league/html-to-markdown": "^4.8",
@@ -135,7 +135,8 @@
 		"mockery/mockery": "^1.3",
 		"mikey179/vfsstream": "^1.6",
 		"phpunit/phpunit": "^9",
-		"dms/phpunit-arraysubset-asserts": "^0.3.1"
+		"dms/phpunit-arraysubset-asserts": "^0.3.1",
+		"friendsofphp/php-cs-fixer": "^3.46"
 	},
 	"scripts": {
 		"test": "phpunit",
@@ -149,6 +150,8 @@
 		"cs:fix": [
 			"@cs:install",
 			"bin/dev/php-cs-fixer/vendor/bin/php-cs-fixer fix"
-		]
+		],
+		"cs:check-v3": "vendor/bin/php-cs-fixer check --diff",
+		"cs:fix-v3": "vendor/bin/php-cs-fixer fix"
 	}
 }

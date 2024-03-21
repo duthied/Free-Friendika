@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -304,10 +304,8 @@ class DFRN
 		$profilephotos = Photo::selectToArray(['resource-id', 'scale', 'type'], ['profile' => true, 'uid' => $uid], ['order' => ['scale']]);
 
 		$photos = [];
-		$ext = Images::supportedTypes();
-
 		foreach ($profilephotos as $p) {
-			$photos[$p['scale']] = DI::baseUrl() . '/photo/' . $p['resource-id'] . '-' . $p['scale'] . '.' . $ext[$p['type']];
+			$photos[$p['scale']] = DI::baseUrl() . '/photo/' . $p['resource-id'] . '-' . $p['scale'] . Images::getExtensionByMimeType($p['type']);
 		}
 
 		$doc = new DOMDocument('1.0', 'utf-8');
@@ -1012,7 +1010,7 @@ class DFRN
 		$content_type = ($public_batch ? 'application/magic-envelope+xml' : 'application/json');
 
 		$postResult = DI::httpClient()->post($dest_url, $envelope, ['Content-Type' => $content_type]);
-		$xml = $postResult->getBody();
+		$xml = $postResult->getBodyString();
 
 		$curl_stat = $postResult->getReturnCode();
 		if (!empty($contact['gsid']) && ($postResult->isTimeout() || empty($curl_stat))) {

@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -383,7 +383,7 @@ class Item
 			'url'     => $item['author-link'],
 			'alias'   => $item['author-alias'],
 		];
-		$profile_link = Contact::magicLinkByContact($author, $item['author-link']);
+		$profile_link = Contact::magicLinkByContact($author, Contact::getProfileLink($author));
 		if (strpos($profile_link, 'contact/redir/') === 0) {
 			$status_link  = $profile_link . '?' . http_build_query(['url' => $item['author-link'] . '/status']);
 			$photos_link  = $profile_link . '?' . http_build_query(['url' => $item['author-link'] . '/photos']);
@@ -695,7 +695,7 @@ class Item
 			$item['body'] = Post\Media::addAttachmentsToBody($item['uri-id'], $item['body']);
 		}
 
-		$shared_content = BBCode::getShareOpeningTag($item['author-name'], $item['author-link'], $item['author-avatar'], $item['plink'], $item['created'], $item['guid'], $item['uri']);
+		$shared_content = BBCode::getShareOpeningTag($item['author-name'], $item['author-link'], $item['author-avatar'], $item['plink'] ?? $item['uri'], $item['created'], $item['guid'], $item['uri']);
 
 		if (!empty($item['title'])) {
 			$shared_content .= '[h3]' . $item['title'] . "[/h3]\n";
@@ -1104,5 +1104,36 @@ class Item
 			}
 			Tag::store($toUriId, $receiver['type'], $receiver['name'], $receiver['url']);
 		}
+	}
+
+	/**
+	 * Check if the item is too old
+	 *
+	 * @param string $created
+	 * @param integer $uid
+	 * @return boolean item is too old
+	 */
+	public function isTooOld(string $created, int $uid = 0): bool
+	{
+		// check for create date and expire time
+		$expire_interval = DI::config()->get('system', 'dbclean-expire-days', 0);
+
+		if ($uid) {
+			$user = DBA::selectFirst('user', ['expire'], ['uid' => $uid]);
+			if (DBA::isResult($user) && ($user['expire'] > 0) && (($user['expire'] < $expire_interval) || ($expire_interval == 0))) {
+				$expire_interval = $user['expire'];
+			}
+		}
+
+		if (($expire_interval > 0) && !empty($created)) {
+			$expire_date = time() - ($expire_interval * 86400);
+			$created_date = strtotime($created);
+			if ($created_date < $expire_date) {
+				Logger::notice('Item created before expiration interval.', ['created' => date('c', $created_date), 'expired' => date('c', $expire_date)]);
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

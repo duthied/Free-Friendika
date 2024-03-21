@@ -6,6 +6,7 @@ require_once __DIR__ . '/bin/dev/php-cs-fixer/vendor/autoload.php';
 
 $finder = PhpCsFixer\Finder::create()
 	->in(__DIR__)
+	->notPath('addon')
 	->notPath('bin/dev')
 	->notPath('config')
 	->notPath('doc')

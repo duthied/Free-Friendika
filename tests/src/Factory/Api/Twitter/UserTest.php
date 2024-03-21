@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -23,6 +23,7 @@ namespace Friendica\Test\src\Factory\Api\Twitter;
 
 use Friendica\DI;
 use Friendica\Factory\Api\Twitter\User;
+use Friendica\Network\HTTPException\NotFoundException;
 use Friendica\Test\FixtureTest;
 use Friendica\Test\src\Module\Api\ApiTest;
 
@@ -133,15 +134,11 @@ class UserTest extends FixtureTest
 	 */
 	public function testApiGetUserWithWrongGetId()
 	{
+		$this->expectException(NotFoundException::class);
+
 		$user = (new User(DI::logger(), DI::twitterStatus()))
 			->createFromUserId(-1)
 			->toArray();
-
-		self::assertEquals(0, $user['id']);
-		self::assertEquals(0, $user['uid']);
-		self::assertEquals(0, $user['cid']);
-		self::assertEquals(0, $user['pid']);
-		self::assertEmpty($user['name']);
 	}
 
 	/**

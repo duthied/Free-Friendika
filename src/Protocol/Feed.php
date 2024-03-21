@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -43,6 +43,7 @@ use Friendica\Model\Tag;
 use Friendica\Model\User;
 use Friendica\Network\HTTPException;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Images;
 use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
 use Friendica\Util\Proxy;
@@ -562,7 +563,7 @@ class Feed
 			} elseif (!Item::isValid($item)) {
 				Logger::info('Feed item is invalid', ['created' => $item['created'], 'uid' => $item['uid'], 'uri' => $item['uri']]);
 				continue;
-			} elseif (Item::isTooOld($item)) {
+			} elseif (DI::contentItem()->isTooOld($item['created'], $item['uid'])) {
 				Logger::info('Feed is too old', ['created' => $item['created'], 'uid' => $item['uid'], 'uri' => $item['uri']]);
 				continue;
 			}
@@ -573,7 +574,7 @@ class Feed
 			if (in_array($fetch_further_information, [LocalRelationship::FFI_INFORMATION, LocalRelationship::FFI_BOTH])) {
 				// Handle enclosures and treat them as preview picture
 				foreach ($attachments as $attachment) {
-					if ($attachment['mimetype'] == 'image/jpeg') {
+					if (Images::isSupportedMimeType($attachment['mimetype'])) {
 						$preview = $attachment['url'];
 					}
 				}

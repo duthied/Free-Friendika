@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -26,6 +26,7 @@ use Friendica\Core\Logger;
 use Exception;
 use Friendica\Core\System;
 use Friendica\DI;
+use Friendica\Protocol\ActivityPub;
 
 /**
  * This class contain methods to work with JsonLD data
@@ -57,6 +58,9 @@ class JsonLD
 				break;
 			case 'https://www.w3.org/ns/activitystreams':
 				$url = DI::basePath() . '/static/activitystreams.jsonld';
+				break;
+			case 'https://www.w3.org/ns/did/v1':
+				$url = DI::basePath() . '/static/did-v1.jsonld';
 				break;
 			case 'https://funkwhale.audio/ns':
 				$url = DI::basePath() . '/static/funkwhale.audio.jsonld';
@@ -175,6 +179,10 @@ class JsonLD
 		];
 
 		$orig_json = $json;
+
+		if (empty($json['@context'])) {
+			$json['@context'] = ActivityPub::CONTEXT;
+		}
 
 		// Preparation for adding possibly missing content to the context
 		if (!empty($json['@context']) && is_string($json['@context'])) {

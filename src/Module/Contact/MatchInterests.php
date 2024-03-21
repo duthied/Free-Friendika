@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -132,7 +132,7 @@ class MatchInterests extends BaseModule
 				}
 			}
 
-			$entries = $this->parseContacts(json_decode($result->getBody()), $entries, $limit);
+			$entries = $this->parseContacts(json_decode($result->getBodyString()), $entries, $limit);
 		}
 
 		if (empty($entries)) {

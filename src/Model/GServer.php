@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -649,7 +649,7 @@ class GServer
 				}
 
 				if ($curlResult->isSuccess()) {
-					$json = json_decode($curlResult->getBody(), true);
+					$json = json_decode($curlResult->getBodyString(), true);
 					if (!empty($json) && is_array($json)) {
 						$data = self::fetchDataFromSystemActor($json, $serverdata);
 						$serverdata = $data['server'];
@@ -657,7 +657,7 @@ class GServer
 						if (!$html_fetched && !in_array($serverdata['detection-method'], [self::DETECT_SYSTEM_ACTOR, self::DETECT_AP_COLLECTION])) {
 							$curlResult = DI::httpClient()->get($url, HttpClientAccept::HTML);
 						}
-					} elseif (!$html_fetched && (strlen($curlResult->getBody()) < 1000)) {
+					} elseif (!$html_fetched && (strlen($curlResult->getBodyString()) < 1000)) {
 						$curlResult = DI::httpClient()->get($url, HttpClientAccept::HTML);
 					}
 
@@ -667,7 +667,7 @@ class GServer
 					}
 				}
 
-				if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
+				if (!$curlResult->isSuccess() || empty($curlResult->getBodyString())) {
 					self::setFailureByUrl($url);
 					return false;
 				}
@@ -677,7 +677,7 @@ class GServer
 					$serverdata['network']          = Protocol::ACTIVITYPUB;
 					$serverdata['platform']         = 'threads';
 				}
-		
+
 				if (($serverdata['network'] == Protocol::PHANTOM) || in_array($serverdata['detection-method'], self::DETECT_UNSPECIFIC)) {
 					$serverdata = self::detectMastodonAlikes($url, $serverdata);
 				}
@@ -872,7 +872,7 @@ class GServer
 			return;
 		}
 
-		$data = json_decode($curlResult->getBody(), true);
+		$data = json_decode($curlResult->getBodyString(), true);
 		if (!is_array($data)) {
 			return;
 		}
@@ -967,7 +967,7 @@ class GServer
 			return $serverdata;
 		}
 
-		$data = json_decode($curlResult->getBody(), true);
+		$data = json_decode($curlResult->getBodyString(), true);
 		if (empty($data)) {
 			return $serverdata;
 		}
@@ -1059,7 +1059,7 @@ class GServer
 			return [];
 		}
 
-		$nodeinfo = json_decode($httpResult->getBody(), true);
+		$nodeinfo = json_decode($httpResult->getBodyString(), true);
 
 		if (!is_array($nodeinfo) || empty($nodeinfo['links'])) {
 			return [];
@@ -1114,7 +1114,7 @@ class GServer
 			return [];
 		}
 
-		$nodeinfo = json_decode($curlResult->getBody(), true);
+		$nodeinfo = json_decode($curlResult->getBodyString(), true);
 
 		if (!is_array($nodeinfo)) {
 			return [];
@@ -1214,7 +1214,7 @@ class GServer
 			return [];
 		}
 
-		$nodeinfo = json_decode($curlResult->getBody(), true);
+		$nodeinfo = json_decode($curlResult->getBodyString(), true);
 		if (!is_array($nodeinfo)) {
 			return [];
 		}
@@ -1245,6 +1245,11 @@ class GServer
 					$server['platform'] = 'qoto';
 				}
 			}
+		}
+
+		// Special treatment for NextCloud, since there you can freely define your software name
+		if (!empty($nodeinfo['rootUrl']) && in_array(parse_url($nodeinfo['rootUrl'], PHP_URL_PATH), ['/index.php/apps/social', '/apps/social'])) {
+			$server['platform'] = 'nextcloud';
 		}
 
 		if (!empty($nodeinfo['metadata']['nodeName'])) {
@@ -1326,7 +1331,7 @@ class GServer
 			return [];
 		}
 
-		$nodeinfo = json_decode($httpResult->getBody(), true);
+		$nodeinfo = json_decode($httpResult->getBodyString(), true);
 
 		if (!is_array($nodeinfo)) {
 			return [];
@@ -1429,7 +1434,7 @@ class GServer
 			return $serverdata;
 		}
 
-		$data = json_decode($curlResult->getBody(), true);
+		$data = json_decode($curlResult->getBodyString(), true);
 		if (empty($data)) {
 			return $serverdata;
 		}
@@ -1565,7 +1570,7 @@ class GServer
 		}
 
 		foreach ($tags as $tag) {
-			if ((($tag['as:name'] ?? '') == 'Protocol') && (($tag['sc:value'] ?? '') == 'nomad')) {
+			if ((($tag['as:name'] ?? '') == 'Protocol') && in_array('nomad', [$tag['sc:value'] ?? '', $tag['as:content'] ?? ''])) {
 				return true;
 			}
 		}
@@ -1582,11 +1587,11 @@ class GServer
 	{
 		$name = 'nomad';
 		$curlResult = DI::httpClient()->get($url . '/manifest', 'application/manifest+json');
-		if (!$curlResult->isSuccess() || ($curlResult->getBody() == '')) {
+		if (!$curlResult->isSuccess() || ($curlResult->getBodyString() == '')) {
 			return $name;
 		}
 
-		$data = json_decode($curlResult->getBody(), true);
+		$data = json_decode($curlResult->getBodyString(), true);
 		if (empty($data)) {
 			return $name;
 		}
@@ -1603,11 +1608,11 @@ class GServer
 	private static function getNomadVersion(string $url): string
 	{
 		$curlResult = DI::httpClient()->get($url . '/api/z/1.0/version', HttpClientAccept::JSON);
-		if (!$curlResult->isSuccess() || ($curlResult->getBody() == '')) {
+		if (!$curlResult->isSuccess() || ($curlResult->getBodyString() == '')) {
 			return '';
 		}
 
-		$data = json_decode($curlResult->getBody(), true);
+		$data = json_decode($curlResult->getBodyString(), true);
 		if (empty($data)) {
 			return '';
 		}
@@ -1629,7 +1634,7 @@ class GServer
 			return false;
 		}
 
-		$xrd = XML::parseString($curlResult->getBody(), true);
+		$xrd = XML::parseString($curlResult->getBodyString(), true);
 		if (!is_object($xrd)) {
 			return false;
 		}
@@ -1728,7 +1733,7 @@ class GServer
 			return $serverdata;
 		}
 
-		$data = json_decode($curlResult->getBody(), true);
+		$data = json_decode($curlResult->getBodyString(), true);
 		if (empty($data)) {
 			return $serverdata;
 		}
@@ -1758,7 +1763,7 @@ class GServer
 			return $serverdata;
 		}
 
-		$data = json_decode($curlResult->getBody(), true);
+		$data = json_decode($curlResult->getBodyString(), true);
 		if (empty($data)) {
 			return $serverdata;
 		}
@@ -1781,11 +1786,11 @@ class GServer
 	private static function detectPeertube(string $url, array $serverdata): array
 	{
 		$curlResult = DI::httpClient()->get($url . '/api/v1/config', HttpClientAccept::JSON);
-		if (!$curlResult->isSuccess() || ($curlResult->getBody() == '')) {
+		if (!$curlResult->isSuccess() || ($curlResult->getBodyString() == '')) {
 			return $serverdata;
 		}
 
-		$data = json_decode($curlResult->getBody(), true);
+		$data = json_decode($curlResult->getBodyString(), true);
 		if (empty($data)) {
 			return $serverdata;
 		}
@@ -1829,11 +1834,11 @@ class GServer
 	private static function detectNextcloud(string $url, array $serverdata, bool $validHostMeta): array
 	{
 		$curlResult = DI::httpClient()->get($url . '/status.php', HttpClientAccept::JSON);
-		if (!$curlResult->isSuccess() || ($curlResult->getBody() == '')) {
+		if (!$curlResult->isSuccess() || ($curlResult->getBodyString() == '')) {
 			return $serverdata;
 		}
 
-		$data = json_decode($curlResult->getBody(), true);
+		$data = json_decode($curlResult->getBodyString(), true);
 		if (empty($data)) {
 			return $serverdata;
 		}
@@ -1865,11 +1870,11 @@ class GServer
 	private static function fetchWeeklyUsage(string $url, array $serverdata): array
 	{
 		$curlResult = DI::httpClient()->get($url . '/api/v1/instance/activity', HttpClientAccept::JSON);
-		if (!$curlResult->isSuccess() || ($curlResult->getBody() == '')) {
+		if (!$curlResult->isSuccess() || ($curlResult->getBodyString() == '')) {
 			return $serverdata;
 		}
 
-		$data = json_decode($curlResult->getBody(), true);
+		$data = json_decode($curlResult->getBodyString(), true);
 		if (empty($data)) {
 			return $serverdata;
 		}
@@ -1905,11 +1910,11 @@ class GServer
 	private static function detectMastodonAlikes(string $url, array $serverdata): array
 	{
 		$curlResult = DI::httpClient()->get($url . '/api/v1/instance', HttpClientAccept::JSON);
-		if (!$curlResult->isSuccess() || ($curlResult->getBody() == '')) {
+		if (!$curlResult->isSuccess() || ($curlResult->getBodyString() == '')) {
 			return $serverdata;
 		}
 
-		$data = json_decode($curlResult->getBody(), true);
+		$data = json_decode($curlResult->getBodyString(), true);
 		if (empty($data)) {
 			return $serverdata;
 		}
@@ -1977,11 +1982,11 @@ class GServer
 	private static function detectHubzilla(string $url, array $serverdata): array
 	{
 		$curlResult = DI::httpClient()->get($url . '/api/statusnet/config.json', HttpClientAccept::JSON);
-		if (!$curlResult->isSuccess() || ($curlResult->getBody() == '')) {
+		if (!$curlResult->isSuccess() || ($curlResult->getBodyString() == '')) {
 			return $serverdata;
 		}
 
-		$data = json_decode($curlResult->getBody(), true);
+		$data = json_decode($curlResult->getBodyString(), true);
 		if (empty($data) || empty($data['site'])) {
 			return $serverdata;
 		}
@@ -2074,11 +2079,11 @@ class GServer
 	{
 		// Test for GNU Social
 		$curlResult = DI::httpClient()->get($url . '/api/gnusocial/version.json', HttpClientAccept::JSON);
-		if ($curlResult->isSuccess() && ($curlResult->getBody() != '{"error":"not implemented"}') &&
-			($curlResult->getBody() != '') && (strlen($curlResult->getBody()) < 30)) {
+		if ($curlResult->isSuccess() && ($curlResult->getBodyString() != '{"error":"not implemented"}') &&
+			($curlResult->getBodyString() != '') && (strlen($curlResult->getBodyString()) < 30)) {
 			$serverdata['platform'] = 'gnusocial';
 			// Remove junk that some GNU Social servers return
-			$serverdata['version'] = str_replace(chr(239) . chr(187) . chr(191), '', $curlResult->getBody());
+			$serverdata['version'] = str_replace(chr(239) . chr(187) . chr(191), '', $curlResult->getBodyString());
 			$serverdata['version'] = str_replace(["\r", "\n", "\t"], '', $serverdata['version']);
 			$serverdata['version'] = trim($serverdata['version'], '"');
 			$serverdata['network'] = Protocol::OSTATUS;
@@ -2092,11 +2097,11 @@ class GServer
 
 		// Test for Statusnet
 		$curlResult = DI::httpClient()->get($url . '/api/statusnet/version.json', HttpClientAccept::JSON);
-		if ($curlResult->isSuccess() && ($curlResult->getBody() != '{"error":"not implemented"}') &&
-			($curlResult->getBody() != '') && (strlen($curlResult->getBody()) < 30)) {
+		if ($curlResult->isSuccess() && ($curlResult->getBodyString() != '{"error":"not implemented"}') &&
+			($curlResult->getBodyString() != '') && (strlen($curlResult->getBodyString()) < 30)) {
 
 			// Remove junk that some GNU Social servers return
-			$serverdata['version'] = str_replace(chr(239).chr(187).chr(191), '', $curlResult->getBody());
+			$serverdata['version'] = str_replace(chr(239).chr(187).chr(191), '', $curlResult->getBodyString());
 			$serverdata['version'] = str_replace(["\r", "\n", "\t"], '', $serverdata['version']);
 			$serverdata['version'] = trim($serverdata['version'], '"');
 
@@ -2143,7 +2148,7 @@ class GServer
 			return $serverdata;
 		}
 
-		$data = json_decode($curlResult->getBody(), true);
+		$data = json_decode($curlResult->getBodyString(), true);
 		if (empty($data) || empty($data['version'])) {
 			return $serverdata;
 		}
@@ -2202,7 +2207,7 @@ class GServer
 	 */
 	private static function analyseRootBody($curlResult, array $serverdata): array
 	{
-		if (empty($curlResult->getBody())) {
+		if (empty($curlResult->getBodyString())) {
 			return $serverdata;
 		}
 
@@ -2215,7 +2220,7 @@ class GServer
 		$platforms = array_merge($ap_platforms, $dfrn_platforms, $zap_platforms, $platforms);
 
 		$doc = new DOMDocument();
-		@$doc->loadHTML($curlResult->getBody());
+		@$doc->loadHTML($curlResult->getBodyString());
 		$xpath = new DOMXPath($doc);
 		$assigned = false;
 
@@ -2461,7 +2466,7 @@ class GServer
 			$api = 'https://instances.social/api/1.0/instances/list?count=0';
 			$curlResult = DI::httpClient()->get($api, HttpClientAccept::JSON, [HttpClientOptions::HEADERS => ['Authorization' => ['Bearer ' . $accesstoken]]]);
 			if ($curlResult->isSuccess()) {
-				$servers = json_decode($curlResult->getBody(), true);
+				$servers = json_decode($curlResult->getBodyString(), true);
 
 				if (!empty($servers['instances'])) {
 					foreach ($servers['instances'] as $server) {

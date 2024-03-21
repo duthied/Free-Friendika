@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -135,8 +135,6 @@ class Upload extends \Friendica\BaseModule
 			$this->return(401, $this->t('Invalid request.'), true);
 		}
 
-		$filetype = Images::getMimeTypeBySource($src, $filename, $filetype);
-
 		$this->logger->info('File upload:', [
 			'src'      => $src,
 			'filename' => $filename,
@@ -145,7 +143,7 @@ class Upload extends \Friendica\BaseModule
 		]);
 
 		$imagedata = @file_get_contents($src);
-		$image     = new Image($imagedata, $filetype);
+		$image     = new Image($imagedata, $filetype, $filename);
 
 		if (!$image->isValid()) {
 			@unlink($src);

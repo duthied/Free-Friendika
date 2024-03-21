@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -155,7 +155,7 @@ class Magic extends BaseModule
 			System::externalRedirect($dest);
 		}
 
-		$j = json_decode($curlResult->getBody(), true);
+		$j = json_decode($curlResult->getBodyString(), true);
 		if (empty($j) || !$j['success']) {
 			$this->logger->notice('Invalid JSON, redirecting to destination.', ['json' => $j, 'dest' => $dest]);
 			$this->app->redirect($dest);

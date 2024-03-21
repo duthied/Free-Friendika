@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -55,6 +55,7 @@ class Statuses extends BaseApi
 			'status'           => '',    // Text content of the status. If media_ids is provided, this becomes optional. Attaching a poll is optional while status is provided.
 			'media_ids'        => [],    // Array of Attachment ids to be attached as media. If provided, status becomes optional, and poll cannot be used.
 			'in_reply_to_id'   => 0,     // ID of the status being replied to, if status is a reply
+			'sensitive'        => false, // Mark status and attached media as sensitive? Defaults to false.
 			'spoiler_text'     => '',    // Text to be shown as a warning or subject before the actual content. Statuses are generally collapsed behind this field.
 			'language'         => '',    // ISO 639 language code for this status.
 			'media_attributes' => [],
@@ -83,6 +84,7 @@ class Statuses extends BaseApi
 		$item['gravity']    = $post['gravity'];
 		$item['verb']       = $post['verb'];
 		$item['app']        = $this->getApp();
+		$item['sensitive']  = $request['sensitive'];
 
 		if (!empty($request['language'])) {
 			$item['language'] = json_encode([$request['language'] => 1]);
@@ -179,7 +181,7 @@ class Statuses extends BaseApi
 			'poll'           => [],    // Poll data. If provided, media_ids cannot be used, and poll[expires_in] must be provided.
 			'in_reply_to_id' => 0,     // ID of the status being replied to, if status is a reply
 			'quote_id'       => 0,     // ID of the message to quote
-			'sensitive'      => false, // Mark status and attached media as sensitive?
+			'sensitive'      => false, // Mark status and attached media as sensitive? Defaults to false.
 			'spoiler_text'   => '',    // Text to be shown as a warning or subject before the actual content. Statuses are generally collapsed behind this field.
 			'visibility'     => '',    // Visibility of the posted status. One of: "public", "unlisted", "private" or "direct".
 			'scheduled_at'   => '',    // ISO 8601 Datetime at which to schedule a status. Providing this parameter will cause ScheduledStatus to be returned instead of Status. Must be at least 5 minutes in the future.
@@ -198,6 +200,7 @@ class Statuses extends BaseApi
 		$item['title']      = '';
 		$item['body']       = $this->formatStatus($request['status'], $uid);
 		$item['app']        = $this->getApp();
+		$item['sensitive']  = $request['sensitive'];
 		$item['visibility'] = $request['visibility'];
 
 		switch ($request['visibility']) {
@@ -400,11 +403,10 @@ class Statuses extends BaseApi
 
 			Photo::setPermissionForResource($media[0]['resource-id'], $item['uid'], $item['allow_cid'], $item['allow_gid'], $item['deny_cid'], $item['deny_gid']);
 
-			$phototypes = Images::supportedTypes();
-			$ext = $phototypes[$media[0]['type']];
+			$ext = Images::getExtensionByMimeType($media[0]['type']);
 
 			$attachment = ['type' => Post\Media::IMAGE, 'mimetype' => $media[0]['type'],
-				'url' => DI::baseUrl() . '/photo/' . $media[0]['resource-id'] . '-' . $media[0]['scale'] . '.' . $ext,
+				'url' => DI::baseUrl() . '/photo/' . $media[0]['resource-id'] . '-' . $media[0]['scale'] . $ext,
 				'size' => $media[0]['datasize'],
 				'name' => $media[0]['filename'] ?: $media[0]['resource-id'],
 				'description' => $media[0]['desc'] ?? '',
@@ -412,7 +414,7 @@ class Statuses extends BaseApi
 				'height' => $media[0]['height']];
 
 			if (count($media) > 1) {
-				$attachment['preview'] = DI::baseUrl() . '/photo/' . $media[1]['resource-id'] . '-' . $media[1]['scale'] . '.' . $ext;
+				$attachment['preview'] = DI::baseUrl() . '/photo/' . $media[1]['resource-id'] . '-' . $media[1]['scale'] . $ext;
 				$attachment['preview-width'] = $media[1]['width'];
 				$attachment['preview-height'] = $media[1]['height'];
 			}

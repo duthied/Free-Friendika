@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -127,8 +127,6 @@ class Mail
 	 */
 	public static function send(int $sender_uid, int $recipient = 0, string $body = '', string $subject = '', string $replyto = ''): int
 	{
-		$a = DI::app();
-
 		if (!$recipient) {
 			return -1;
 		}
@@ -245,78 +243,5 @@ class Mail
 		} else {
 			return -3;
 		}
-	}
-
-	/**
-	 * @param array  $recipient recipient, default empty
-	 * @param string $body      message body, default empty
-	 * @param string $subject   message subject, default empty
-	 * @param string $replyto   reply to, default empty
-	 * @return int
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
-	 */
-	public static function sendWall(array $recipient = [], string $body = '', string $subject = '', string $replyto = ''): int
-	{
-		if (!$recipient) {
-			return -1;
-		}
-
-		if (!strlen($subject)) {
-			$subject = DI::l10n()->t('[no subject]');
-		}
-
-		$guid = System::createUUID();
-		$uri = Item::newURI($guid);
-
-		$me = Contact::getByURL($replyto);
-		if (!$me['name']) {
-			return -2;
-		}
-
-		$conv_guid = System::createUUID();
-
-		$recip_handle = $recipient['nickname'] . '@' . substr(DI::baseUrl(), strpos(DI::baseUrl(), '://') + 3);
-
-		$sender_handle = $me['addr'];
-
-		$handles = $recip_handle . ';' . $sender_handle;
-
-		$convid = null;
-		$fields = ['uid' => $recipient['uid'], 'guid' => $conv_guid, 'creator' => $sender_handle,
-			'created' => DateTimeFormat::utcNow(), 'updated' => DateTimeFormat::utcNow(),
-			'subject' => $subject, 'recips' => $handles];
-		if (DBA::insert('conv', $fields)) {
-			$convid = DBA::lastInsertId();
-		}
-
-		if (!$convid) {
-			Logger::warning('conversation not found.');
-			return -4;
-		}
-
-		self::insert(
-			[
-				'uid' => $recipient['uid'],
-				'guid' => $guid,
-				'convid' => $convid,
-				'from-name' => $me['name'],
-				'from-photo' => $me['photo'],
-				'from-url' => $me['url'],
-				'contact-id' => 0,
-				'title' => $subject,
-				'body' => $body,
-				'seen' => 0,
-				'reply' => 0,
-				'replied' => 0,
-				'uri' => $uri,
-				'parent-uri' => $me['url'],
-				'created' => DateTimeFormat::utcNow(),
-				'unknown' => 1
-			],
-			false
-		);
-
-		return 0;
 	}
 }

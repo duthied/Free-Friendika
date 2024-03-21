@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -259,7 +259,7 @@ class Email
 
 		if ((isset($params['filename']) && $params['filename']) || (isset($params['name']) && $params['name'])) {
 			// filename may be given as 'Filename' or 'Name' or both
-			$filename = ($params['filename'])? $params['filename'] : $params['name'];
+			$filename = $params['filename'] ?? $params['name'];
 			// filename may be encoded, so see imap_mime_header_decode()
 			$attachments[$filename] = $data;  // this is a problem if two files have same name
 		}

@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -37,15 +37,13 @@
 use Friendica\DI;
 use Friendica\Util\Strings;
 
+require_once 'view/theme/frio/theme.php';
+
 function get_scheme_info($scheme)
 {
 	$theme = DI::app()->getCurrentTheme();
 	$themepath = 'view/theme/' . $theme . '/';
-	if (empty($scheme)) {
-		$scheme = DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'frio', 'scheme', DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'frio', 'schema', '---'));
-	}
-
-	$scheme = Strings::sanitizeFilePathItem($scheme);
+	$scheme = Strings::sanitizeFilePathItem($scheme) ?: FRIO_DEFAULT_SCHEME;
 
 	$info = [
 		'name' => $scheme,
@@ -99,4 +97,55 @@ function get_scheme_info($scheme)
 	}
 
 	return $info;
+}
+
+function frio_scheme_get_list(): array
+{
+	$schemes = [
+		'light' => DI::l10n()->t('Light'),
+		'dark'  => DI::l10n()->t('Dark'),
+		'black' => DI::l10n()->t('Black'),
+	];
+
+	foreach (glob('view/theme/frio/scheme/*.php') ?: [] as $file) {
+		$scheme = basename($file, '.php');
+		if (!in_array($scheme, ['default', 'light', 'dark', 'black'])) {
+			$scheme_info = get_scheme_info($scheme);
+			$schemes[$scheme] = $scheme_info['name'] ?? ucfirst($scheme);
+		}
+	}
+
+	$schemes[FRIO_CUSTOM_SCHEME] = DI::l10n()->t('Custom');
+
+	return $schemes;
+}
+
+function frio_scheme_get_current()
+{
+	$available = array_keys(frio_scheme_get_list());
+
+	$scheme = DI::config()->get('frio', 'scheme') ?: DI::config()->get('frio', 'schema');
+
+	if (!in_array($scheme, $available)) {
+		return FRIO_DEFAULT_SCHEME;
+	}
+
+	return $scheme;
+}
+
+function frio_scheme_get_current_for_user(int $uid)
+{
+	$available = array_keys(frio_scheme_get_list());
+
+	$scheme =
+		DI::pConfig()->get($uid, 'frio', 'scheme') ?:
+			DI::pConfig()->get($uid, 'frio', 'schema') ?:
+				DI::config()->get('frio', 'scheme') ?:
+					DI::config()->get('frio', 'schema');
+
+	if (!in_array($scheme, $available)) {
+		return FRIO_DEFAULT_SCHEME;
+	}
+
+	return $scheme;
 }

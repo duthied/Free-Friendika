@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -736,7 +736,7 @@ class OStatus
 		$stored = false;
 		$curlResult = DI::httpClient()->get($related, HttpClientAccept::ATOM_XML);
 
-		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
+		if (!$curlResult->isSuccess() || empty($curlResult->getBodyString())) {
 			return;
 		}
 
@@ -745,12 +745,12 @@ class OStatus
 		if ($curlResult->inHeader('Content-Type') &&
 			in_array('application/atom+xml', $curlResult->getHeader('Content-Type'))) {
 			Logger::info('Directly fetched XML for URI ' . $related_uri);
-			$xml = $curlResult->getBody();
+			$xml = $curlResult->getBodyString();
 		}
 
 		if ($xml == '') {
 			$doc = new DOMDocument();
-			if (!@$doc->loadHTML($curlResult->getBody())) {
+			if (!@$doc->loadHTML($curlResult->getBodyString())) {
 				return;
 			}
 			$xpath = new DOMXPath($doc);
@@ -770,7 +770,7 @@ class OStatus
 
 					if ($curlResult->isSuccess()) {
 						Logger::info('Fetched XML for URI ' . $related_uri);
-						$xml = $curlResult->getBody();
+						$xml = $curlResult->getBodyString();
 					}
 				}
 			}
@@ -782,7 +782,7 @@ class OStatus
 
 			if ($curlResult->isSuccess()) {
 				Logger::info('GNU Social workaround to fetch XML for URI ' . $related_uri);
-				$xml = $curlResult->getBody();
+				$xml = $curlResult->getBodyString();
 			}
 		}
 
@@ -793,7 +793,7 @@ class OStatus
 
 			if ($curlResult->isSuccess()) {
 				Logger::info('GNU Social workaround 2 to fetch XML for URI ' . $related_uri);
-				$xml = $curlResult->getBody();
+				$xml = $curlResult->getBodyString();
 			}
 		}
 

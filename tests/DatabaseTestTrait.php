@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -35,7 +35,7 @@ trait DatabaseTestTrait
 		// Rollbacks every DB usage (in case the test couldn't call tearDown)
 		StaticDatabase::statRollback();
 		// Rollback the first, outer transaction just 2 be sure
-		StaticDatabase::getGlobConnection()->rollBack();
+		StaticDatabase::getGlobConnection()->rollback();
 		// Start the first, outer transaction
 		StaticDatabase::getGlobConnection()->beginTransaction();
 	}

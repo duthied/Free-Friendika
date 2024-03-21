@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -214,4 +214,21 @@ class StringsTest extends TestCase
 
 		self::assertEquals($originalText, $text);
 	}
+
+	public function testCleanTags()
+	{
+		$rawTags = 'Open, #Source, Friendica Software; Federation #Fediverse';
+		$cleaned = 'federation,fediverse,friendica,open,software,source';
+
+		self::assertEquals($cleaned, Strings::cleanTags($rawTags));
+	}
+
+	public function testgetTagArrayByString()
+	{
+		$list = 'Open, #Source, Friendica Software; Federation #Fediverse';
+		$tags = ['federation', 'fediverse', 'friendica', 'open', 'software', 'source'];
+
+		self::assertEquals($tags, Strings::getTagArrayByString($list));
+	}
+
 }

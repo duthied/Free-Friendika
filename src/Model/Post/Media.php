@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -96,6 +96,7 @@ class Media
 			return false;
 		}
 
+		$media['url'] = Network::sanitizeUrl($media['url']);
 		$media = self::unsetEmptyFields($media);
 		$media = DI::dbaDefinition()->truncateFieldsForTable('post-media', $media);
 
@@ -195,7 +196,7 @@ class Media
 
 			if ($curlResult->isSuccess()) {
 				if (empty($media['mimetype'])) {
-					$media['mimetype'] = $curlResult->getHeader('Content-Type')[0] ?? '';
+					$media['mimetype'] = $curlResult->getContentType() ?? '';
 				}
 				if (empty($media['size'])) {
 					$media['size'] = (int)($curlResult->getHeader('Content-Length')[0] ?? 0);
@@ -208,13 +209,17 @@ class Media
 		$filetype = !empty($media['mimetype']) ? strtolower(current(explode('/', $media['mimetype']))) : '';
 
 		if (($media['type'] == self::IMAGE) || ($filetype == 'image')) {
-			$imagedata = Images::getInfoFromURLCached($media['url']);
+			$imagedata = Images::getInfoFromURLCached($media['url'], empty($media['description']));
 			if ($imagedata) {
 				$media['mimetype'] = $imagedata['mime'];
 				$media['size'] = $imagedata['size'];
 				$media['width'] = $imagedata[0];
 				$media['height'] = $imagedata[1];
 				$media['blurhash'] = $imagedata['blurhash'] ?? null;
+				if (!empty($imagedata['description']) && empty($media['description'])) {
+					$media['description'] = $imagedata['description'];
+					Logger::debug('Detected text for image', $media);
+				}
 			} else {
 				Logger::notice('No image data', ['media' => $media]);
 			}
@@ -360,7 +365,7 @@ class Media
 	 */
 	private static function addPage(array $media): array
 	{
-		$data = ParseUrl::getSiteinfoCached($media['url'], false);
+		$data = ParseUrl::getSiteinfoCached($media['url']);
 		$media['preview'] = $data['images'][0]['src'] ?? null;
 		$media['preview-height'] = $data['images'][0]['height'] ?? null;
 		$media['preview-width'] = $data['images'][0]['width'] ?? null;
@@ -907,6 +912,8 @@ class Media
 				$body .= "\n[audio]" . $media['url'] . "[/audio]\n";
 			} elseif ($media['type'] == self::VIDEO) {
 				$body .= "\n[video]" . $media['url'] . "[/video]\n";
+			} else {
+				$body .= "\n[url]" . $media['url'] . "[/url]\n";
 			}
 		}
 

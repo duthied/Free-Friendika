@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -65,6 +65,7 @@ class ActivityPub
 	const CONTEXT = [
 		'https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1',
 		[
+			'ostatus' => 'http://ostatus.org#',
 			'vcard' => 'http://www.w3.org/2006/vcard/ns#',
 			'dfrn' => 'http://purl.org/macgirvin/dfrn/1.0/',
 			'diaspora' => 'https://diasporafoundation.org/ns/',
@@ -295,7 +296,7 @@ class ActivityPub
 			return false;
 		}
 
-		if (empty($apcontact['gsid'] || empty($apcontact['baseurl']))) {
+		if (empty($apcontact['gsid']) || empty($apcontact['baseurl'])) {
 			Logger::debug('No server found', ['uid' => $uid, 'signer' => $signer, 'called_by' => $called_by]);
 			return false;
 		}
@@ -315,7 +316,9 @@ class ActivityPub
 			}
 		}
 
-		// @todo Look for user blocked domains
+		if (DI::userGServer()->isIgnoredByUser($uid, $apcontact['gsid'])) {
+			return false;
+		}
 
 		Logger::debug('Server is an accepted requester', ['uid' => $uid, 'id' => $apcontact['gsid'], 'url' => $apcontact['baseurl'], 'signer' => $signer, 'called_by' => $called_by]);
 

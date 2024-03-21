@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -24,6 +24,7 @@ use Friendica\Core\Renderer;
 use Friendica\DI;
 
 require_once 'view/theme/frio/php/Image.php';
+require_once 'view/theme/frio/php/scheme.php';
 
 function theme_post(App $a)
 {
@@ -93,14 +94,7 @@ function theme_content(): string
 	}
 
 	$arr = [
-		'scheme' => DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'frio', 'scheme',
-			DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'frio', 'schema',
-				DI::config()->get('frio', 'scheme',
-					DI::config()->get('frio', 'schema')
-				)
-			)
-		),
-
+		'scheme'              => frio_scheme_get_current_for_user(DI::userSession()->getLocalUserId()),
 		'share_string'        => '',
 		'scheme_accent'       => DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'frio', 'scheme_accent'      , DI::config()->get('frio', 'scheme_accent')),
 		'nav_bg'              => DI::pConfig()->get(DI::userSession()->getLocalUserId(), 'frio', 'nav_bg'             , DI::config()->get('frio', 'nav_bg')),
@@ -123,8 +117,8 @@ function theme_admin(): string
 	}
 
 	$arr = [
-		'scheme'              => DI::config()->get('frio', 'scheme', DI::config()->get('frio', 'schema')),
-		'scheme_accent'       => DI::config()->get('frio', 'scheme_accent'),
+		'scheme'              => frio_scheme_get_current(),
+		'scheme_accent'       => DI::config()->get('frio', 'scheme_accent') ?: FRIO_SCHEME_ACCENT_BLUE,
 		'share_string'        => '',
 		'nav_bg'              => DI::config()->get('frio', 'nav_bg'),
 		'nav_icon_color'      => DI::config()->get('frio', 'nav_icon_color'),
@@ -149,33 +143,15 @@ function frio_form($arr)
 	$scheme_info = get_scheme_info($arr['scheme']);
 	$disable = $scheme_info['overwrites'];
 
-	$schemes = [
-		'light' => DI::l10n()->t('Light (Accented)'),
-		'dark'  => DI::l10n()->t('Dark (Accented)'),
-		'black' => DI::l10n()->t('Black (Accented)'),
-	];
-
-	$legacy_schemes = [];
-	foreach (glob('view/theme/frio/scheme/*.php') ?: [] as $file) {
-		$scheme = basename($file, '.php');
-		if (!in_array($scheme, ['default', 'light', 'dark', 'black'])) {
-			$scheme_name = ucfirst($scheme);
-			$legacy_schemes[$scheme] = $scheme_name;
-		}
-	}
-
 	$background_image_help = '<strong>' . DI::l10n()->t('Note') . ': </strong>' . DI::l10n()->t('Check image permissions if all users are allowed to see the image');
 
 	$t = Renderer::getMarkupTemplate('theme_settings.tpl');
 	$ctx = [
 		'$submit'           => DI::l10n()->t('Submit'),
 		'$title'            => DI::l10n()->t('Theme settings'),
-		'$custom'           => DI::l10n()->t('Custom'),
-		'$legacy'           => DI::l10n()->t('Legacy'),
-		'$accented'         => DI::l10n()->t('Accented'),
-		'$scheme'           => ['frio_scheme', DI::l10n()->t('Select color scheme'), $arr['scheme'], $schemes, $legacy_schemes],
-		'$scheme_accent'    => !$scheme_info['accented'] ? '' : ['frio_scheme_accent', DI::l10n()->t('Select scheme accent'), $arr['scheme_accent'], ['blue' => DI::l10n()->t('Blue'), 'red' => DI::l10n()->t('Red'), 'purple' => DI::l10n()->t('Purple'), 'green' => DI::l10n()->t('Green'), 'pink' => DI::l10n()->t('Pink')]],
-		'$share_string'     => $arr['scheme'] != '---' ? '' : ['frio_share_string', DI::l10n()->t('Copy or paste schemestring'), $arr['share_string'], DI::l10n()->t('You can copy this string to share your theme with others. Pasting here applies the schemestring'), false, false],
+		'$scheme'           => ['frio_scheme', DI::l10n()->t('Appearance'), $arr['scheme'], frio_scheme_get_list()],
+		'$scheme_accent'    => !$scheme_info['accented'] ? '' : ['frio_scheme_accent', DI::l10n()->t('Accent color'), $arr['scheme_accent'], ['blue' => DI::l10n()->t('Blue'), 'red' => DI::l10n()->t('Red'), 'purple' => DI::l10n()->t('Purple'), 'green' => DI::l10n()->t('Green'), 'pink' => DI::l10n()->t('Pink')]],
+		'$share_string'     => $arr['scheme'] != FRIO_CUSTOM_SCHEME ? '' : ['frio_share_string', DI::l10n()->t('Copy or paste schemestring'), $arr['share_string'], DI::l10n()->t('You can copy this string to share your theme with others. Pasting here applies the schemestring'), false, false],
 		'$nav_bg'           => array_key_exists('nav_bg', $disable) ? '' : ['frio_nav_bg', DI::l10n()->t('Navigation bar background color'), $arr['nav_bg'], '', false],
 		'$nav_icon_color'   => array_key_exists('nav_icon_color', $disable) ? '' : ['frio_nav_icon_color', DI::l10n()->t('Navigation bar icon color '), $arr['nav_icon_color'], '', false],
 		'$link_color'       => array_key_exists('link_color', $disable) ? '' : ['frio_link_color', DI::l10n()->t('Link color'), $arr['link_color'], '', false],

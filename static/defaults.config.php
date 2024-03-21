@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -162,6 +162,7 @@ return [
 
 		// config_adapter (jit|preload)
 		// Allow to switch the configuration adapter to improve performances at the cost of memory consumption.
+		// jit is slightly slower, while preload consumes marginally more memory
 		'config_adapter' => 'jit',
 
 		// crawl_permit_period (Integer)
@@ -406,6 +407,10 @@ return [
 		// Maximum recursion depth when fetching posts until the job is delegated to a worker task or finished.
 		'max_recursion_depth' => 50,
 
+		// max_video_height (Integer)
+		// Maximum height of videos in portrait mode.
+		'max_video_height' => 640,
+
 		// memcache_host (String)
 		// Host name of the memcache daemon.
 		'memcache_host' => '127.0.0.1',
@@ -427,10 +432,6 @@ return [
 		// no_count (Boolean)
 		// Don't do count calculations (currently only when showing photo albums).
 		'no_count' => false,
-
-		// no_oembed (Boolean)
-		// Don't use OEmbed to fetch more information about a link.
-		'no_oembed' => false,
 
 		// no_redirect_list (Array)
 		// List of domains where HTTP redirects should be ignored.
@@ -612,6 +613,12 @@ return [
 		// xrd_timeout (Integer)
 		// Timeout in seconds for fetching the XRD links and other requests with an expected shorter timeout
 		'xrd_timeout' => 20,
+	],
+	'performance' => [
+		// max_response_data_size (Integer)
+		// Maximum allowed outgoing HTTP request response data size in Bytes. Does not affect incoming requests to this node.
+		// Warning: Lowering this value can help with some PHP memory exhaustion issues, but can also partially break some federation features e.g. large posts may not be fetched or received from remote servers.
+		'max_response_data_size' => 1000000,
 	],
 	'proxy' => [
 		// forwarded_for_headers (String)

@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -392,7 +392,7 @@ class Import extends \Friendica\BaseModule
 			$photo['data'] = hex2bin($photo['data']);
 
 			$r = Photo::store(
-				new Image($photo['data'], $photo['type']),
+				new Image($photo['data'], $photo['type'], $photo['filename']),
 				$photo['uid'], $photo['contact-id'], //0
 				$photo['resource-id'], $photo['filename'], $photo['album'], $photo['scale'], $photo['profile'], //1
 				$photo['allow_cid'], $photo['allow_gid'], $photo['deny_cid'], $photo['deny_gid']

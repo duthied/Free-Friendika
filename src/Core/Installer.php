@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -632,23 +632,10 @@ class Installer
 	 */
 	public function checkImagick()
 	{
-		$imagick = false;
-		$gif = false;
-
-		if (class_exists('Imagick')) {
-			$imagick = true;
-			$supported = Images::supportedTypes();
-			if (array_key_exists('image/gif', $supported)) {
-				$gif = true;
-			}
-		}
-		if (!$imagick) {
-			$this->addCheck(DI::l10n()->t('ImageMagick PHP extension is not installed'), $imagick, false, "");
+		if (!class_exists('Imagick')) {
+			$this->addCheck(DI::l10n()->t('ImageMagick PHP extension is not installed'), false, false, "");
 		} else {
-			$this->addCheck(DI::l10n()->t('ImageMagick PHP extension is installed'), $imagick, false, "");
-			if ($imagick) {
-				$this->addCheck(DI::l10n()->t('ImageMagick supports GIF'), $gif, false, "");
-			}
+			$this->addCheck(DI::l10n()->t('ImageMagick PHP extension is installed'), true, false, "");
 		}
 
 		// Imagick is not required

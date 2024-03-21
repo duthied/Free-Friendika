@@ -83,8 +83,9 @@ venv/
 #Ignore temporary installed phpunit
 /bin/phpunit
 
-#Ignore cache file
+#Ignore cache files
 .php_cs.cache
+.php-cs-fixer.cache
 
 #ignore avatar picture cache path
 /avatar

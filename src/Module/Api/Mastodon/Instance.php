@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -38,7 +38,7 @@ use Friendica\Util\Strings;
 use Psr\Log\LoggerInterface;
 
 /**
- * @see https://docs.joinmastodon.org/api/rest/instances/
+ * @see https://docs.joinmastodon.org/methods/instance/
  */
 class Instance extends BaseApi
 {
@@ -95,7 +95,7 @@ class Instance extends BaseApi
 
 		return new InstanceV2Entity\Configuration(
 			$statuses_config,
-			new InstanceV2Entity\MediaAttachmentsConfig(array_keys(Images::supportedTypes()), $image_size_limit, $image_matrix_limit),
+			new InstanceV2Entity\MediaAttachmentsConfig(Images::supportedMimeTypes(), $image_size_limit, $image_matrix_limit),
 			new InstanceV2Entity\Polls(),
 			new InstanceV2Entity\Accounts(),
 		);

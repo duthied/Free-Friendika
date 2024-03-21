@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -132,8 +132,8 @@ class Community extends Timeline
 		$pager = new BoundariesPager(
 			$this->l10n,
 			$this->args->getQueryString(),
-			$items[0]['received'],
-			$items[count($items) - 1]['received'],
+			$items[array_key_first($items)]['received'],
+			$items[array_key_last($items)]['received'],
 			$this->itemsPerPage
 		);
 

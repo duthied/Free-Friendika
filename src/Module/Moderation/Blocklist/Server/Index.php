@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -57,11 +57,11 @@ class Index extends BaseModeration
 
 		// Edit the entries from blocklist
 		$blocklist = [];
-		foreach ($request['domain'] as $id => $domain) {
+		foreach ((array)$request['domain'] as $id => $domain) {
 			// Trimming whitespaces as well as any lingering slashes
 			$domain = trim($domain);
 			$reason = trim($request['reason'][$id]);
-			if (empty($request['delete'][$id])) {
+			if (empty($request['delete'][$id]) && !empty($domain)) {
 				$blocklist[] = [
 					'domain' => $domain,
 					'reason' => $reason

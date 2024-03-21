@@ -376,8 +376,8 @@ code</code></td>
 &nbsp;&nbsp;[li] Second list element<br>
 [/ul]<br>
 [list]<br>
-&nbsp;&nbsp;[*] First list element<br>
-&nbsp;&nbsp;[*] Second list element<br>
+&nbsp;&nbsp;[li] First list element<br>
+&nbsp;&nbsp;[li] Second list element<br>
 [/list]</td>
   <td>
 	<ul class="listbullet" style="list-style-type: circle;">
@@ -388,12 +388,12 @@ code</code></td>
 </tr>
 <tr>
   <td>[ol]<br>
-&nbsp;&nbsp;[*] First list element<br>
-&nbsp;&nbsp;[*] Second list element<br>
+&nbsp;&nbsp;[li] First list element<br>
+&nbsp;&nbsp;[li] Second list element<br>
 [/ol]<br>
 [list=1]<br>
-&nbsp;&nbsp;[*] First list element<br>
-&nbsp;&nbsp;[*] Second list element<br>
+&nbsp;&nbsp;[li] First list element<br>
+&nbsp;&nbsp;[li] Second list element<br>
 [/list]</td>
   <td>
     <ul class="listdecimal" style="list-style-type: decimal;">
@@ -404,8 +404,8 @@ code</code></td>
 </tr>
 <tr>
   <td>[list=]<br>
-&nbsp;&nbsp;[*] First list element<br>
-&nbsp;&nbsp;[*] Second list element<br>
+&nbsp;&nbsp;[li] First list element<br>
+&nbsp;&nbsp;[li] Second list element<br>
 [/list]</td>
   <td>
     <ul class="listnone" style="list-style-type: none;">
@@ -416,8 +416,8 @@ code</code></td>
 </tr>
 <tr>
   <td>[list=i]<br>
-&nbsp;&nbsp;[*] First list element<br>
-&nbsp;&nbsp;[*] Second list element<br>
+&nbsp;&nbsp;[li] First list element<br>
+&nbsp;&nbsp;[li] Second list element<br>
 [/list]</td>
   <td>
     <ul class="listlowerroman" style="list-style-type: lower-roman;">
@@ -428,8 +428,8 @@ code</code></td>
 </tr>
 <tr>
   <td>[list=I]<br>
-&nbsp;&nbsp;[*] First list element<br>
-&nbsp;&nbsp;[*] Second list element<br>
+&nbsp;&nbsp;[li] First list element<br>
+&nbsp;&nbsp;[li] Second list element<br>
 [/list]</td>
   <td>
     <ul class="listupperroman" style="list-style-type: upper-roman;">
@@ -440,8 +440,8 @@ code</code></td>
 </tr>
 <tr>
   <td>[list=a]<br>
-&nbsp;&nbsp;[*] First list element<br>
-&nbsp;&nbsp;[*] Second list element<br>
+&nbsp;&nbsp;[li] First list element<br>
+&nbsp;&nbsp;[li] Second list element<br>
 [/list]</td>
   <td>
     <ul class="listloweralpha" style="list-style-type: lower-alpha;">
@@ -452,8 +452,8 @@ code</code></td>
 </tr>
 <tr>
   <td>[list=A]<br>
-&nbsp;&nbsp;[*] First list element<br>
-&nbsp;&nbsp;[*] Second list element<br>
+&nbsp;&nbsp;[li] First list element<br>
+&nbsp;&nbsp;[li] Second list element<br>
 [/list]</td>
   <td>
     <ul class="listupperalpha" style="list-style-type: upper-alpha;">

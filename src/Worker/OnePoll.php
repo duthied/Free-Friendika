@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -172,7 +172,7 @@ class OnePoll
 			return false;
 		}
 
-		$xml = $curlResult->getBody();
+		$xml = $curlResult->getBodyString();
 		if (empty($xml)) {
 			Logger::notice('Empty content', ['id' => $contact['id'], 'url' => $contact['poll']]);
 			return false;
@@ -213,7 +213,7 @@ class OnePoll
 		$mbox = null;
 		$user = DBA::selectFirst('user', ['prvkey'], ['uid' => $importer_uid]);
 
-		$condition = ["`server` != '' AND `uid` = ?", $importer_uid];
+		$condition = ["`server` != ? AND `user` != ? AND `port` != ? AND `uid` = ?", '', '', 0, $importer_uid];
 		$mailconf = DBA::selectFirst('mailacct', [], $condition);
 		if (DBA::isResult($user) && DBA::isResult($mailconf)) {
 			$mailbox = Email::constructMailboxName($mailconf);
@@ -249,6 +249,10 @@ class OnePoll
 				$msgs = array_combine($msgs, $metas);
 
 				foreach ($msgs as $msg_uid => $meta) {
+					if (empty($meta->message_id)) {
+						continue;
+					}
+
 					Logger::info('Parsing mail', ['message-uid' => $msg_uid]);
 
 					$datarray = [

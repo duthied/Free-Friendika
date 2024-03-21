@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -21,10 +21,7 @@
 
 namespace Friendica\Module\Api\Mastodon\Instance;
 
-use Friendica\Content\Text\BBCode;
-use Friendica\Content\Text\HTML;
 use Friendica\Core\System;
-use Friendica\DI;
 use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;
 

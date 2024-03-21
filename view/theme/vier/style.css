@@ -221,10 +221,18 @@ div.pager {
 	margin-bottom: 5px; */
 }
 
-.birthday-notice, .event-notice {
+.birthday-notice, .event-notice, #rfic-desc {
 	margin-top: 5px;
 	margin-bottom: 5px;
 	background-color: #F5F5F5;
+}
+
+#remote-friends-in-common-wrapper {
+	display: none;
+}
+
+#rfic-desc {
+	cursor: pointer;
 }
 
 #live-network {

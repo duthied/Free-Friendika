@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -43,7 +43,7 @@ abstract class ApiTest extends FixtureTest
 	// User data that the test database is populated with
 	const SELF_USER = [
 		'id'   => 42,
-		'name' => 'Self contact',
+		'name' => 'Test user',
 		'nick' => 'selfcontact',
 		'nurl' => 'http://localhost/profile/selfcontact'
 	];

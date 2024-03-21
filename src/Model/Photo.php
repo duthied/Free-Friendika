@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -229,8 +229,8 @@ class Photo
 
 		return DBA::toArray(
 			DBA::p(
-				"SELECT `resource-id`, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`filename`) AS `filename`, ANY_VALUE(`type`) AS `type`,
-					min(`scale`) AS `hiq`, max(`scale`) AS `loq`, ANY_VALUE(`desc`) AS `desc`, ANY_VALUE(`created`) AS `created`
+				"SELECT `resource-id`, MIN(`id`) AS `id`, MIN(`filename`) AS `filename`, MIN(`type`) AS `type`,
+					min(`scale`) AS `hiq`, max(`scale`) AS `loq`, MIN(`desc`) AS `desc`, MIN(`created`) AS `created`
 					FROM `photo` WHERE `uid` = ? AND NOT `photo-type` IN (?, ?) $sqlExtra
 					GROUP BY `resource-id` $sqlExtra2",
 				$values
@@ -363,6 +363,7 @@ class Photo
 		$photo['backend-class'] = SystemResource::NAME;
 		$photo['backend-ref']   = $filename;
 		$photo['type']          = $mimetype;
+		$photo['filename']      = basename($filename);
 		$photo['cacheable']     = false;
 
 		return $photo;
@@ -394,6 +395,7 @@ class Photo
 		$photo['backend-class'] = ExternalResource::NAME;
 		$photo['backend-ref']   = json_encode(['url' => $url, 'uid' => $uid]);
 		$photo['type']          = $mimetype;
+		$photo['filename'] 	    = basename(parse_url($url, PHP_URL_PATH));
 		$photo['cacheable']     = true;
 		$photo['blurhash']      = $blurhash;
 		$photo['width']         = $width;
@@ -597,7 +599,7 @@ class Photo
 		if (!empty($image_url)) {
 			$ret = DI::httpClient()->get($image_url, HttpClientAccept::IMAGE);
 			Logger::debug('Got picture', ['Content-Type' => $ret->getHeader('Content-Type'), 'url' => $image_url]);
-			$img_str = $ret->getBody();
+			$img_str = $ret->getBodyString();
 			$type = $ret->getContentType();
 		} else {
 			$img_str = '';
@@ -608,9 +610,7 @@ class Photo
 			return false;
 		}
 
-		$type = Images::getMimeTypeByData($img_str, $image_url, $type);
-
-		$image = new Image($img_str, $type);
+		$image = new Image($img_str, $type, $image_url);
 		if ($image->isValid()) {
 			$image->scaleToSquare(300);
 
@@ -619,9 +619,9 @@ class Photo
 
 			if ($maximagesize && ($filesize > $maximagesize)) {
 				Logger::info('Avatar exceeds image limit', ['uid' => $uid, 'cid' => $cid, 'maximagesize' => $maximagesize, 'size' => $filesize, 'type' => $image->getType()]);
-				if ($image->getType() == 'image/gif') {
+				if ($image->getImageType() == IMAGETYPE_GIF) {
 					$image->toStatic();
-					$image = new Image($image->asString(), 'image/png');
+					$image = new Image($image->asString(), image_type_to_mime_type(IMAGETYPE_PNG));
 
 					$filesize = strlen($image->asString());
 					Logger::info('Converted gif to a static png', ['uid' => $uid, 'cid' => $cid, 'size' => $filesize, 'type' => $image->getType()]);
@@ -662,9 +662,9 @@ class Photo
 
 			$suffix = '?ts=' . time();
 
-			$image_url = DI::baseUrl() . '/photo/' . $resource_id . '-4.' . $image->getExt() . $suffix;
-			$thumb = DI::baseUrl() . '/photo/' . $resource_id . '-5.' . $image->getExt() . $suffix;
-			$micro = DI::baseUrl() . '/photo/' . $resource_id . '-6.' . $image->getExt() . $suffix;
+			$image_url = DI::baseUrl() . '/photo/' . $resource_id . '-4' . $image->getExt() . $suffix;
+			$thumb = DI::baseUrl() . '/photo/' . $resource_id . '-5' . $image->getExt() . $suffix;
+			$micro = DI::baseUrl() . '/photo/' . $resource_id . '-6' . $image->getExt() . $suffix;
 		} else {
 			$photo_failure = true;
 		}
@@ -751,7 +751,7 @@ class Photo
 			if (!DI::config()->get('system', 'no_count', false)) {
 				/// @todo This query needs to be renewed. It is really slow
 				// At this time we just store the data in the cache
-				$albums = DBA::toArray(DBA::p("SELECT COUNT(DISTINCT `resource-id`) AS `total`, `album`, ANY_VALUE(`created`) AS `created`
+				$albums = DBA::toArray(DBA::p("SELECT COUNT(DISTINCT `resource-id`) AS `total`, `album`, MIN(`created`) AS `created`
 					FROM `photo`
 					WHERE `uid` = ? AND `photo-type` IN (?, ?, ?) $sql_extra
 					GROUP BY `album` ORDER BY `created` DESC",
@@ -762,9 +762,10 @@ class Photo
 				));
 			} else {
 				// This query doesn't do the count and is much faster
-				$albums = DBA::toArray(DBA::p("SELECT DISTINCT(`album`), '' AS `total`
+				$albums = DBA::toArray(DBA::p("SELECT '' AS `total`, `album`, MIN(`created`) AS `created`
 					FROM `photo` USE INDEX (`uid_album_scale_created`)
-					WHERE `uid` = ? AND `photo-type` IN (?, ?, ?) $sql_extra",
+					WHERE `uid` = ? AND `photo-type` IN (?, ?, ?) $sql_extra
+					GROUP BY `album` ORDER BY `created` DESC",
 					$uid,
 					self::DEFAULT,
 					$banner_type,
@@ -1047,7 +1048,7 @@ class Photo
 		if (!empty($image_url)) {
 			$ret = DI::httpClient()->get($image_url, HttpClientAccept::IMAGE);
 			Logger::debug('Got picture', ['Content-Type' => $ret->getHeader('Content-Type'), 'url' => $image_url]);
-			$img_str = $ret->getBody();
+			$img_str = $ret->getBodyString();
 			$type = $ret->getContentType();
 		} else {
 			$img_str = '';
@@ -1059,9 +1060,7 @@ class Photo
 			return [];
 		}
 
-		$type = Images::getMimeTypeByData($img_str, $image_url, $type);
-
-		$image = new Image($img_str, $type);
+		$image = new Image($img_str, $type, $image_url);
 
 		$image = self::fitImageSize($image);
 		if (empty($image)) {
@@ -1131,12 +1130,10 @@ class Photo
 			return [];
 		}
 
-		$filetype = Images::getMimeTypeBySource($src, $filename, $filetype);
-
 		Logger::info('File upload', ['src' => $src, 'filename' => $filename, 'size' => $filesize, 'type' => $filetype]);
 
 		$imagedata = @file_get_contents($src);
-		$image = new Image($imagedata, $filetype);
+		$image = new Image($imagedata, $filetype, $filename);
 		if (!$image->isValid()) {
 			Logger::notice('Image is unvalid', ['files' => $files]);
 			return [];

@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -23,7 +23,7 @@ namespace Friendica\Protocol;
 
 use Friendica\Content\Smilies;
 use Friendica\Content\Text\BBCode;
-use Friendica\Core\Cache\Enum\Duration;
+use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
@@ -97,23 +97,27 @@ class Relay
 
 		$body = ActivityPub\Processor::normalizeMentionLinks($body);
 
-		$denyTags = [];
-
 		if ($scope == self::SCOPE_TAGS) {
 			$tagList = self::getSubscribedTags();
 		} else {
 			$tagList  = [];
 		}
 
-		$deny_tags = $config->get('system', 'relay_deny_tags');
-		$tagitems = explode(',', mb_strtolower($deny_tags));
-		foreach ($tagitems as $tag) {
-			$tag = trim($tag, '# ');
-			$denyTags[] = $tag;
-		}
+		$denyTags = Strings::getTagArrayByString($config->get('system', 'relay_deny_tags'));
 
 		if (!empty($tagList) || !empty($denyTags)) {
 			$content = mb_strtolower(BBCode::toPlaintext($body, false));
+
+			$max_tags = $config->get('system', 'relay_max_tags');
+			if ($max_tags && (count($tags) > $max_tags) && preg_match('/[^@!#]\[url\=.*?\].*?\[\/url\]/ism', $body)) {
+				$cleaned = preg_replace('/[@!#]\[url\=.*?\].*?\[\/url\]/ism', '', $body);
+				$content_cleaned = mb_strtolower(BBCode::toPlaintext($cleaned, false));
+
+				if (strlen($content_cleaned) < strlen($content) / 2) {
+					Logger::info('Possible hashtag spam detected - rejected', ['hashtags' => $tags, 'network' => $network, 'url' => $url, 'causer' => $causer, 'content' => $content]);
+					return false;
+				}
+			}
 
 			foreach ($tags as $tag) {
 				$tag = mb_strtolower($tag);
@@ -157,20 +161,13 @@ class Relay
 	 */
 	public static function getSubscribedTags(): array
 	{
-		$systemTags  = [];
-		$server_tags = DI::config()->get('system', 'relay_server_tags');
-
-		foreach (explode(',', mb_strtolower($server_tags)) as $tag) {
-			$systemTags[] = trim($tag, '# ');
-		}
+		$tags = Strings::getTagArrayByString(DI::config()->get('system', 'relay_server_tags'));
 
 		if (DI::config()->get('system', 'relay_user_tags')) {
-			$userTags = Search::getUserTags();
-		} else {
-			$userTags = [];
+			$tags = array_merge($tags, Search::getUserTags());
 		}
 
-		return array_unique(array_merge($systemTags, $userTags));
+		return array_unique($tags);
 	}
 
 	/**
@@ -192,34 +189,31 @@ class Relay
 			}
 		}
 
-		if (empty($languages) && empty($detected) && (empty($body) || Smilies::isEmojiPost($body))) {
+		if (empty($detected) && empty($languages)) {
+			$detected = [L10n::UNDETERMINED_LANGUAGE];
+		}
+
+		if (empty($body) || Smilies::isEmojiPost($body)) {
 			Logger::debug('Empty body or only emojis', ['body' => $body]);
 			return true;
 		}
 
-		if (!empty($languages) || !empty($detected)) {
-			$user_languages = User::getLanguages();
+		$user_languages = User::getLanguages();
 
-			foreach ($detected as $language) {
-				if (in_array($language, $user_languages)) {
-					Logger::debug('Wanted language found in detected languages', ['language' => $language, 'detected' => $detected, 'userlang' => $user_languages, 'body' => $body]);
-					return true;
-				}
+		foreach ($detected as $language) {
+			if (in_array($language, $user_languages)) {
+				Logger::debug('Wanted language found in detected languages', ['language' => $language, 'detected' => $detected, 'userlang' => $user_languages, 'body' => $body]);
+				return true;
 			}
-			foreach ($languages as $language) {
-				if (in_array($language, $user_languages)) {
-					Logger::debug('Wanted language found in defined languages', ['language' => $language, 'languages' => $languages, 'detected' => $detected, 'userlang' => $user_languages, 'body' => $body]);
-					return true;
-				}
-			}
-			Logger::debug('No wanted language found', ['languages' => $languages, 'detected' => $detected, 'userlang' => $user_languages, 'body' => $body]);
-			return false;
-		} elseif (DI::config()->get('system', 'relay_deny_undetected_language')) {
-			Logger::info('Undetected language found', ['body' => $body]);
-			return false;
 		}
-
-		return true;
+		foreach ($languages as $language) {
+			if (in_array($language, $user_languages)) {
+				Logger::debug('Wanted language found in defined languages', ['language' => $language, 'languages' => $languages, 'detected' => $detected, 'userlang' => $user_languages, 'body' => $body]);
+				return true;
+			}
+		}
+		Logger::debug('No wanted language found', ['languages' => $languages, 'detected' => $detected, 'userlang' => $user_languages, 'body' => $body]);
+		return false;
 	}
 
 	/**
@@ -252,13 +246,14 @@ class Relay
 				$fields['contact-type'] = Contact::TYPE_RELAY;
 				Logger::info('Assigning missing data for relay contact', ['server' => $gserver['url'], 'id' => $old['id']]);
 			}
-		} elseif (empty($fields)) {
+		} elseif (empty($fields) && $old['unsearchable']) {
 			Logger::info('No content to update, quitting', ['server' => $gserver['url']]);
 			return;
 		}
 
 		if (DBA::isResult($old)) {
-			$fields['updated'] = DateTimeFormat::utcNow();
+			$fields['updated']      = DateTimeFormat::utcNow();
+			$fields['unsearchable'] = true;
 
 			Logger::info('Update relay contact', ['server' => $gserver['url'], 'id' => $old['id'], 'fields' => $fields]);
 			Contact::update($fields, ['id' => $old['id']], $old);
@@ -271,6 +266,7 @@ class Relay
 				'rel' => Contact::FOLLOWER, 'blocked' => false,
 				'pending' => false, 'writable' => true,
 				'gsid' => $gserver['id'],
+				'unsearchable' => true,
 				'baseurl' => $gserver['url'], 'contact-type' => Contact::TYPE_RELAY];
 
 			$fields = array_merge($default, $fields);

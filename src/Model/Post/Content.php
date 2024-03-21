@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -22,11 +22,10 @@
 namespace Friendica\Model\Post;
 
 use \BadMethodCallException;
-use Friendica\Core\Protocol;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
-use Friendica\Database\DBStructure;
 use Friendica\DI;
+use Friendica\Model\Item;
 use Friendica\Model\Post;
 
 class Content
@@ -109,9 +108,12 @@ class Content
 	 */
 	public static function getURIIdListBySearch(string $search, int $uid = 0, int $start = 0, int $limit = 100, int $last_uriid = 0)
 	{
-		$condition = ["`uri-id` IN (SELECT `uri-id` FROM `post-content` WHERE MATCH (`title`, `content-warning`, `body`) AGAINST (? IN BOOLEAN MODE))
-			AND (`uid` = ? OR (`uid` = ? AND NOT `global`)) AND (`network` IN (?, ?, ?, ?) OR (`uid` = ? AND `uid` != ?))",
-			str_replace('@', ' ', $search), 0, $uid, Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, $uid, 0];
+		$search = Post\Engagement::escapeKeywords($search);
+		if ($uid != 0) {
+			$condition = ["MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE) AND (NOT `restricted` OR `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `uid` = ?))", $search, $uid];
+		} else {
+			$condition = ["MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE) AND NOT `restricted`", $search];
+		}
 
 		if (!empty($last_uriid)) {
 			$condition = DBA::mergeConditions($condition, ["`uri-id` < ?", $last_uriid]);
@@ -122,7 +124,7 @@ class Content
 			'limit' => [$start, $limit]
 		];
 
-		$tags = Post::select(['uri-id'], $condition, $params);
+		$tags = DBA::select('post-searchindex', ['uri-id'], $condition, $params);
 
 		$uriids = [];
 		while ($tag = DBA::fetch($tags)) {
@@ -135,9 +137,12 @@ class Content
 
 	public static function countBySearch(string $search, int $uid = 0)
 	{
-		$condition = ["`uri-id` IN (SELECT `uri-id` FROM `post-content` WHERE MATCH (`title`, `content-warning`, `body`) AGAINST (? IN BOOLEAN MODE))
-			AND (`uid` = ? OR (`uid` = ? AND NOT `global`)) AND (`network` IN (?, ?, ?, ?) OR (`uid` = ? AND `uid` != ?))",
-			str_replace('@', ' ', $search), 0, $uid, Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, $uid, 0];
-		return Post::count($condition);
+		$search = Post\Engagement::escapeKeywords($search);
+		if ($uid != 0) {
+			$condition = ["MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE) AND (NOT `restricted` OR `uri-id` IN (SELECT `uri-id` FROM `post-user` WHERE `uid` = ?))", $search, $uid];
+		} else {
+			$condition = ["MATCH (`searchtext`) AGAINST (? IN BOOLEAN MODE) AND NOT `restricted", $search];
+		}
+		return DBA::count('post-searchindex', $condition);
 	}
 }

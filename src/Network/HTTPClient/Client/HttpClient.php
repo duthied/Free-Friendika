@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -73,7 +73,7 @@ class HttpClient implements ICanSendHttpRequests
 			throw new \InvalidArgumentException('Unable to retrieve the host in URL: ' . $url);
 		}
 
-		if(!filter_var($host, FILTER_VALIDATE_IP) && !@dns_get_record($host . '.', DNS_A + DNS_AAAA)) {
+		if(!filter_var($host, FILTER_VALIDATE_IP) && !@dns_get_record($host . '.', DNS_A) && !@dns_get_record($host . '.', DNS_AAAA)) {
 			$this->logger->debug('URL cannot be resolved.', ['url' => $url]);
 			$this->profiler->stopRecording();
 			return CurlResult::createErrorCurl($this->logger, $url);
@@ -271,7 +271,7 @@ class HttpClient implements ICanSendHttpRequests
 	{
 		$ret = $this->fetchFull($url, $accept_content, $timeout, $cookiejar);
 
-		return $ret->getBody();
+		return $ret->getBodyString();
 	}
 
 	/**

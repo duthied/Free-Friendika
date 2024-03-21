@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -250,7 +250,7 @@ class ExAuth
 			return false;
 		}
 
-		$json = @json_decode($curlResult->getBody());
+		$json = @json_decode($curlResult->getBodyString());
 		if (!is_object($json)) {
 			return false;
 		}

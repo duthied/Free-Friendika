@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -29,7 +29,6 @@ use Friendica\Model\Contact;
 use Friendica\Model\User;
 use Friendica\Module\BaseApi;
 use Friendica\Util\DateTimeFormat;
-use GuzzleHttp\Psr7\Uri;
 
 /**
  * OAuth Server
@@ -105,7 +104,10 @@ class OAuth
 		}
 		Logger::debug('Token found', $token);
 
-		User::updateLastActivity($token['uid']);
+		$user = User::getById($token['uid'], ['uid', 'parent-uid', 'last-activity', 'login_date']);
+		if (!empty($user)) {
+			User::updateLastActivity($user, false);
+		}
 
 		// Regularly update suggestions
 		if (Contact\Relation::areSuggestionsOutdated($token['uid'])) {

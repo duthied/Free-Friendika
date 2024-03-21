@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -23,7 +23,6 @@ namespace Friendica\Util;
 
 use DOMDocument;
 use DOMXPath;
-use Friendica\Content\OEmbed;
 use Friendica\Content\Text\HTML;
 use Friendica\Protocol\HTTP\MediaType;
 use Friendica\Core\Hook;
@@ -87,7 +86,7 @@ class ParseUrl
 			return [];
 		}
 
-		$contenttype =  $curlResult->getHeader('Content-Type')[0] ?? '';
+		$contenttype =  $curlResult->getContentType();
 		if (empty($contenttype)) {
 			return ['application', 'octet-stream'];
 		}
@@ -99,8 +98,6 @@ class ParseUrl
 	 * Search for cached embeddable data of an url otherwise fetch it
 	 *
 	 * @param string $url         The url of the page which should be scraped
-	 * @param bool   $do_oembed   The false option is used by the function fetch_oembed()
-	 *                            to avoid endless loops
 	 *
 	 * @return array which contains needed data for embedding
 	 *    string 'url'      => The url of the parsed page
@@ -115,7 +112,7 @@ class ParseUrl
 	 * @see   ParseUrl::getSiteinfo() for more information about scraping
 	 * embeddable content
 	 */
-	public static function getSiteinfoCached(string $url, bool $do_oembed = true): array
+	public static function getSiteinfoCached(string $url): array
 	{
 		if (empty($url)) {
 			return [
@@ -127,14 +124,14 @@ class ParseUrl
 		$urlHash = hash('sha256', $url);
 
 		$parsed_url = DBA::selectFirst('parsed_url', ['content'],
-			['url_hash' => $urlHash, 'oembed' => $do_oembed]
+			['url_hash' => $urlHash, 'oembed' => false]
 		);
 		if (!empty($parsed_url['content'])) {
 			$data = unserialize($parsed_url['content']);
 			return $data;
 		}
 
-		$data = self::getSiteinfo($url, $do_oembed);
+		$data = self::getSiteinfo($url);
 
 		$expires = $data['expires'];
 
@@ -144,7 +141,7 @@ class ParseUrl
 			'parsed_url',
 			[
 				'url_hash' => $urlHash,
-				'oembed'   => $do_oembed,
+				'oembed'   => false,
 				'url'      => $url,
 				'content'  => serialize($data),
 				'created'  => DateTimeFormat::utcNow(),
@@ -167,8 +164,6 @@ class ParseUrl
 	 * \<meta name="description" content="An awesome description"\>
 	 *
 	 * @param string $url         The url of the page which should be scraped
-	 * @param bool   $do_oembed   The false option is used by the function fetch_oembed()
-	 *                            to avoid endless loops
 	 * @param int    $count       Internal counter to avoid endless loops
 	 *
 	 * @return array which contains needed data for embedding
@@ -194,7 +189,7 @@ class ParseUrl
 	 * </body>
 	 * @endverbatim
 	 */
-	public static function getSiteinfo(string $url, bool $do_oembed = true, int $count = 1): array
+	public static function getSiteinfo(string $url, int $count = 1): array
 	{
 		if (empty($url)) {
 			return [
@@ -237,8 +232,13 @@ class ParseUrl
 			return $siteinfo;
 		}
 
-		$curlResult = DI::httpClient()->get($url, HttpClientAccept::HTML, [HttpClientOptions::CONTENT_LENGTH => 1000000]);
-		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
+		try {
+			$curlResult = DI::httpClient()->get($url, HttpClientAccept::HTML, [HttpClientOptions::CONTENT_LENGTH => 1000000]);
+		} catch (\Throwable $th) {
+			Logger::info('Exception when fetching', ['url' => $url, 'code' => $th->getCode(), 'message' => $th->getMessage()]);
+			return $siteinfo;
+		}
+		if (!$curlResult->isSuccess() || empty($curlResult->getBodyString())) {
 			Logger::info('Empty body or error when fetching', ['url' => $url, 'success' => $curlResult->isSuccess(), 'code' => $curlResult->getReturnCode()]);
 			return $siteinfo;
 		}
@@ -252,42 +252,7 @@ class ParseUrl
 			}
 		}
 
-		$body = $curlResult->getBody();
-
-		if ($do_oembed) {
-			$oembed_data = OEmbed::fetchURL($url, false, false);
-
-			if (!empty($oembed_data->type)) {
-				if (!in_array($oembed_data->type, ['error', 'rich', 'image', 'video', 'audio', ''])) {
-					$siteinfo['type'] = $oembed_data->type;
-				}
-
-				// See https://github.com/friendica/friendica/pull/5763#discussion_r217913178
-				if ($siteinfo['type'] != 'photo') {
-					if (!empty($oembed_data->title)) {
-						$siteinfo['title'] = trim($oembed_data->title);
-					}
-					if (!empty($oembed_data->description)) {
-						$siteinfo['text'] = trim($oembed_data->description);
-					}
-					if (!empty($oembed_data->author_name)) {
-						$siteinfo['author_name'] = trim($oembed_data->author_name);
-					}
-					if (!empty($oembed_data->author_url)) {
-						$siteinfo['author_url'] = trim($oembed_data->author_url);
-					}
-					if (!empty($oembed_data->provider_name)) {
-						$siteinfo['publisher_name'] = trim($oembed_data->provider_name);
-					}
-					if (!empty($oembed_data->provider_url)) {
-						$siteinfo['publisher_url'] = trim($oembed_data->provider_url);
-					}
-					if (!empty($oembed_data->thumbnail_url)) {
-						$siteinfo['image'] = $oembed_data->thumbnail_url;
-					}
-				}
-			}
-		}
+		$body = $curlResult->getBodyString();
 
 		$charset = '';
 		try {
@@ -351,7 +316,7 @@ class ParseUrl
 					}
 				}
 				if ($content != '') {
-					$siteinfo = self::getSiteinfo($content, $do_oembed, ++$count);
+					$siteinfo = self::getSiteinfo($content, ++$count);
 					return $siteinfo;
 				}
 			}
@@ -884,7 +849,7 @@ class ParseUrl
 
 			$content = JsonLD::fetchElement($jsonld, 'publisher', 'url');
 			if (!empty($content) && is_string($content)) {
-				$jsonldinfo['publisher_url'] = trim($content);
+				$jsonldinfo['publisher_url'] = Network::sanitizeUrl($content);
 			}
 
 			$brand = JsonLD::fetchElement($jsonld, 'publisher', 'brand', '@type', 'Organization');
@@ -896,7 +861,7 @@ class ParseUrl
 
 				$content = JsonLD::fetchElement($brand, 'url');
 				if (!empty($content) && is_string($content)) {
-					$jsonldinfo['publisher_url'] = trim($content);
+					$jsonldinfo['publisher_url'] = Network::sanitizeUrl($content);
 				}
 
 				$content = JsonLD::fetchElement($brand, 'logo', 'url');
@@ -924,12 +889,12 @@ class ParseUrl
 
 			$content = JsonLD::fetchElement($jsonld, 'author', 'sameAs');
 			if (!empty($content) && is_string($content)) {
-				$jsonldinfo['author_url'] = trim($content);
+				$jsonldinfo['author_url'] = Network::sanitizeUrl($content);
 			}
 
 			$content = JsonLD::fetchElement($jsonld, 'author', 'url');
 			if (!empty($content) && is_string($content)) {
-				$jsonldinfo['author_url'] = trim($content);
+				$jsonldinfo['author_url'] = Network::sanitizeUrl($content);
 			}
 
 			$logo = JsonLD::fetchElement($jsonld, 'author', 'logo');
@@ -1084,7 +1049,7 @@ class ParseUrl
 
 		$content = JsonLD::fetchElement($jsonld, 'url');
 		if (!empty($content) && is_string($content)) {
-			$jsonldinfo['publisher_url'] = trim($content);
+			$jsonldinfo['publisher_url'] = Network::sanitizeUrl($content);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'thumbnailUrl');
@@ -1123,7 +1088,7 @@ class ParseUrl
 
 		$content = JsonLD::fetchElement($jsonld, 'url');
 		if (!empty($content) && is_string($content)) {
-			$jsonldinfo['publisher_url'] = trim($content);
+			$jsonldinfo['publisher_url'] = Network::sanitizeUrl($content);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'logo', 'url', '@type', 'ImageObject');
@@ -1140,7 +1105,7 @@ class ParseUrl
 
 		$content = JsonLD::fetchElement($jsonld, 'brand', 'url', '@type', 'Organization');
 		if (!empty($content) && is_string($content)) {
-			$jsonldinfo['publisher_url'] = trim($content);
+			$jsonldinfo['publisher_url'] = Network::sanitizeUrl($content);
 		}
 
 		Logger::info('Fetched Organization information', ['url' => $siteinfo['url'], 'fetched' => $jsonldinfo]);
@@ -1172,12 +1137,12 @@ class ParseUrl
 
 		$content = JsonLD::fetchElement($jsonld, 'sameAs');
 		if (!empty($content) && is_string($content)) {
-			$jsonldinfo['author_url'] = trim($content);
+			$jsonldinfo['author_url'] = Network::sanitizeUrl($content);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'url');
 		if (!empty($content) && is_string($content)) {
-			$jsonldinfo['author_url'] = trim($content);
+			$jsonldinfo['author_url'] = Network::sanitizeUrl($content);
 		}
 
 		$content = JsonLD::fetchElement($jsonld, 'image', 'url', '@type', 'ImageObject');

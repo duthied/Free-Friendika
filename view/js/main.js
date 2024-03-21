@@ -379,7 +379,7 @@ $(function() {
 	// Allow folks to stop the ajax page updates with the pause/break key
 	$(document).keydown(function(event) {
 		// Pause/Break or Ctrl + Space
-		if (event.which === 19 || (!event.shiftKey && !event.altKey && event.ctrlKey && event.which === 32)) {
+		if (event.which === 19 || (!event.metaKey && !event.shiftKey && !event.altKey && event.ctrlKey && event.which === 32)) {
 			event.preventDefault();
 			if (stopped === false) {
 				stopped = true;
@@ -643,7 +643,7 @@ function liveUpdate(src) {
 
 function updateItem(itemNo) {
 	force_update = true;
-	update_item = itemNo;	
+	update_item = itemNo;
 }
 
 function imgbright(node) {

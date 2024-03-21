@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -379,6 +379,18 @@ class Tag
 	}
 
 	/**
+	 * Check for a given hashtag on a given post
+	 *
+	 * @param integer $uriId
+	 * @param string $tag
+	 * @return boolean
+	 */
+	public static function existsTagForPost(int $uriId, string $tag): bool
+	{
+		return DBA::exists('tag-view', ['uri-id' => $uriId, 'type' => self::HASHTAG, 'name' => $tag]);
+	}
+
+	/**
 	 * Remove tag/mention
 	 *
 	 * @param integer $uriId
@@ -546,7 +558,7 @@ class Tag
 		);
 		while ($tag = DBA::fetch($taglist)) {
 			if ($tag['url'] == '') {
-				$tag['url'] = $searchpath . rawurlencode($tag['name']);
+				$tag['url'] = $searchpath . urlencode($tag['name']);
 			}
 
 			$orig_tag = $tag['url'];
@@ -667,12 +679,11 @@ class Tag
 	 */
 	private static function getBlockedSQL(): string
 	{
-		$blocked_txt = DI::config()->get('system', 'blocked_tags');
-		if (empty($blocked_txt)) {
+		$blocked = Strings::getTagArrayByString(DI::config()->get('system', 'blocked_tags'));
+		if (empty($blocked)) {
 			return '';
 		}
 
-		$blocked = explode(',', $blocked_txt);
 		array_walk($blocked, function (&$value) {
 			$value = "'" . DBA::escape(trim($value)) . "'";
 		});

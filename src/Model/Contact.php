@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -170,6 +170,11 @@ class Contact
 	public static function selectFirstAccount(array $fields = [], array $condition = [], array $params = [])
 	{
 		return DBA::selectFirst('account-view', $fields, $condition, $params);
+	}
+
+	public static function selectFirstAccountUser(array $fields = [], array $condition = [], array $params = [])
+	{
+		return DBA::selectFirst('account-user-view', $fields, $condition, $params);
 	}
 
 	/**
@@ -750,7 +755,7 @@ class Contact
 		$user = DBA::selectFirst(
 			'user',
 			['uid', 'username', 'nickname', 'pubkey', 'prvkey'],
-			['uid' => $uid, 'verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false]
+			['uid' => $uid, 'account_removed' => false, 'account_expired' => false]
 		);
 		if (!DBA::isResult($user)) {
 			return false;
@@ -779,6 +784,7 @@ class Contact
 			'name-date'   => DateTimeFormat::utcNow(),
 			'uri-date'    => DateTimeFormat::utcNow(),
 			'avatar-date' => DateTimeFormat::utcNow(),
+			'baseurl'     => DI::baseUrl(),
 			'closeness'   => 0
 		];
 
@@ -814,7 +820,7 @@ class Contact
 		$fields = [
 			'id', 'uri-id', 'name', 'nick', 'location', 'about', 'keywords', 'avatar', 'prvkey', 'pubkey', 'manually-approve',
 			'xmpp', 'matrix', 'contact-type', 'forum', 'prv', 'avatar-date', 'url', 'nurl', 'unsearchable',
-			'photo', 'thumb', 'micro', 'header', 'addr', 'request', 'notify', 'poll', 'confirm', 'poco', 'network'
+			'photo', 'thumb', 'micro', 'header', 'addr', 'request', 'notify', 'poll', 'confirm', 'poco', 'network', 'baseurl', 'gsid'
 		];
 		$self = DBA::selectFirst('contact', $fields, ['uid' => $uid, 'self' => true]);
 		if (!DBA::isResult($self)) {
@@ -836,7 +842,6 @@ class Contact
 			return false;
 		}
 
-		$file_suffix = 'jpg';
 		$url = DI::baseUrl() . '/profile/' . $user['nickname'];
 
 		$fields = [
@@ -869,17 +874,11 @@ class Contact
 				$fields['avatar-date'] = DateTimeFormat::utcNow();
 			}
 
-			// Creating the path to the avatar, beginning with the file suffix
-			$types = Images::supportedTypes();
-			if (isset($types[$avatar['type']])) {
-				$file_suffix = $types[$avatar['type']];
-			}
-
 			// We are adding a timestamp value so that other systems won't use cached content
 			$timestamp = strtotime($fields['avatar-date']);
 
 			$prefix = DI::baseUrl() . '/photo/' . $avatar['resource-id'] . '-';
-			$suffix = '.' . $file_suffix . '?ts=' . $timestamp;
+			$suffix = Images::getExtensionByMimeType($avatar['type']) . '?ts=' . $timestamp;
 
 			$fields['photo'] = $prefix . '4' . $suffix;
 			$fields['thumb'] = $prefix . '5' . $suffix;
@@ -897,6 +896,8 @@ class Contact
 		$fields['prv'] = $user['page-flags'] == User::PAGE_FLAGS_PRVGROUP;
 		$fields['unsearchable'] = !$profile['net-publish'];
 		$fields['manually-approve'] = in_array($user['page-flags'], [User::PAGE_FLAGS_NORMAL, User::PAGE_FLAGS_PRVGROUP]);
+		$fields['baseurl'] = DI::baseUrl();
+		$fields['gsid'] = GServer::getID($fields['baseurl'], true);
 
 		$update = false;
 
@@ -1129,7 +1130,7 @@ class Contact
 	{
 		// Always unarchive the relay contact entry
 		if (!empty($contact['batch']) && !empty($contact['term-date']) && ($contact['term-date'] > DBA::NULL_DATETIME)) {
-			$fields = ['failed' => false, 'term-date' => DBA::NULL_DATETIME, 'archive' => false];
+			$fields = ['failed' => false, 'term-date' => DBA::NULL_DATETIME, 'archive' => false, 'unsearchable' => true];
 			$condition = ['uid' => 0, 'network' => Protocol::FEDERATED, 'batch' => $contact['batch'], 'contact-type' => self::TYPE_RELAY];
 			if (!DBA::exists('contact', array_merge($condition, $fields))) {
 				self::update($fields, $condition);
@@ -1204,13 +1205,12 @@ class Contact
 			$mention_label = DI::l10n()->t('Post to group');
 			$mention_url = 'compose/0?body=!' . $contact['addr'];
 			$network_label = DI::l10n()->t('View group');
-			$network_url = 'network/group/' . $contact['id'];
 		} else {
 			$mention_label = DI::l10n()->t('Mention');
 			$mention_url = 'compose/0?body=@' . $contact['addr'];
 			$network_label = DI::l10n()->t('Network Posts');
-			$network_url = 'contact/' . $contact['id'] . '/conversations';
 		}
+		$network_url = 'contact/' . $contact['id'] . '/conversations';
 
 		$follow_link   = '';
 		$unfollow_link = '';
@@ -1740,6 +1740,10 @@ class Contact
 
 			case self::TYPE_COMMUNITY:
 				$account_type = DI::l10n()->t("Group");
+				break;
+
+			case self::TYPE_RELAY:
+				$account_type = DI::l10n()->t("Relay");
 				break;
 
 			default:
@@ -2300,9 +2304,9 @@ class Contact
 					try {
 						$fetchResult = HTTPSignature::fetchRaw($avatar, 0, [HttpClientOptions::ACCEPT_CONTENT => [HttpClientAccept::IMAGE]]);
 
-						$img_str = $fetchResult->getBody();
-						if (!empty($img_str)) {
-							$image = new Image($img_str, Images::getMimeTypeByData($img_str));
+						$img_str = $fetchResult->getBodyString();
+						if ($fetchResult->isSuccess() && !empty($img_str)) {
+							$image = new Image($img_str, $fetchResult->getContentType(), $avatar);
 							if ($image->isValid()) {
 								$update_fields['blurhash'] = $image->getBlurHash();
 							} else {
@@ -2815,13 +2819,19 @@ class Contact
 		}
 
 		// We must not try to update relay contacts via probe. They are no real contacts.
+		// See Relay::updateContact() for more details.
 		// We check after the probing to be able to correct falsely detected contact types.
-		if (($contact['contact-type'] == self::TYPE_RELAY) &&
+		if (($contact['contact-type'] == self::TYPE_RELAY) && Strings::compareLink($contact['url'], $contact['baseurl']) &&
 			(!Strings::compareLink($ret['url'], $contact['url']) || in_array($ret['network'], [Protocol::FEED, Protocol::PHANTOM]))
 		) {
-			self::updateContact($id, $uid, $uriid, $contact['url'], ['failed' => false, 'local-data' => $has_local_data, 'last-update' => $updated, 'next-update' => $success_next_update, 'success_update' => $updated]);
-			Logger::info('Not updating relais', ['id' => $id, 'url' => $contact['url']]);
-			return true;
+			if (GServer::reachable($contact)) {
+				self::updateContact($id, $uid, $uriid, $contact['url'], ['failed' => false, 'local-data' => $has_local_data, 'last-update' => $updated, 'next-update' => $success_next_update, 'success_update' => $updated, 'unsearchable' => true]);
+				Logger::info('Not updating relay', ['id' => $id, 'url' => $contact['url']]);
+				return true;
+			}
+			Logger::info('Relay server is not reachable', ['id' => $id, 'url' => $contact['url']]);
+			self::updateContact($id, $uid, $uriid, $contact['url'], ['failed' => true, 'local-data' => $has_local_data, 'last-update' => $updated, 'next-update' => $failed_next_update, 'failure_update' => $updated, 'unsearchable' => true]);
+			return false;
 		}
 
 		// If Probe::uri fails the network code will be different ("feed" or "unkn")
@@ -3092,6 +3102,13 @@ class Contact
 		// This extra param just confuses things, remove it
 		if ($protocol === Protocol::DIASPORA) {
 			$ret['url'] = str_replace('?absolute=true', '', $ret['url']);
+		}
+
+		if (($protocol == Protocol::ACTIVITYPUB) && ($uid != 0)) {
+			if (APContact::isRelay(APContact::getByURL($ret['url']))) {
+				$result['message'] = DI::l10n()->t('This seems to be a relay account. They can\'t be followed by users.');
+				return $result;
+			}
 		}
 
 		// do we have enough information?
@@ -3491,6 +3508,21 @@ class Contact
 	}
 
 	/**
+	 * Return the link to the profile
+	 *
+	 * @param array $contact
+	 * @return string
+	 */
+	public static function getProfileLink(array $contact): string
+	{
+		if (!empty($contact['alias']) && Network::isValidHttpUrl($contact['alias']) && (($contact['network'] ?? '') != Protocol::DFRN)) {
+			return $contact['alias'];
+		} else {
+			return $contact['url'];
+		}
+	}
+
+	/**
 	 * Returns a magic link to authenticate remote visitors
 	 *
 	 * @todo  check if the return is either a fully qualified URL or a relative path to Friendica basedir
@@ -3548,7 +3580,7 @@ class Contact
 	 */
 	public static function magicLinkByContact(array $contact, string $url = ''): string
 	{
-		$destination = $url ?: (!Network::isValidHttpUrl($contact['url']) && !empty($contact['alias']) && Network::isValidHttpUrl($contact['alias']) ? $contact['alias'] : $contact['url']);
+		$destination = $url ?: self::getProfileLink($contact);
 
 		if (!DI::userSession()->isAuthenticated()) {
 			return $destination;

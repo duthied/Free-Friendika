@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -100,7 +100,6 @@ class Photo extends BaseApi
 				$id = $account['id'];
 			}
 
-			// Contact Id Fallback, to remove after version 2021.12
 			if (isset($this->parameters['contact_id'])) {
 				$id = intval($this->parameters['contact_id']);
 			}
@@ -115,12 +114,6 @@ class Photo extends BaseApi
 				$id = $user['uid'];
 			}
 
-			// User Id Fallback, to remove after version 2021.12
-			if (!empty($this->parameters['uid_ext'])) {
-				$id = intval(pathinfo($this->parameters['uid_ext'], PATHINFO_FILENAME));
-			}
-
-			// Please refactor this for the love of everything that's good
 			if (isset($this->parameters['id'])) {
 				$id = $this->parameters['id'];
 			}
@@ -166,13 +159,17 @@ class Photo extends BaseApi
 
 		$stamp = microtime(true);
 
-		$imgdata = MPhoto::getImageDataForPhoto($photo);
+		if (empty($request['blur']) || empty($photo['blurhash'])) {
+			$imgdata  = MPhoto::getImageDataForPhoto($photo);
+			$mimetype = $photo['type'];
+		}
 		if (empty($imgdata) && empty($photo['blurhash'])) {
 			throw new HTTPException\NotFoundException();
 		} elseif (empty($imgdata) && !empty($photo['blurhash'])) {
-			$image = New Image('', 'image/png');
+			$image = New Image('', image_type_to_mime_type(IMAGETYPE_WEBP));
 			$image->getFromBlurHash($photo['blurhash'], $photo['width'], $photo['height']);
-			$imgdata = $image->asString();
+			$imgdata  = $image->asString();
+			$mimetype = $image->getType();
 		}
 
 		// The mimetype for an external or system resource can only be known reliably after it had been fetched
@@ -197,20 +194,23 @@ class Photo extends BaseApi
 		}
 
 		if (!empty($request['static'])) {
-			$img = new Image($imgdata, $photo['type']);
+			$img = new Image($imgdata, $photo['type'], $photo['filename']);
 			$img->toStatic();
-			$imgdata = $img->asString();
+			$imgdata  = $img->asString();
+			$mimetype = $img->getType();
 		}
 
-		// if customsize is set and image is not a gif, resize it
-		if ($photo['type'] !== 'image/gif' && $customsize > 0 && $customsize <= Proxy::PIXEL_THUMB && $square_resize) {
-			$img = new Image($imgdata, $photo['type']);
+		// if customsize is set and image resizing is supported for this image, resize it
+		if (Images::canResize($photo['type']) && $customsize > 0 && $customsize <= Proxy::PIXEL_THUMB && $square_resize) {
+			$img = new Image($imgdata, $photo['type'], $photo['filename']);
 			$img->scaleToSquare($customsize);
-			$imgdata = $img->asString();
-		} elseif ($photo['type'] !== 'image/gif' && $customsize > 0) {
-			$img = new Image($imgdata, $photo['type']);
+			$imgdata  = $img->asString();
+			$mimetype = $img->getType();
+		} elseif (Images::canResize($photo['type']) && $customsize > 0) {
+			$img = new Image($imgdata, $photo['type'], $photo['filename']);
 			$img->scaleDown($customsize);
-			$imgdata = $img->asString();
+			$imgdata  = $img->asString();
+			$mimetype = $img->getType();
 		}
 
 		if (function_exists('header_remove')) {
@@ -218,7 +218,7 @@ class Photo extends BaseApi
 			header_remove('pragma');
 		}
 
-		header('Content-type: ' . $photo['type']);
+		header('Content-type: ' . $mimetype);
 
 		$stamp = microtime(true);
 		if (!$cacheable) {
@@ -389,7 +389,7 @@ class Photo extends BaseApi
 					}
 				}
 				if (empty($mimetext) && !empty($contact['blurhash'])) {
-					$image = New Image('', 'image/png');
+					$image = New Image('', image_type_to_mime_type(IMAGETYPE_WEBP));
 					$image->getFromBlurHash($contact['blurhash'], $customsize, $customsize);
 					return MPhoto::createPhotoForImageData($image->asString());
 				} elseif (empty($mimetext)) {

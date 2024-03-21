@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -104,7 +104,7 @@ abstract class BaseAdmin extends BaseModule
 				'logsview'     => ['admin/logs/view'    , DI::l10n()->t('View Logs')              , 'viewlogs'],
 			]],
 			'diagnostics' => [DI::l10n()->t('Diagnostics'), [
-				'phpinfo'      => ['admin/phpinfo'           , DI::l10n()->t('PHP Info')          , 'phpinfo'],
+				'phpinfo'      => ['admin/phpinfo?t=' . self::getFormSecurityToken('phpinfo'), DI::l10n()->t('PHP Info')                , 'phpinfo'],
 				'probe'        => ['probe'             , DI::l10n()->t('probe address')           , 'probe'],
 				'webfinger'    => ['webfinger'         , DI::l10n()->t('check webfinger')         , 'webfinger'],
 				'babel'        => ['babel'             , DI::l10n()->t('Babel')                   , 'babel'],

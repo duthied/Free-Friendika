@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -56,7 +56,8 @@
 			"push" => ["application-token", "push"],
 		],
 		"query" => "FROM `application-token`
-			INNER JOIN `application` ON `application-token`.`application-id` = `application`.`id`"
+			INNER JOIN `application` ON `application-token`.`application-id` = `application`.`id`
+			INNER JOIN `user` ON `user`.`uid` = `application-token`.`uid` AND `user`.`verified` AND NOT `user`.`blocked` AND NOT `user`.`account_removed` AND NOT `user`.`account_expired`"
 	],
 	"circle-member-view" => [
 		"fields" => [
@@ -86,6 +87,18 @@
 		"query" => "FROM `group_member`
 			INNER JOIN `contact` ON `group_member`.`contact-id` = `contact`.`id`
 			INNER JOIN `group` ON `group_member`.`gid` = `group`.`id`"
+	],
+	"post-counts-view" => [
+		"fields" => [
+			"uri-id" => ["post-counts", "uri-id"],
+			"vid" => ["post-counts", "vid"],
+			"verb" => ["verb", "name"],
+			"reaction" => ["post-counts", "reaction"],
+			"parent-uri-id" => ["post-counts", "parent-uri-id"],
+			"count" => ["post-counts", "count"],
+		],
+		"query" => "FROM `post-counts`
+			INNER JOIN `verb` ON `verb`.`id` = `post-counts`.`vid`"
 	],
 	"post-timeline-view" => [
 		"fields" => [
@@ -129,6 +142,36 @@
 			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id` = `post-user`.`author-id`
 			STRAIGHT_JOIN `contact` AS `owner` ON `owner`.`id` = `post-user`.`owner-id`
 			LEFT JOIN `contact` AS `causer` ON `causer`.`id` = `post-user`.`causer-id`"
+	],
+	"post-searchindex-user-view" => [
+		"fields" => [
+			"uid" => ["post-thread-user", "uid"],
+			"uri-id" => ["post-searchindex", "uri-id"],
+			"owner-id" => ["post-searchindex", "owner-id"],
+			"media-type" => ["post-searchindex", "media-type"],
+			"language" => ["post-searchindex", "language"],
+			"searchtext" => ["post-searchindex", "searchtext"],
+			"size" => ["post-searchindex", "size"],
+			"commented" => ["post-thread-user", "commented"],
+			"received" => ["post-thread-user", "received"],
+			"created" => ["post-thread-user", "created"],
+			"network" => ["post-thread-user", "network"],
+			"restricted" => ["post-searchindex", "language"],
+			"comments" => "0",
+			"activities" => "0",
+		],
+		"query" => "FROM `post-thread-user`
+			INNER JOIN `post-searchindex` ON `post-searchindex`.`uri-id` = `post-thread-user`.`uri-id`
+			INNER JOIN `post-user` ON `post-user`.`id` = `post-thread-user`.`post-user-id`
+			STRAIGHT_JOIN `contact` ON `contact`.`id` = `post-thread-user`.`contact-id`
+			STRAIGHT_JOIN `contact` AS `authorcontact` ON `authorcontact`.`id` = `post-thread-user`.`author-id`
+			STRAIGHT_JOIN `contact` AS `ownercontact` ON `ownercontact`.`id` = `post-thread-user`.`owner-id`
+			WHERE `post-user`.`visible` AND NOT `post-user`.`deleted`
+			AND (NOT `contact`.`readonly` AND NOT `contact`.`blocked` AND NOT `contact`.`pending`)
+			AND (`post-thread-user`.`hidden` IS NULL OR NOT `post-thread-user`.`hidden`)
+			AND NOT `authorcontact`.`blocked` AND NOT `ownercontact`.`blocked`
+			AND NOT EXISTS(SELECT `cid`  FROM `user-contact` WHERE `uid` = `post-thread-user`.`uid` AND `cid` IN (`authorcontact`.`id`, `ownercontact`.`id`) AND (`blocked` OR `ignored`))
+			AND NOT EXISTS(SELECT `gsid` FROM `user-gserver` WHERE `uid` = `post-thread-user`.`uid` AND `gsid` IN (`authorcontact`.`gsid`, `ownercontact`.`gsid`) AND `ignored`)"
 	],
 	"post-user-view" => [
 		"fields" => [
@@ -184,6 +227,7 @@
 			"plink" => ["post-content", "plink"],
 			"location" => ["post-content", "location"],
 			"coord" => ["post-content", "coord"],
+			"sensitive" => ["post-content", "sensitive"],
 			"app" => ["post-content", "app"],
 			"object-type" => ["post-content", "object-type"],
 			"object" => ["post-content", "object"],
@@ -366,6 +410,7 @@
 			"plink" => ["post-content", "plink"],
 			"location" => ["post-content", "location"],
 			"coord" => ["post-content", "coord"],
+			"sensitive" => ["post-content", "sensitive"],
 			"app" => ["post-content", "app"],
 			"object-type" => ["post-content", "object-type"],
 			"object" => ["post-content", "object"],
@@ -534,6 +579,7 @@
 			"plink" => ["post-content", "plink"],
 			"location" => ["post-content", "location"],
 			"coord" => ["post-content", "coord"],
+			"sensitive" => ["post-content", "sensitive"],
 			"app" => ["post-content", "app"],
 			"object-type" => ["post-content", "object-type"],
 			"object" => ["post-content", "object"],
@@ -678,6 +724,7 @@
 			"plink" => ["post-content", "plink"],
 			"location" => ["post-content", "location"],
 			"coord" => ["post-content", "coord"],
+			"sensitive" => ["post-content", "sensitive"],
 			"app" => ["post-content", "app"],
 			"object-type" => ["post-content", "object-type"],
 			"object" => ["post-content", "object"],
@@ -990,8 +1037,6 @@
 			"blockwall" => ["user", "blockwall"],
 			"hidewall" => ["user", "hidewall"],
 			"blocktags" => ["user", "blocktags"],
-			"unkmail" => ["user", "unkmail"],
-			"cntunkmail" => ["user", "cntunkmail"],
 			"notify-flags" => ["user", "notify-flags"],
 			"page-flags" => ["user", "page-flags"],
 			"account-type" => ["user", "account-type"],

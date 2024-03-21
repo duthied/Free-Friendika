@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -123,7 +123,7 @@ class HttpClient extends BaseFactory
 		$resolver->setMaxRedirects(10);
 		$resolver->setRequestTimeout(10);
 		// if the file is too large then exit
-		$resolver->setMaxResponseDataSize(1000000);
+		$resolver->setMaxResponseDataSize($this->config->get('performance', 'max_response_data_size', 1000000));
 		// Designate a temporary file that will store cookies during the session.
 		// Some websites test the browser for cookie support, so this enhances results.
 		$resolver->setCookieJar(System::getTempPath() .'/resolver-cookie-' . Strings::getRandomName(10));

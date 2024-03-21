@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -338,16 +338,13 @@ class Delivery
 			if ($public_dfrn) {
 				Logger::info('Relay delivery to ' . $contact['url'] . ' with guid ' . $target_item['guid'] . ' returns ' . $deliver_status);
 
-				if ($cmd == Delivery::POST) {
-					if (($deliver_status >= 200) && ($deliver_status <= 299)) {
-						Post\DeliveryData::incrementQueueDone($target_item['uri-id'], $protocol);
+				$success = ($deliver_status >= 200) && ($deliver_status <= 299);
 
-						GServer::setProtocol($contact['gsid'] ?? 0, $protocol);
-						$success = true;
-					} else {
-						Post\DeliveryData::incrementQueueFailed($target_item['uri-id']);
-						$success = false;
-					}
+				if ($cmd == Delivery::POST) {
+					Post\DeliveryData::incrementQueueDone($target_item['uri-id'], $protocol);
+					GServer::setProtocol($contact['gsid'] ?? 0, $protocol);
+				} else {
+					Post\DeliveryData::incrementQueueFailed($target_item['uri-id']);
 				}
 				return $success;
 			}

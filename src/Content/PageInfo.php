@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -170,7 +170,7 @@ class PageInfo
 			foreach ($data['keywords'] as $keyword) {
 				/// @TODO make a positive list of allowed characters
 				$hashtag = str_replace([' ', '+', '/', '.', '#', '@', "'", '"', '’', '`', '(', ')', '„', '“'], '', $keyword);
-				$hashtags .= '#[url=' . DI::baseUrl() . '/search?tag=' . $hashtag . ']' . $hashtag . '[/url] ';
+				$hashtags .= '#[url=' . DI::baseUrl() . '/search?tag=' . urlencode($hashtag) . ']' . $hashtag . '[/url] ';
 			}
 		}
 

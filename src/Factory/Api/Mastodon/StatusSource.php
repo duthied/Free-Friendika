@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -38,10 +38,14 @@ class StatusSource extends BaseFactory
 	 */
 	public function createFromUriId(int $uriId, int $uid): \Friendica\Object\Api\Mastodon\StatusSource
 	{
-		$post = Post::selectOriginal(['uri-id', 'raw-body', 'body', 'title'], ['uri-id' => $uriId, 'uid' => [0, $uid]]);
+		$post = Post::selectOriginal(['uri-id', 'raw-body', 'body', 'title', 'content-warning'], ['uri-id' => $uriId, 'uid' => [0, $uid]]);
 
-		$spoiler_text = $post['title'] ?: BBCode::toPlaintext(BBCode::getAbstract($post['body'], Protocol::ACTIVITYPUB));
-		$body         = BBCode::toMarkdown(Post\Media::removeFromEndOfBody($post['body']));
+		$spoiler_text = $post['title'] ?: $post['content-warning'] ?: BBCode::toPlaintext(BBCode::getAbstract($post['body'], Protocol::ACTIVITYPUB));
+
+		$body = Post\Media::removeFromEndOfBody($post['body']);
+		$body = Post\Media::addHTMLLinkToBody($uriId, $body);
+		$body = BBCode::setMentionsToAddr($body);
+		$body = BBCode::toPlaintext($body);
 
 		return new \Friendica\Object\Api\Mastodon\StatusSource($post['uri-id'], $body, $spoiler_text);
 	}

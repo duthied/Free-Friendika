@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -397,7 +397,7 @@ class Transmitter
 
 		$data['url'] = $owner['url'];
 		$data['manuallyApprovesFollowers'] = in_array($owner['page-flags'], [User::PAGE_FLAGS_NORMAL, User::PAGE_FLAGS_PRVGROUP]);
-		$data['discoverable'] = (bool)$owner['net-publish'];
+		$data['discoverable'] = (bool)$owner['net-publish'] && $full;
 		$data['publicKey'] = ['id' => $owner['url'] . '#main-key',
 			'owner' => $owner['url'],
 			'publicKeyPem' => $owner['pubkey']];
@@ -1164,6 +1164,7 @@ class Transmitter
 		}
 
 		$mail['content-warning']  = '';
+		$mail['sensitive']        = false;
 		$mail['author-link']      = $mail['owner-link'] = $mail['from-url'];
 		$mail['owner-id']         = $mail['author-id'];
 		$mail['allow_cid']        = '<'.$mail['contact-id'].'>';
@@ -1698,18 +1699,6 @@ class Transmitter
 	}
 
 	/**
-	 * Returns if the post contains sensitive content ("nsfw")
-	 *
-	 * @param integer $uri_id URI id
-	 * @return boolean Whether URI id was found
-	 * @throws \Exception
-	 */
-	private static function isSensitive(int $uri_id): bool
-	{
-		return DBA::exists('tag-view', ['uri-id' => $uri_id, 'name' => 'nsfw', 'type' => Tag::HASHTAG]);
-	}
-
-	/**
 	 * Creates event data
 	 *
 	 * @param array $item Item array
@@ -1812,7 +1801,7 @@ class Transmitter
 		} else {
 			$data['attributedTo'] = $item['author-link'];
 		}
-		$data['sensitive'] = self::isSensitive($item['uri-id']);
+		$data['sensitive'] = (bool)$item['sensitive'];
 
 		if (!empty($item['conversation']) && ($item['conversation'] != './')) {
 			$data['conversation'] = $data['context'] = $item['conversation'];

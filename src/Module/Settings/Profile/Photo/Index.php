@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -52,8 +52,6 @@ class Index extends BaseSettings
 		$filesize = intval($_FILES['userfile']['size']);
 		$filetype = $_FILES['userfile']['type'];
 
-		$filetype = Images::getMimeTypeBySource($src, $filename, $filetype);
-
 		$maximagesize = Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize', 0));
 
 		if ($maximagesize && $filesize > $maximagesize) {
@@ -63,7 +61,7 @@ class Index extends BaseSettings
 		}
 
 		$imagedata = @file_get_contents($src);
-		$Image = new Image($imagedata, $filetype);
+		$Image = new Image($imagedata, $filetype, $filename);
 
 		if (!$Image->isValid()) {
 			DI::sysmsg()->addNotice(DI::l10n()->t('Unable to process image.'));

@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -58,7 +58,7 @@ class User extends \Asika\SimpleConsole\Console
 console user - Modify user settings per console commands.
 Usage
 	bin/console user password <nickname> [<password>] [-h|--help|-?] [-v]
-	bin/console user add [<name> [<nickname> [<email> [<language>]]]] [-h|--help|-?] [-v]
+	bin/console user add [<name> [<nickname> [<email> [<language> [<avatar_url>]]]]] [-h|--help|-?] [-v]
 	bin/console user delete [<nickname>] [-y] [-h|--help|-?] [-v]
 	bin/console user allow [<nickname>] [-h|--help|-?] [-v]
 	bin/console user deny [<nickname>] [-h|--help|-?] [-v]
@@ -228,10 +228,11 @@ HELP;
 	 */
 	private function addUser()
 	{
-		$name  = $this->getArgument(1);
-		$nick  = $this->getArgument(2);
-		$email = $this->getArgument(3);
-		$lang  = $this->getArgument(4);
+		$name   = $this->getArgument(1);
+		$nick   = $this->getArgument(2);
+		$email  = $this->getArgument(3);
+		$lang   = $this->getArgument(4);
+		$avatar = $this->getArgument(5);
 
 		if (empty($name)) {
 			$this->out($this->l10n->t('Enter user name: '));
@@ -262,10 +263,15 @@ HELP;
 			$lang = CliPrompt::prompt();
 		}
 
+		if (empty($avatar)) {
+			$this->out($this->l10n->t('Enter URL of an image to use as avatar (optional): '));
+			$avatar = CliPrompt::prompt();
+		}
+
 		if (empty($lang)) {
 			return UserModel::createMinimal($name, $email, $nick);
 		} else {
-			return UserModel::createMinimal($name, $email, $nick, $lang);
+			return UserModel::createMinimal($name, $email, $nick, $lang, $avatar);
 		}
 	}
 

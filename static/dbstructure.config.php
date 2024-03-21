@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -56,7 +56,7 @@ use Friendica\Database\DBA;
 
 // This file is required several times during the test in DbaDefinition which justifies this condition
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1542);
+	define('DB_UPDATE_VERSION', 1557);
 }
 
 return [
@@ -130,8 +130,6 @@ return [
 			"blockwall" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Prohibit contacts to post to the profile page of the user"],
 			"hidewall" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Hide profile details from unknown viewers"],
 			"blocktags" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Prohibit contacts to tag the post of this user"],
-			"unkmail" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Permit unknown people to send private mails to this user"],
-			"cntunkmail" => ["type" => "int unsigned", "not null" => "1", "default" => "10", "comment" => ""],
 			"notify-flags" => ["type" => "smallint unsigned", "not null" => "1", "default" => "65535", "comment" => "email notification options"],
 			"page-flags" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => "page/profile type"],
 			"account-type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
@@ -562,8 +560,13 @@ return [
 			"access-key" => ["type" => "varchar(1)", "comment" => "Access key"],
 			"include-tags" => ["type" => "varchar(1023)", "comment" => "Comma separated list of tags that will be included in the channel"],
 			"exclude-tags" => ["type" => "varchar(1023)", "comment" => "Comma separated list of tags that aren't allowed in the channel"],
+			"min-size" => ["type" => "int unsigned", "comment" => "Minimum post size"],
+			"max-size" => ["type" => "int unsigned", "comment" => "Maximum post size"],
 			"full-text-search" => ["type" => "varchar(1023)", "comment" => "Full text search pattern, see https://mariadb.com/kb/en/full-text-index-overview/#in-boolean-mode"],
 			"media-type" => ["type" => "smallint unsigned", "comment" => "Filtered media types"],
+			"languages" => ["type" => "mediumtext", "comment" => "Desired languages"],
+			"publish" => ["type" => "boolean", "comment" => "publish channel content"],
+			"valid" => ["type" => "boolean", "comment" => "Set, when the full-text-search is valid"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
@@ -595,6 +598,7 @@ return [
 			"relation-score" => ["type" => "smallint unsigned", "comment" => "score for interactions of relation-cid on cid"],
 			"thread-score" => ["type" => "smallint unsigned", "comment" => "score for interactions of cid on threads of relation-cid"],
 			"relation-thread-score" => ["type" => "smallint unsigned", "comment" => "score for interactions of relation-cid on threads of cid"],
+			"post-score" => ["type" => "smallint unsigned", "comment" => "score for the amount of posts from cid that can be seen by relation-cid"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["cid", "relation-cid"],
@@ -1242,7 +1246,7 @@ return [
 	"post-activity" => [
 		"comment" => "Original remote activity",
 		"fields" => [
-			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1",  "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
 			"activity" => ["type" => "mediumtext", "comment" => "Original activity"],
 			"received" => ["type" => "datetime", "comment" => ""],
 		],
@@ -1253,7 +1257,7 @@ return [
 	"post-category" => [
 		"comment" => "post relation to categories",
 		"fields" => [
-			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1",  "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "primary" => "1", "foreign" => ["user" => "uid"], "comment" => "User id"],
 			"type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "primary" => "1", "comment" => ""],
 			"tid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "primary" => "1", "foreign" => ["tag" => "id", "on delete" => "restrict"], "comment" => ""],
@@ -1262,6 +1266,21 @@ return [
 			"PRIMARY" => ["uri-id", "uid", "type", "tid"],
 			"tid" => ["tid"],
 			"uid_uri-id" => ["uid", "uri-id"],
+		]
+	],
+	"post-counts" => [
+		"comment" => "Original remote activity",
+		"fields" => [
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"vid" => ["type" => "smallint unsigned", "not null" => "1", "primary" => "1", "foreign" => ["verb" => "id", "on delete" => "restrict"], "comment" => "Id of the verb table entry that contains the activity verbs"],
+			"reaction" => ["type" => "varchar(4)", "not null" => "1", "primary" => "1", "comment" => "Emoji Reaction"],
+			"parent-uri-id" => ["type" => "int unsigned", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table that contains the parent uri"],
+			"count" => ["type" => "int unsigned", "default" => 0, "comment" => "Number of activities"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["uri-id", "vid", "reaction"],
+			"vid" => ["vid"],
+			"parent-uri-id" => ["parent-uri-id"],
 		]
 	],
 	"post-collection" => [
@@ -1289,6 +1308,7 @@ return [
 			"location" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "text location where this item originated"],
 			"coord" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "longitude/latitude pair representing location where this item originated"],
 			"language" => ["type" => "text", "comment" => "Language information about this post"],
+			"sensitive" => ["type" => "boolean", "comment" => "If true, this post contains sensitive content"],
 			"app" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "application which generated this item"],
 			"rendered-hash" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""],
 			"rendered-html" => ["type" => "mediumtext", "comment" => "item.body converted to html"],
@@ -1303,7 +1323,6 @@ return [
 			"PRIMARY" => ["uri-id"],
 			"plink" => ["plink(191)"],
 			"resource-id" => ["resource-id"],
-			"title-content-warning-body" => ["FULLTEXT", "title", "content-warning", "body"],
 			"quote-uri-id" => ["quote-uri-id"],
 		]
 	],
@@ -1346,13 +1365,15 @@ return [
 	"post-engagement" => [
 		"comment" => "Engagement data per post",
 		"fields" => [
-			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1",  "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
 			"owner-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id"], "comment" => "Item owner"],
 			"contact-type" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => "Person, organisation, news, community, relay"],
 			"media-type" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => "Type of media in a bit array (1 = image, 2 = video, 4 = audio"],
-			"language" => ["type" => "varbinary(128)", "comment" => "Language information about this post"],
+			"language" => ["type" => "char(2)", "comment" => "Language information about this post in the ISO 639-1 format"],
 			"searchtext" => ["type" => "mediumtext", "comment" => "Simplified text for the full text search"],
+			"size" => ["type" => "int unsigned", "comment" => "Body size"],
 			"created" => ["type" => "datetime", "comment" => ""],
+			"network" => ["type" => "char(4)", "comment" => ""],
 			"restricted" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "If true, this post is either unlisted or not from a federated network"],
 			"comments" => ["type" => "mediumint unsigned", "comment" => "Number of comments"],
 			"activities" => ["type" => "mediumint unsigned", "comment" => "Number of activities (like, dislike, ...)"],
@@ -1462,6 +1483,25 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["uri-id", "id"],
+		]
+	],
+	"post-searchindex" => [
+		"comment" => "Content for all posts",
+		"fields" => [
+			"uri-id" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "foreign" => ["item-uri" => "id"], "comment" => "Id of the item-uri table entry that contains the item uri"],
+			"owner-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "foreign" => ["contact" => "id"], "comment" => "Item owner"],
+			"media-type" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => "Type of media in a bit array (1 = image, 2 = video, 4 = audio"],
+			"language" => ["type" => "char(2)", "comment" => "Language information about this post in the ISO 639-1 format"],
+			"searchtext" => ["type" => "mediumtext", "comment" => "Simplified text for the full text search"],
+			"size" => ["type" => "int unsigned", "comment" => "Body size"],
+			"created" => ["type" => "datetime", "comment" => ""],
+			"restricted" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "If true, this post is either unlisted or not from a federated network"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["uri-id"],
+			"owner-id" => ["owner-id"],
+			"created" => ["created"],
+			"searchtext" => ["FULLTEXT", "searchtext"],
 		]
 	],
 	"post-tag" => [
@@ -1692,7 +1732,6 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["id"],
 			"uid_is-default" => ["uid", "is-default"],
-			"pub_keywords" => ["FULLTEXT", "pub_keywords"],
 		]
 	],
 	"profile_field" => [

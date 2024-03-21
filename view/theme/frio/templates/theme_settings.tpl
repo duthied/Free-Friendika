@@ -1,20 +1,12 @@
-<script src="{{$baseurl}}/view/theme/frio/js/jquery.tools.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
-<script type="text/javascript" src="{{$baseurl}}/view/js/ajaxupload.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+<script src="{{$baseurl}}/view/theme/frio/js/jquery.tools.min.js?v={{constant('\Friendica\App::VERSION')}}"></script>
+<script type="text/javascript" src="{{$baseurl}}/view/js/ajaxupload.js?v={{constant('\Friendica\App::VERSION')}}"></script>
 
 <div class="form-group field select">
 	<label for="id_{{$scheme.0}}">{{$scheme.1}}</label>
 	<select name="{{$scheme.0}}" id="id_{{$scheme.0}}" class="form-control">
-		<option value="---" {{if '---' == $scheme.2}}selected="selected"{{/if}}>{{$custom}}</option>
-		<optgroup label="{{$accented}}">
 	{{foreach $scheme.3 as $value => $label}}
-			<option value="{{$value}}" {{if $value == $scheme.2}}selected="selected"{{/if}}>{{$label}}</option>
+		<option value="{{$value}}" {{if $value == $scheme.2}}selected="selected"{{/if}}>{{$label}}</option>
 	{{/foreach}}
-		</optgroup>
-		<optgroup label="{{$legacy}}">
-	{{foreach $scheme.4 as $value => $label}}
-			<option value="{{$value}}" {{if $value == $scheme.2}}selected="selected"{{/if}}>{{$label}}</option>
-	{{/foreach}}
-		</optgroup>
 	</select>
 </div>
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -263,7 +263,7 @@ class ErrorHandler
 	public function handleError(int $code, string $message, string $file = '', int $line = 0, ?array $context = []): bool
 	{
 		if ($this->handleOnlyReportedErrors && !(error_reporting() & $code)) {
-			return false;
+			return true;
 		}
 
 		// fatal error codes are ignored if a fatal error handler is present as well to avoid duplicate log entries

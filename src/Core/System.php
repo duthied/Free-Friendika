@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -230,7 +230,7 @@ class System
 	 * @param int     $offset  How many calls to shave off the top of the stack, for example if
 	 *                         this is called from a centralized method that isn't relevant to the callstack
 	 * @param bool    $full    If enabled, the callstack is not compacted
-	 * @param array   $exclude 
+	 * @param array   $exclude
 	 * @return string
 	 */
 	public static function callstack(int $depth = 4, int $offset = 0, bool $full = false, array $exclude = []): string
@@ -473,7 +473,7 @@ class System
 			return false;
 		}
 
-		return max($load_arr[0], $load_arr[1]);
+		return round(max($load_arr[0], $load_arr[1]), 2);
 	}
 
 	/**

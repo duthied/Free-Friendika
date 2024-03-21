@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -656,10 +656,6 @@ class Conversation
 			* But for now, this array respects the old style, just in case
 			*/
 			foreach ($items as $item) {
-				if (in_array($item['author-id'], $this->getBlocklist())) {
-					continue;
-				}
-
 				// Can we put this after the visibility check?
 				$this->builtinActivityPuller($item, $conv_responses);
 
@@ -692,29 +688,6 @@ class Conversation
 		}
 
 		return $threads;
-	}
-
-	private function getBlocklist(): array
-	{
-		if (!$this->session->getLocalUserId()) {
-			return [];
-		}
-
-		$str_blocked = str_replace(["\n", "\r"], ",", $this->pConfig->get($this->session->getLocalUserId(), 'system', 'blocked') ?? '');
-		if (empty($str_blocked)) {
-			return [];
-		}
-
-		$blocklist = [];
-
-		foreach (explode(',', $str_blocked) as $entry) {
-			$cid = Contact::getIdForURL(trim($entry), 0, false);
-			if (!empty($cid)) {
-				$blocklist[] = $cid;
-			}
-		}
-
-		return $blocklist;
 	}
 
 	/**
@@ -893,6 +866,7 @@ class Conversation
 
 		$emojis      = $this->getEmojis($uriids);
 		$quoteshares = $this->getQuoteShares($uriids);
+		$counts      = $this->getCounts($uriids);
 
 		if (!$this->config->get('system', 'legacy_activities')) {
 			$condition = DBA::mergeConditions($condition, ["(`gravity` != ? OR `origin`)", ItemModel::GRAVITY_ACTIVITY]);
@@ -900,7 +874,7 @@ class Conversation
 
 		$condition = DBA::mergeConditions(
 			$condition,
-			["`uid` IN (0, ?) AND (NOT `vid` IN (?, ?, ?) OR `vid` IS NULL)", $uid, Verb::getID(Activity::FOLLOW), Verb::getID(Activity::VIEW), Verb::getID(Activity::READ)]
+			["`uid` IN (0, ?) AND (NOT `verb` IN (?, ?, ?) OR `verb` IS NULL)", $uid, Activity::FOLLOW, Activity::VIEW, Activity::READ]
 		);
 
 		$condition = DBA::mergeConditions($condition, ["(`uid` != ? OR `private` != ?)", 0, ItemModel::PRIVATE]);
@@ -1017,6 +991,7 @@ class Conversation
 
 		foreach ($items as $key => $row) {
 			$items[$key]['emojis']      = $emojis[$key] ?? [];
+			$items[$key]['counts']      = $counts[$key] ?? 0;
 			$items[$key]['quoteshares'] = $quoteshares[$key] ?? [];
 
 			$always_display = in_array($mode, [self::MODE_CONTACTS, self::MODE_CONTACT_POSTS]);
@@ -1050,6 +1025,16 @@ class Conversation
 	 */
 	private function getEmojis(array $uriids): array
 	{
+		$emojis = [];
+
+		foreach (Post\Counts::get(['parent-uri-id' => $uriids]) as $count) {
+			$emojis[$count['uri-id']][$count['reaction']]['emoji'] = $count['reaction'];
+			$emojis[$count['uri-id']][$count['reaction']]['verb']  = Verb::getByID($count['vid']);
+			$emojis[$count['uri-id']][$count['reaction']]['total'] = $count['count'];
+			$emojis[$count['uri-id']][$count['reaction']]['title'] = [];
+		}
+
+		// @todo The following code should be removed, once that we display activity authors on demand 
 		$activity_emoji = [
 			Activity::LIKE        => '👍',
 			Activity::DISLIKE     => '👎',
@@ -1058,40 +1043,47 @@ class Conversation
 			Activity::ATTENDNO    => '❌',
 			Activity::ANNOUNCE    => '♻',
 			Activity::VIEW        => '📺',
+			Activity::READ        => '📖',
 		];
 
-		$index_list = array_values($activity_emoji);
-		$verbs      = array_merge(array_keys($activity_emoji), [Activity::EMOJIREACT, Activity::POST]);
-
+		$verbs     = array_merge(array_keys($activity_emoji), [Activity::EMOJIREACT, Activity::POST]);
 		$condition = DBA::mergeConditions(['parent-uri-id' => $uriids, 'gravity' => [ItemModel::GRAVITY_ACTIVITY, ItemModel::GRAVITY_COMMENT], 'verb' => $verbs], ["NOT `deleted`"]);
 		$separator = chr(255) . chr(255) . chr(255);
 
-		$sql = "SELECT `thr-parent-id`, `body`, `verb`, `gravity`, COUNT(*) AS `total`, GROUP_CONCAT(REPLACE(`author-name`, '" . $separator . "', ' ') SEPARATOR '" . $separator . "' LIMIT 50) AS `title` FROM `post-view` WHERE " . array_shift($condition) . " GROUP BY `thr-parent-id`, `verb`, `body`, `gravity`";
-
-		$emojis = [];
+		$sql = "SELECT `parent-uri-id`, `thr-parent-id`, `body`, `verb`, `gravity`, GROUP_CONCAT(REPLACE(`author-name`, '" . $separator . "', ' ') SEPARATOR '" . $separator . "' LIMIT 50) AS `title` FROM `post-view` WHERE " . array_shift($condition) . " GROUP BY `parent-uri-id`, `thr-parent-id`, `verb`, `body`, `gravity`";
 
 		$rows = DBA::p($sql, $condition);
 		while ($row = DBA::fetch($rows)) {
 			if ($row['gravity'] == ItemModel::GRAVITY_ACTIVITY) {
-				$row['verb'] = $row['body'] ? Activity::EMOJIREACT : $row['verb'];
-				$emoji       = $row['body'] ?: $activity_emoji[$row['verb']];
+				$emoji = $row['body'] ?: $activity_emoji[$row['verb']];
 			} else {
 				$emoji = '';
 			}
 
-			if (!isset($index_list[$emoji])) {
-				$index_list[] = $emoji;
+			if (isset($emojis[$row['thr-parent-id']][$emoji]['title'])) {
+				$emojis[$row['thr-parent-id']][$emoji]['title'] = array_unique(array_merge($emojis[$row['thr-parent-id']][$emoji]['title'] ?? [], explode($separator, $row['title'])));
 			}
-			$index = array_search($emoji, $index_list);
-
-			$emojis[$row['thr-parent-id']][$index]['emoji'] = $emoji;
-			$emojis[$row['thr-parent-id']][$index]['verb']  = $row['verb'];
-			$emojis[$row['thr-parent-id']][$index]['total'] = ($emojis[$row['thr-parent-id']][$index]['total'] ?? 0) + $row['total'];
-			$emojis[$row['thr-parent-id']][$index]['title'] = array_unique(array_merge($emojis[$row['thr-parent-id']][$index]['title'] ?? [], explode($separator, $row['title'])));
 		}
 		DBA::close($rows);
 
 		return $emojis;
+	}
+
+	/**
+	 * Fetch comment counts from the conversation
+	 *
+	 * @param array $uriids
+	 * @return array
+	 */
+	private function getCounts(array $uriids): array
+	{
+		$counts = [];
+
+		foreach (Post\Counts::get(['parent-uri-id' => $uriids, 'verb' => Activity::POST]) as $count) {
+			$counts[$count['parent-uri-id']] = ($counts[$count['parent-uri-id']] ?? 0) + $count['count'];
+		}
+
+		return $counts;
 	}
 
 	/**
@@ -1274,16 +1266,10 @@ class Conversation
 			return $parents;
 		}
 
-		$blocklist = $this->getBlocklist();
-
 		$item_array = [];
 
 		// Dedupes the item list on the uri to prevent infinite loops
 		foreach ($item_list as $item) {
-			if (in_array($item['author-id'], $blocklist)) {
-				continue;
-			}
-
 			$item_array[$item['uri-id']] = $item;
 		}
 
@@ -1469,10 +1455,6 @@ class Conversation
 			$uriids[] = $item['uri-id'];
 
 			if (!$this->item->isVisibleActivity($item)) {
-				continue;
-			}
-
-			if (in_array($item['author-id'], $this->getBlocklist())) {
 				continue;
 			}
 

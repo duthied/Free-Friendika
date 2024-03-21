@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (C) 2010-2023, the Friendica project
+ * @copyright Copyright (C) 2010-2024, the Friendica project
  *
  * @license GNU AGPL version 3 or any later version
  *
@@ -154,7 +154,7 @@ class PubSubHubBub extends \Friendica\BaseModule
 		$separator    = parse_url($hub_callback, PHP_URL_QUERY) === null ? '?' : '&';
 
 		$fetchResult = $this->httpClient->fetchFull($hub_callback . $separator . $params);
-		$body        = $fetchResult->getBody();
+		$body        = $fetchResult->getBodyString();
 		$returnCode  = $fetchResult->getReturnCode();
 
 		// give up if the HTTP return code wasn't a success (2xx)
