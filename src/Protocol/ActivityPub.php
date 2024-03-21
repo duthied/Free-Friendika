@@ -95,16 +95,17 @@ class ActivityPub
 	public static function isRequest(): bool
 	{
 		header('Vary: Accept', false);
-
-		$isrequest = stristr($_SERVER['HTTP_ACCEPT'] ?? '', 'application/activity+json') ||
-			stristr($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') ||
-			stristr($_SERVER['HTTP_ACCEPT'] ?? '', 'application/ld+json');
-
-		if ($isrequest) {
+		if (stristr($_SERVER['HTTP_ACCEPT'] ?? '', 'application/activity+json') || stristr($_SERVER['HTTP_ACCEPT'] ?? '', 'application/ld+json')) {
 			Logger::debug('Is AP request', ['accept' => $_SERVER['HTTP_ACCEPT'], 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '']);
+			return true;
 		}
 
-		return $isrequest;
+		if (stristr($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json')) {
+			Logger::debug('Is JSON request', ['accept' => $_SERVER['HTTP_ACCEPT'], 'agent' => $_SERVER['HTTP_USER_AGENT'] ?? '']);
+			return true;
+		}
+
+		return false;
 	}
 
 	private static function getAccountType(array $apcontact): int
