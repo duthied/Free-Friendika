@@ -34,6 +34,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model;
 use Friendica\Model\User;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Profiler;
 use Friendica\Util\Proxy;
 use Psr\Log\LoggerInterface;
@@ -86,7 +87,7 @@ class Register extends BaseModule
 			}
 		}
 
-		if (!DI::userSession()->getLocalUserId() && (intval(DI::config()->get('config', 'register_policy')) === self::CLOSED)) {
+		if (!DI::userSession()->getLocalUserId() && self::getPolicy() === self::CLOSED) {
 			DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 			return '';
 		}
@@ -144,7 +145,7 @@ class Register extends BaseModule
 
 		$o = Renderer::replaceMacros($tpl, [
 			'$invitations'  => DI::config()->get('system', 'invitation_only'),
-			'$permonly'     => intval(DI::config()->get('config', 'register_policy')) === self::APPROVE,
+			'$permonly'     => self::getPolicy() === self::APPROVE,
 			'$permonlybox'  => ['permonlybox', DI::l10n()->t('Note for the admin'), '', DI::l10n()->t('Leave a message for the admin, why you want to join this node'), DI::l10n()->t('Required')],
 			'$invite_desc'  => DI::l10n()->t('Membership on this site is by invitation only.'),
 			'$invite_label' => DI::l10n()->t('Your invitation code: '),
@@ -228,7 +229,7 @@ class Register extends BaseModule
 			}
 		}
 
-		switch (DI::config()->get('config', 'register_policy')) {
+		switch (self::getPolicy()) {
 			case self::OPEN:
 				$blocked = 0;
 				$verified = 1;
@@ -312,7 +313,7 @@ class Register extends BaseModule
 
 		$base_url = (string)DI::baseUrl();
 
-		if ($netpublish && intval(DI::config()->get('config', 'register_policy')) !== self::APPROVE) {
+		if ($netpublish && self::getPolicy() !== self::APPROVE) {
 			$url = $base_url . '/profile/' . $user['nickname'];
 			Worker::add(Worker::PRIORITY_LOW, 'Directory', $url);
 		}
@@ -327,7 +328,7 @@ class Register extends BaseModule
 		$num_invites   = DI::config()->get('system', 'number_invites');
 		$invite_id = (!empty($_POST['invite_id']) ? trim($_POST['invite_id']) : '');
 
-		if (intval(DI::config()->get('config', 'register_policy')) === self::OPEN) {
+		if (self::getPolicy() === self::OPEN) {
 			if ($using_invites && $invite_id) {
 				Model\Register::deleteByHash($invite_id);
 				DI::pConfig()->set($user['uid'], 'system', 'invites_remaining', $num_invites);
@@ -363,7 +364,7 @@ class Register extends BaseModule
 				}
 				DI::baseUrl()->redirect();
 			}
-		} elseif (intval(DI::config()->get('config', 'register_policy')) === self::APPROVE) {
+		} elseif (self::getPolicy() === self::APPROVE) {
 			if (!User::getAdminEmailList()) {
 				$this->logger->critical('Registration policy is set to APPROVE but no admin email address has been set in config.admin_email');
 				DI::sysmsg()->addNotice(DI::l10n()->t('Your registration can not be processed.'));
@@ -425,5 +426,20 @@ class Register extends BaseModule
 				'show_in_notification_page' => false
 			]);
 		}
+	}
+	public static function getPolicy(): int
+	{
+		$days = DI::config()->get('system', 'admin_inactivity_limit');
+		if ($days == 0) {
+			return intval(DI::config()->get('config', 'register_policy'));
+		}
+
+		$inactive_since = DateTimeFormat::utc('now - ' . $days . ' day');
+		foreach (User::getAdminList(['login_date']) as $admin) {
+			if (strtotime($admin['login_date']) > strtotime($inactive_since)) {
+				return intval(DI::config()->get('config', 'register_policy'));
+			}
+		}
+		return self::CLOSED;		
 	}
 }

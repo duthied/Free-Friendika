@@ -166,9 +166,9 @@ class InstanceV2 extends BaseApi
 
 	private function buildRegistrationsInfo(): InstanceEntity\Registrations
 	{
-		$register_policy   = intval($this->config->get('config', 'register_policy'));
-		$enabled           = ($register_policy != Register::CLOSED);
-		$approval_required = ($register_policy == Register::APPROVE);
+		$register_policy   = Register::getPolicy();
+		$enabled           = $register_policy !== Register::CLOSED;
+		$approval_required = $register_policy === Register::APPROVE;
 
 		return new InstanceEntity\Registrations($enabled, $approval_required);
 	}

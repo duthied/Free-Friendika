@@ -30,7 +30,6 @@ use Friendica\Core\KeyValueStorage\Capability\IManageKeyValuePairs;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session\Capability\IHandleUserSessions;
-use Friendica\Core\System;
 use Friendica\Database\PostUpdate;
 use Friendica\Model\User;
 use Friendica\Network\HTTPException;
@@ -154,7 +153,7 @@ class Friendica extends BaseModule
 			Register::OPEN    => 'REGISTER_OPEN'
 		];
 
-		$register_policy_int = $this->config->get('config', 'register_policy');
+		$register_policy_int = Register::getPolicy();
 		if ($register_policy_int !== Register::CLOSED && $this->config->get('config', 'invitation_only')) {
 			$register_policy = 'REGISTER_INVITATION';
 		} else {

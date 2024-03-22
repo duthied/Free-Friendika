@@ -251,7 +251,7 @@ class Nav
 			$nav['home'] = [$homelink, $this->l10n->t('Home'), '', $this->l10n->t('Home Page')];
 		}
 
-		if (intval($this->config->get('config', 'register_policy')) === \Friendica\Module\Register::OPEN && !$this->session->isAuthenticated()) {
+		if (\Friendica\Module\Register::getPolicy() === \Friendica\Module\Register::OPEN && !$this->session->isAuthenticated()) {
 			$nav['register'] = ['register', $this->l10n->t('Register'), '', $this->l10n->t('Create an account')];
 		}
 
