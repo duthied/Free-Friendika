@@ -228,7 +228,6 @@ class Channels extends BaseSettings
 				'confirm_delete' => $this->t('Delete entry from the channel list?'),
 			],
 			'$entries' => $channels,
-			'$baseurl' => $this->baseUrl,
 
 			'$form_security_token' => self::getFormSecurityToken('settings_channels'),
 		]);

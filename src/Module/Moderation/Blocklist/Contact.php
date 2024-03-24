@@ -124,8 +124,6 @@ class Contact extends BaseModeration
 			'$form_security_token' => self::getFormSecurityToken('moderation_contactblock'),
 
 			// values //
-			'$baseurl' => $this->baseUrl,
-
 			'$contacts'       => $contacts,
 			'$total_contacts' => $this->tt('%s total blocked contact', '%s total blocked contacts', $total),
 			'$paginate'       => $pager->renderFull($total),
