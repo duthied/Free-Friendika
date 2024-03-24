@@ -196,7 +196,7 @@ class Summary extends BaseAdmin
 			'$title'          => DI::l10n()->t('Administration'),
 			'$page'           => DI::l10n()->t('Summary'),
 			'$queues'         => $queues,
-			'$version'        => [DI::l10n()->t('Version'), App::VERSION],
+			'$version_label'  => DI::l10n()->t('Version'),
 			'$platform'       => App::PLATFORM,
 			'$codename'       => App::CODENAME,
 			'$build'          => DI::config()->get('system', 'build'),
