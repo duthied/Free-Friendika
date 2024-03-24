@@ -31,8 +31,8 @@
 		{{* The Friendica version. *}}
 		<div id="admin-summary-version" class="col-lg-12 col-md-12 col-sm-12 col-xs-12 admin-summary">
 			<hr class="admin-summary-separator">
-			<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 admin-summary-label-name text-muted">{{$version.0}}</div>
-			<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12 admin-summary-entry">{{$platform}} '{{$codename}}' {{$version.1}} - {{$build}}</div>
+			<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 admin-summary-label-name text-muted">{{$version_label}}</div>
+			<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12 admin-summary-entry">{{$platform}} '{{$codename}}' {{$VERSION}} - {{$build}}</div>
 		</div>
 
 		{{* Server Settings. *}}

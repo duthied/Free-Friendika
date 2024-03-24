@@ -75,8 +75,11 @@ class Renderer
 	{
 		DI::profiler()->startRecording('rendering');
 
-		// pass $baseurl to all templates if it isn't set
-		$vars = array_merge(['$baseurl' => DI::baseUrl(), '$APP' => DI::app()], $vars);
+		// Default template variables
+		$vars = array_merge([
+			'$baseurl' => DI::baseUrl(),
+			'$VERSION' => \Friendica\App::VERSION,
+		], $vars);
 
 		$t = self::getTemplateEngine();
 

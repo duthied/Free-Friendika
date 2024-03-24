@@ -1,4 +1,4 @@
-<script src="{{$baseurl}}/view/asset/Chart-js/dist/Chart.min.js?v={{constant('\Friendica\App::VERSION')}}"></script>
+<script src="{{$baseurl}}/view/asset/Chart-js/dist/Chart.min.js?v={{$VERSION}}"></script>
 <div id="adminpage">
 	<h1>{{$title}} - {{$page}}</h1>
 
@@ -115,7 +115,7 @@
 				<ul class="federation-stats">
 				{{foreach $c[1] as $v}}
 					<li>
-						{{if ($c[0]['platform']==='Friendica' and  $version===$v['version']) }}
+						{{if $c[0]['platform'] === 'Friendica' && $VERSION === $v['version']}}
 						<span class="version-match">{{$v['version']}}</span>
 						{{else}}
 						{{$v['version']}}

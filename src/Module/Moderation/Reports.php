@@ -95,8 +95,6 @@ class Reports extends BaseModeration
 			'$th_reports' => [$this->t('Created'), $this->t('Photo'), $this->t('Name'), $this->t('Comment'), $this->t('Category')],
 
 			// values //
-			'$baseurl' => $this->baseUrl,
-
 			'$reports'       => $reports,
 			'$total_reports' => $this->tt('%s total report', '%s total reports', $total),
 			'$paginate'      => $pager->renderFull($total),

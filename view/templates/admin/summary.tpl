@@ -16,16 +16,16 @@
 
 	<dl>
 		<dt>{{$addons.0}}</dt>
-		
+
 		{{foreach $addons.1 as $p}}
 			<dd><a href="{{$baseurl}}/admin/addons/{{$p}}/">{{$p}}</a></dd>
 		{{/foreach}}
-		
+
 	</dl>
 
 	<dl>
-		<dt>{{$version.0}}</dt>
-		<dd> {{$platform}} '{{$codename}}' {{$version.1}} - {{$build}}</dt>
+		<dt>{{$version_label}}</dt>
+		<dd> {{$platform}} '{{$codename}}' {{$VERSION}} - {{$build}}</dt>
 	</dl>
 
 	<dl>

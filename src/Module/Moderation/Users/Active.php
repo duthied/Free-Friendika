@@ -150,7 +150,6 @@ class Active extends BaseUsers
 			'$form_security_token' => self::getFormSecurityToken('moderation_users_active'),
 
 			// values //
-			'$baseurl'      => $this->baseUrl,
 			'$query_string' => $this->args->getQueryString(),
 
 			'$users' => $users,

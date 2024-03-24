@@ -332,7 +332,6 @@ class Conversation
 		$tpl = Renderer::getMarkupTemplate('jot-header.tpl');
 		$this->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
 			'$newpost'   => 'true',
-			'$baseurl'   => $this->baseURL,
 			'$geotag'    => $geotag,
 			'$nickname'  => $x['nickname'],
 			'$ispublic'  => $this->l10n->t('Visible to <strong>everybody</strong>'),
@@ -405,7 +404,6 @@ class Conversation
 			'$posttype'     => $notes_cid ? ItemModel::PT_PERSONAL_NOTE : ItemModel::PT_ARTICLE,
 			'$content'      => $x['content'] ?? '',
 			'$post_id'      => $x['post_id'] ?? '',
-			'$baseurl'      => $this->baseURL,
 			'$defloc'       => $x['default_location'],
 			'$visitor'      => $x['visitor'],
 			'$pvisit'       => $notes_cid ? 'none' : $x['visitor'],
@@ -591,7 +589,6 @@ class Conversation
 		}
 
 		$o = Renderer::replaceMacros($page_template, [
-			'$baseurl'     => $this->baseURL,
 			'$return_path' => $this->args->getQueryString(),
 			'$live_update' => $live_update_div,
 			'$remove'      => $this->l10n->t('remove'),
