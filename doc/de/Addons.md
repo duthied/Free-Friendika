@@ -418,10 +418,6 @@ Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 01-Ap
     Hook::callAll('storage_instance', $data);
     Hook::callAll('storage_config', $data);
 
-### src/Module/Notifications/Ping.php
-
-    Hook::callAll('network_ping', $arr);
-
 ### src/Module/PermissionTooltip.php
 
     Hook::callAll('lockview_content', $item);

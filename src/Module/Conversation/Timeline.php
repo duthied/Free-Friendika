@@ -235,6 +235,7 @@ class Timeline extends BaseModule
 	protected function getChannelItems(array $request)
 	{
 		$items = $this->getRawChannelItems($request);
+		$total = min(count($items), $this->itemsPerPage);
 
 		$contacts = $this->database->selectToArray('user-contact', ['cid'], ['channel-frequency' => Contact\User::FREQUENCY_REDUCED, 'cid' => array_column($items, 'owner-id')]);
 		$reduced  = array_column($contacts, 'cid');
@@ -246,8 +247,8 @@ class Timeline extends BaseModule
 			$owner_posts    = [];
 			$selected_items = [];
 
-			while (count($selected_items) < $this->itemsPerPage && ++$count < 50 && count($items) > 0) {
-				$maxposts = round((count($items) / $this->itemsPerPage) * $maxpostperauthor);
+			while (count($selected_items) < $total && ++$count < 50 && count($items) > 0) {
+				$maxposts = round((count($items) / $total) * $maxpostperauthor);
 				$minId = $items[array_key_first($items)][$this->order];
 				$maxId = $items[array_key_last($items)][$this->order];
 
@@ -279,7 +280,7 @@ class Timeline extends BaseModule
 					$this->maxId = $maxId;
 				}
 
-				if (count($selected_items) < $this->itemsPerPage) {
+				if (count($selected_items) < $total) {
 					$items = $this->getRawChannelItems($request);
 				}
 			}

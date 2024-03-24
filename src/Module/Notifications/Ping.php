@@ -105,7 +105,6 @@ class Ping extends BaseModule
 		$intro_count     = 0;
 		$mail_count      = 0;
 		$home_count      = 0;
-		$network_count   = 0;
 		$register_count  = 0;
 		$sysnotify_count = 0;
 		$circles_unseen   = [];
@@ -125,34 +124,13 @@ class Ping extends BaseModule
 			}
 
 			$condition = [
-				"`unseen` AND `uid` = ? AND NOT `origin` AND (`vid` != ? OR `vid` IS NULL)",
+				"`unseen` AND `uid` = ? AND NOT `origin` AND `wall` AND (`vid` != ? OR `vid` IS NULL)",
 				$this->session->getLocalUserId(), Verb::getID(Activity::FOLLOW)
 			];
 
-			// No point showing counts for non-top-level posts when the network page is ordered by received field
-			if (Network::getTimelineOrderBySession($this->session, $this->pconfig) == 'received') {
-				$condition = DBA::mergeConditions($condition, ["`parent` = `id`"]);
-			}
+			$home_count = Post::count($condition);
 
-			$items_unseen = $this->database->toArray(Post::selectForUser(
-				$this->session->getLocalUserId(),
-				['wall', 'uid', 'uri-id'],
-				$condition,
-				['limit' => 1000],
-			));
-			$arr = ['items' => $items_unseen];
-			Hook::callAll('network_ping', $arr);
-
-			foreach ($items_unseen as $item) {
-				if ($item['wall']) {
-					$home_count++;
-				} else {
-					$network_count++;
-				}
-			}
-
-			$compute_circle_counts = $this->config->get('system','compute_circle_counts');
-			if ($network_count && $compute_circle_counts) {
+			if ($this->config->get('system','compute_circle_counts')) {
 				// Find out how unseen network posts are spread across circles
 				foreach (Circle::countUnseen($this->session->getLocalUserId()) as $circle_count) {
 					if ($circle_count['count'] > 0) {
@@ -281,7 +259,6 @@ class Ping extends BaseModule
 		$data             = [];
 		$data['intro']    = $intro_count;
 		$data['mail']     = $mail_count;
-		$data['net']      = ($network_count < 1000) ? $network_count : '999+';
 		$data['home']     = ($home_count < 1000) ? $home_count : '999+';
 		$data['register'] = $register_count;
 

@@ -674,6 +674,13 @@ return [
 	'/toggle_mobile'                 => [Module\ToggleMobile::class,          [R::GET]],
 	'/tos'                           => [Module\Tos::class,                   [R::GET]],
 
+	'/ping_network' => [
+		'[/]'                        => [Module\Ping\Network::class, [R::GET]],
+		'/archive/{from:\d\d\d\d-\d\d-\d\d}[/{to:\d\d\d\d-\d\d-\d\d}]' => [Module\Ping\Network::class, [R::GET]],
+		'/group/{contact_id:\d+}'    => [Module\Ping\Network::class, [R::GET]],
+		'/circle/{circle_id:\d+}'    => [Module\Ping\Network::class, [R::GET]],
+	],
+
 	'/update_channel[/{content}]'    => [Module\Update\Channel::class,        [R::GET]],
 	'/update_community[/{content}]'  => [Module\Update\Community::class,      [R::GET]],
 

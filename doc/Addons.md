@@ -850,10 +850,6 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
     Hook::callAll('register_account', $uid);
     Hook::callAll('remove_user', $user);
 
-### src/Module/Notifications/Ping.php
-
-    Hook::callAll('network_ping', $arr);
-
 ### src/Module/PermissionTooltip.php
 
     Hook::callAll('lockview_content', $item);
