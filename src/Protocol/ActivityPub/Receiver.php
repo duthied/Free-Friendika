@@ -1577,7 +1577,8 @@ class Receiver
 			$element = [
 				'type' => str_replace('as:', '', JsonLD::fetchElement($tag, '@type') ?? ''),
 				'href' => JsonLD::fetchElement($tag, 'as:href', '@id'),
-				'name' => JsonLD::fetchElement($tag, 'as:name', '@value')
+				'name' => JsonLD::fetchElement($tag, 'as:name', '@value'),
+				'mediaType' => JsonLD::fetchElement($tag, 'as:mediaType', '@value')
 			];
 
 			if (empty($element['type'])) {
@@ -2094,12 +2095,18 @@ class Receiver
 		}
 
 		// Support for quoted posts (Pleroma, Fedibird and Misskey)
-		$object_data['quote-url'] = JsonLD::fetchElement($object, 'as:quoteUrl', '@value');
+		$object_data['quote-url'] = JsonLD::fetchElement($object, 'as:quoteUrl', '@id');
 		if (empty($object_data['quote-url'])) {
-			$object_data['quote-url'] = JsonLD::fetchElement($object, 'fedibird:quoteUri', '@value');
+			$object_data['quote-url'] = JsonLD::fetchElement($object, 'fedibird:quoteUri', '@id');
 		}
 		if (empty($object_data['quote-url'])) {
-			$object_data['quote-url'] = JsonLD::fetchElement($object, 'misskey:_misskey_quote', '@value');
+			$object_data['quote-url'] = JsonLD::fetchElement($object, 'misskey:_misskey_quote', '@id');
+		}
+
+		foreach ($object_data['tags'] as $tag) {
+			if (HTTPSignature::isValidContentType($tag['mediaType'] ?? '', $tag['href'])) {
+				$object_data['quote-url'] = $tag['href'];
+			}
 		}
 
 		// Misskey adds some data to the standard "content" value for quoted posts for backwards compatibility.
