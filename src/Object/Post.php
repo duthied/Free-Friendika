@@ -1079,13 +1079,13 @@ class Post
 		$owner = User::getOwnerDataById($a->getLoggedInUserId());
 		$item = $this->getData();
 
-		if (!empty($item['content-warning']) && Feature::isEnabled(DI::userSession()->getLocalUserId(), 'add_abstract')) {
+		if (!empty($item['content-warning']) && Feature::isEnabled(DI::userSession()->getLocalUserId(), Feature::ADD_ABSTRACT)) {
 			$text = '[abstract=' . Protocol::ACTIVITYPUB . ']' . $item['content-warning'] . "[/abstract]\n";
 		} else {
 			$text = '';
 		}
 
-		if (!Feature::isEnabled(DI::userSession()->getLocalUserId(), 'explicit_mentions')) {
+		if (!Feature::isEnabled(DI::userSession()->getLocalUserId(), Feature::EXPLICIT_MENTIONS)) {
 			return $text;
 		}
 

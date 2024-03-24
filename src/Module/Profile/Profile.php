@@ -166,7 +166,7 @@ class Profile extends BaseProfile
 
 		$basic_fields += self::buildField('fullname', $this->t('Full Name:'), $profile['name']);
 
-		if (Feature::isEnabled($profile['uid'], 'profile_membersince')) {
+		if (Feature::isEnabled($profile['uid'], Feature::MEMBER_SINCE)) {
 			$basic_fields += self::buildField(
 				'membersince',
 				$this->t('Member since:'),
@@ -255,7 +255,7 @@ class Profile extends BaseProfile
 		}
 
 		//show subscribed group if it is enabled in the usersettings
-		if (Feature::isEnabled($profile['uid'], 'forumlist_profile')) {
+		if (Feature::isEnabled($profile['uid'], Feature::GROUPS)) {
 			$custom_fields += self::buildField(
 				'group_list',
 				$this->t('Groups:'),

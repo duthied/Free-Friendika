@@ -26,6 +26,16 @@ use Friendica\DI;
 
 class Feature
 {
+	const ADD_ABSTRACT      = 'add_abstract';
+	const CATEGORIES        = 'categories';
+	const EXPLICIT_MENTIONS = 'explicit_mentions';
+	const GROUPS            = 'forumlist_profile';
+	const MEMBER_SINCE      = 'profile_membersince';
+	const PHOTO_LOCATION    = 'photo_location';
+	const PUBLIC_CALENDAR   = 'public_calendar';
+	const TAGCLOUD          = 'tagadelic';
+	const TRENDING_TAGS     = 'trending_tags';
+
 	/**
 	 * check if feature is enabled
 	 *
@@ -34,7 +44,7 @@ class Feature
 	 * @return boolean
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function isEnabled(int $uid, $feature)
+	public static function isEnabled(int $uid, $feature): bool
 	{
 		$x = DI::config()->get('feature_lock', $feature, false);
 
@@ -52,7 +62,7 @@ class Feature
 
 		$arr = ['uid' => $uid, 'feature' => $feature, 'enabled' => $x];
 		Hook::callAll('isEnabled', $arr);
-		return($arr['enabled']);
+		return (bool)$arr['enabled'];
 	}
 
 	/**
@@ -95,36 +105,35 @@ class Feature
 			'general' => [
 				DI::l10n()->t('General Features'),
 				//array('expire',         DI::l10n()->t('Content Expiration'),		DI::l10n()->t('Remove old posts/comments after a period of time')),
-				['photo_location',  DI::l10n()->t('Photo Location'),         DI::l10n()->t("Photo metadata is normally stripped. This extracts the location \x28if present\x29 prior to stripping metadata and links it to a map."), false, DI::config()->get('feature_lock', 'photo_location', false)],
-				['trending_tags',   DI::l10n()->t('Trending Tags'),          DI::l10n()->t('Show a community page widget with a list of the most popular tags in recent public posts.'), false, DI::config()->get('feature_lock', 'trending_tags', false)],
+				[self::PHOTO_LOCATION, DI::l10n()->t('Photo Location'),         DI::l10n()->t("Photo metadata is normally stripped. This extracts the location \x28if present\x29 prior to stripping metadata and links it to a map."), false, DI::config()->get('feature_lock', self::PHOTO_LOCATION, false)],
+				[self::TRENDING_TAGS,  DI::l10n()->t('Trending Tags'),          DI::l10n()->t('Show a community page widget with a list of the most popular tags in recent public posts.'), false, DI::config()->get('feature_lock', self::TRENDING_TAGS, false)],
 			],
 
 			// Post composition
 			'composition' => [
 				DI::l10n()->t('Post Composition Features'),
-				['aclautomention', DI::l10n()->t('Auto-mention Groups'), DI::l10n()->t('Add/remove mention when a group page is selected/deselected in ACL window.'), false, DI::config()->get('feature_lock', 'aclautomention', false)],
-				['explicit_mentions', DI::l10n()->t('Explicit Mentions'), DI::l10n()->t('Add explicit mentions to comment box for manual control over who gets mentioned in replies.'), false, DI::config()->get('feature_lock', 'explicit_mentions', false)],
-				['add_abstract', DI::l10n()->t('Add an abstract from ActivityPub content warnings'), DI::l10n()->t('Add an abstract when commenting on ActivityPub posts with a content warning. Abstracts are displayed as content warning on systems like Mastodon or Pleroma.'), false, DI::config()->get('feature_lock', 'add_abstract', false)],
+				[self::EXPLICIT_MENTIONS, DI::l10n()->t('Explicit Mentions'), DI::l10n()->t('Add explicit mentions to comment box for manual control over who gets mentioned in replies.'), false, DI::config()->get('feature_lock', Feature::EXPLICIT_MENTIONS, false)],
+				[self::ADD_ABSTRACT,      DI::l10n()->t('Add an abstract from ActivityPub content warnings'), DI::l10n()->t('Add an abstract when commenting on ActivityPub posts with a content warning. Abstracts are displayed as content warning on systems like Mastodon or Pleroma.'), false, DI::config()->get('feature_lock', self::ADD_ABSTRACT, false)],
 			],
 
 			// Item tools
 			'tools' => [
 				DI::l10n()->t('Post/Comment Tools'),
-				['categories',   DI::l10n()->t('Post Categories'),         DI::l10n()->t('Add categories to your posts'), false, DI::config()->get('feature_lock', 'categories', false)],
+				[self::CATEGORIES, DI::l10n()->t('Post Categories'),         DI::l10n()->t('Add categories to your posts'), false, DI::config()->get('feature_lock', self::CATEGORIES, false)],
 			],
 
 			// Advanced Profile Settings
 			'advanced_profile' => [
 				DI::l10n()->t('Advanced Profile Settings'),
-				['forumlist_profile',   DI::l10n()->t('List Groups'),             DI::l10n()->t('Show visitors public groups at the Advanced Profile Page'), false, DI::config()->get('feature_lock', 'forumlist_profile', false)],
-				['tagadelic',           DI::l10n()->t('Tag Cloud'),               DI::l10n()->t('Provide a personal tag cloud on your profile page'), false, DI::config()->get('feature_lock', 'tagadelic', false)],
-				['profile_membersince', DI::l10n()->t('Display Membership Date'), DI::l10n()->t('Display membership date in profile'), false, DI::config()->get('feature_lock', 'profile_membersince', false)],
+				[self::GROUPS,       DI::l10n()->t('List Groups'),             DI::l10n()->t('Show visitors public groups at the Advanced Profile Page'), false, DI::config()->get('feature_lock', 'forumlist_profile', false)],
+				[self::TAGCLOUD,     DI::l10n()->t('Tag Cloud'),               DI::l10n()->t('Provide a personal tag cloud on your profile page'), false, DI::config()->get('feature_lock', self::TAGCLOUD, false)],
+				[self::MEMBER_SINCE, DI::l10n()->t('Display Membership Date'), DI::l10n()->t('Display membership date in profile'), false, DI::config()->get('feature_lock', self::MEMBER_SINCE, false)],
 			],
 
 			//Advanced Calendar Settings
 			'advanced_calendar' => [
 				DI::l10n()->t('Advanced Calendar Settings'),
-				['public_calendar',     DI::l10n()->t('Allow anonymous access to your calendar'), DI::l10n()->t('Allows anonymous visitors to consult your calendar and your public events. Contact birthday events are private to you.'), false, DI::config()->get('feature_lock', 'public_calendar', false)],
+				[self::PUBLIC_CALENDAR, DI::l10n()->t('Allow anonymous access to your calendar'), DI::l10n()->t('Allows anonymous visitors to consult your calendar and your public events. Contact birthday events are private to you.'), false, DI::config()->get('feature_lock', self::PUBLIC_CALENDAR, false)],
 			]
 		];
 

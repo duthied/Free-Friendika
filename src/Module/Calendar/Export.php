@@ -78,7 +78,7 @@ class Export extends BaseModule
 			$this->baseUrl->redirect('profile/' . $nickname . '/restricted');
 		}
 
-		if (!$this->session->isAuthenticated() && !Feature::isEnabled($owner['uid'], 'public_calendar')) {
+		if (!$this->session->isAuthenticated() && !Feature::isEnabled($owner['uid'], Feature::PUBLIC_CALENDAR)) {
 			$this->sysMessages->addNotice($this->t('Permission denied.'));
 			$this->baseUrl->redirect('profile/' . $nickname);
 		}

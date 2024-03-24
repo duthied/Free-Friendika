@@ -336,7 +336,7 @@ class Widget
 	 */
 	public static function categories(int $uid, string $baseurl, string $selected = ''): string
 	{
-		if (!Feature::isEnabled($uid, 'categories')) {
+		if (!Feature::isEnabled($uid, Feature::CATEGORIES)) {
 			return '';
 		}
 
@@ -428,7 +428,7 @@ class Widget
 			return '';
 		}
 
-		if (Feature::isEnabled($uid, 'tagadelic')) {
+		if (Feature::isEnabled($uid, Feature::TAGCLOUD)) {
 			$owner_id = Contact::getPublicIdByUserId($uid);
 
 			if (!$owner_id) {
