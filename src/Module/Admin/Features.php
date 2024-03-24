@@ -34,23 +34,16 @@ class Features extends BaseAdmin
 
 		self::checkFormSecurityTokenRedirectOnError('/admin/features', 'admin_manage_features');
 
-		$features = Feature::get(false);
-
-		foreach ($features as $fname => $fdata) {
+		foreach (Feature::get(false) as $fdata) {
 			foreach (array_slice($fdata, 1) as $f) {
 				$feature = $f[0];
 				$feature_state = 'feature_' . $feature;
 				$featurelock = 'featurelock_' . $feature;
 
-				if (!empty($_POST[$feature_state])) {
-					$val = intval($_POST[$feature_state]);
-				} else {
-					$val = 0;
-				}
-				DI::config()->set('feature', $feature, $val);
+				DI::config()->set('feature', $feature, !empty($_POST[$feature_state]));
 
 				if (!empty($_POST[$featurelock])) {
-					DI::config()->set('feature_lock', $feature, 1);
+					DI::config()->set('feature_lock', $feature, true);
 				} else {
 					DI::config()->delete('feature_lock', $feature);
 				}
@@ -71,10 +64,11 @@ class Features extends BaseAdmin
 			$features[$fname][0] = $fdata[0];
 			foreach (array_slice($fdata, 1) as $f) {
 				$set = DI::config()->get('feature', $f[0], $f[3]);
-				$features[$fname][1][] = [
-					['feature_' . $f[0], $f[1], $set, $f[2]],
-					['featurelock_' . $f[0], DI::l10n()->t('Lock feature %s', $f[1]), $f[4], '']
-				];
+				$feature = [['feature_' . $f[0], $f[1], $set, $f[2]]];
+				if (empty($f[5])) {
+					$feature[] = ['featurelock_' . $f[0], DI::l10n()->t('Lock feature %s', $f[1]), $f[4], ''];
+				}
+				$features[$fname][1][] = $feature;
 			}
 		}
 

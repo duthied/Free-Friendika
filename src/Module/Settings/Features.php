@@ -49,7 +49,7 @@ class Features extends BaseSettings
 		BaseSettings::checkFormSecurityTokenRedirectOnError('/settings/features', 'settings_features');
 		foreach ($request as $k => $v) {
 			if (strpos($k, 'feature_') === 0) {
-				$this->pConfig->set($this->session->getLocalUserId(), 'feature', substr($k, 8), ((intval($v)) ? 1 : 0));
+				$this->pConfig->set($this->session->getLocalUserId(), 'feature', substr($k, 8), (bool)$v);
 			}
 		}
 	}
@@ -58,9 +58,8 @@ class Features extends BaseSettings
 	{
 		parent::content($request);
 
-		$arr      = [];
-		$features = Feature::get();
-		foreach ($features as $name => $feature) {
+		$arr = [];
+		foreach (Feature::get() as $name => $feature) {
 			$arr[$name]    = [];
 			$arr[$name][0] = $feature[0];
 			foreach (array_slice($feature, 1) as $f) {
