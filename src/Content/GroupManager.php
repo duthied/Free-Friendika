@@ -172,8 +172,7 @@ class GroupManager
 	 */
 	public static function profileAdvanced($uid)
 	{
-		$profile = intval(Feature::isEnabled($uid, 'forumlist_profile'));
-		if (!$profile) {
+		if (!Feature::isEnabled($uid, Feature::GROUPS)) {
 			return '';
 		}
 

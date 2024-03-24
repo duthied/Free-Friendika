@@ -205,7 +205,7 @@ class Compose extends BaseModule
 				'location_disabled'    => $this->l10n->t('Location services are disabled. Please check the website\'s permissions on your device'),
 				'wait'                 => $this->l10n->t('Please wait'),
 				'placeholdertitle'     => $this->l10n->t('Set title'),
-				'placeholdercategory'  => Feature::isEnabled(DI::userSession()->getLocalUserId(),'categories') ? $this->l10n->t('Categories (comma-separated list)') : '',
+				'placeholdercategory'  => Feature::isEnabled(DI::userSession()->getLocalUserId(), Feature::CATEGORIES) ? $this->l10n->t('Categories (comma-separated list)') : '',
 				'always_open_compose'  => $this->pConfig->get(DI::userSession()->getLocalUserId(), 'frio', 'always_open_compose',
 					$this->config->get('frio', 'always_open_compose', false)) ? '' :
 						$this->l10n->t('You can make this page always open when you use the New Post button in the <a href="/settings/display">Theme Customization settings</a>.'),

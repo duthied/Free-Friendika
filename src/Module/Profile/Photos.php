@@ -240,7 +240,7 @@ class Photos extends \Friendica\Module\BaseProfile
 
 		// Create item container
 		$lat = $lon = null;
-		if (!empty($exif['GPS']) && Feature::isEnabled($this->owner['uid'], 'photo_location')) {
+		if (!empty($exif['GPS']) && Feature::isEnabled($this->owner['uid'], Feature::PHOTO_LOCATION)) {
 			$lat = Photo::getGps($exif['GPS']['GPSLatitude'], $exif['GPS']['GPSLatitudeRef']);
 			$lon = Photo::getGps($exif['GPS']['GPSLongitude'], $exif['GPS']['GPSLongitudeRef']);
 		}

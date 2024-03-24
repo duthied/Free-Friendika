@@ -3618,7 +3618,7 @@ class Diaspora
 		if (
 			$item['author-id'] != $thread_parent_item['author-id']
 			&& ($thread_parent_item['gravity'] != Item::GRAVITY_PARENT)
-			&& (empty($item['uid']) || !Feature::isEnabled($item['uid'], 'explicit_mentions'))
+			&& (empty($item['uid']) || !Feature::isEnabled($item['uid'], Feature::EXPLICIT_MENTIONS))
 			&& !DI::config()->get('system', 'disable_implicit_mentions')
 		) {
 			$body = self::prependParentAuthorMention($body, $thread_parent_item['author-link']);

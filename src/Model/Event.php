@@ -516,7 +516,7 @@ class Event
 			throw new HTTPException\UnauthorizedException(DI::l10n()->t('Access to this profile has been restricted.'));
 		}
 
-		if (!DI::userSession()->isAuthenticated() && !Feature::isEnabled($owner['uid'], 'public_calendar')) {
+		if (!DI::userSession()->isAuthenticated() && !Feature::isEnabled($owner['uid'], Feature::PUBLIC_CALENDAR)) {
 			throw new HTTPException\UnauthorizedException(DI::l10n()->t('Permission denied.'));
 		}
 

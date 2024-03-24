@@ -1045,7 +1045,7 @@ class Item
 
 	public function postProcessPost(array $post, array $recipients = [])
 	{
-		if (!\Friendica\Content\Feature::isEnabled($post['uid'], 'explicit_mentions') && ($post['gravity'] == ItemModel::GRAVITY_COMMENT)) {
+		if (!Feature::isEnabled($post['uid'], Feature::EXPLICIT_MENTIONS) && ($post['gravity'] == ItemModel::GRAVITY_COMMENT)) {
 			Tag::createImplicitMentions($post['uri-id'], $post['thr-parent-id']);
 		}
 

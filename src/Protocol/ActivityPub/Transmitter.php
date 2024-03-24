@@ -1836,7 +1836,7 @@ class Transmitter
 		 * }
 		 */
 
-		if (empty($item['uid']) || !Feature::isEnabled($item['uid'], 'explicit_mentions')) {
+		if (empty($item['uid']) || !Feature::isEnabled($item['uid'], Feature::EXPLICIT_MENTIONS)) {
 			$body = self::prependMentions($body, $item['uri-id'], $item['author-link']);
 		}
 

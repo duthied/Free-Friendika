@@ -388,7 +388,7 @@ class Conversation
 			'$title'               => $x['title'] ?? '',
 			'$placeholdertitle'    => $this->l10n->t('Set title'),
 			'$category'            => $x['category'] ?? '',
-			'$placeholdercategory' => Feature::isEnabled($this->session->getLocalUserId(), 'categories') ? $this->l10n->t("Categories \x28comma-separated list\x29") : '',
+			'$placeholdercategory' => Feature::isEnabled($this->session->getLocalUserId(), Feature::CATEGORIES) ? $this->l10n->t("Categories \x28comma-separated list\x29") : '',
 			'$scheduled_at'        => Temporal::getDateTimeField(
 				new \DateTime(),
 				new \DateTime('now + 6 months'),
