@@ -64,11 +64,10 @@ class Features extends BaseAdmin
 			$features[$fname][0] = $fdata[0];
 			foreach (array_slice($fdata, 1) as $f) {
 				$set = DI::config()->get('feature', $f[0], $f[3]);
-				$feature = [['feature_' . $f[0], $f[1], $set, $f[2]]];
-				if (empty($f[5])) {
-					$feature[] = ['featurelock_' . $f[0], DI::l10n()->t('Lock feature %s', $f[1]), $f[4], ''];
-				}
-				$features[$fname][1][] = $feature;
+				$features[$fname][1][] = [
+					['feature_' . $f[0], $f[1], $set, $f[2]],
+					['featurelock_' . $f[0], DI::l10n()->t('Lock feature %s', $f[1]), $f[4], '']
+				];
 			}
 		}
 
