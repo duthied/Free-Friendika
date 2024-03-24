@@ -21,7 +21,6 @@
 
 namespace Friendica\Module\Api\Mastodon\Statuses;
 
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
@@ -54,7 +53,7 @@ class Bookmark extends BaseApi
 		if ($item['uid'] == 0) {
 			$stored = Item::storeForUserByUriId($item['uri-id'], $uid, ['post-reason' => Item::PR_ACTIVITY]);
 			if (!empty($stored)) {
-				$item = Post::selectFirst(['id', 'gravity'], ['id' => $stored]);
+				$item = Post::selectFirst(['id', 'uri-id', 'gravity'], ['id' => $stored]);
 				if (!DBA::isResult($item)) {
 					$this->logAndJsonError(404, $this->errorFactory->RecordNotFound());
 				}
