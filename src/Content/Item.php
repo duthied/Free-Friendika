@@ -800,14 +800,14 @@ class Item
 	 */
 	public function addShareLink(string $body, int $quote_uri_id): string
 	{
-		$post = Post::selectFirstPost(['uri', 'plink'], ['uri-id' => $quote_uri_id]);
+		$post = Post::selectFirstPost(['uri'], ['uri-id' => $quote_uri_id]);
 		if (empty($post)) {
 			return $body;
 		}
 
 		$body = BBCode::removeSharedData($body);
 
-		$body .= "\n♲ " . ($post['plink'] ?: $post['uri']);
+		$body .= "\nRE: " . $post['uri'];
 
 		return $body;
 	}

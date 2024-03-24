@@ -1589,15 +1589,14 @@ class Transmitter
 			$tags[] = ['type' => 'Mention', 'href' => $announce['actor']['url'], 'name' => '@' . $announce['actor']['addr']];
 		}
 
-		// @see https://codeberg.org/fediverse/fep/src/branch/main/feps/fep-e232.md
+		// @see https://codeberg.org/fediverse/fep/src/branch/main/fep/e232/fep-e232.md
 		if (!empty($quote_url)) {
-			// Currently deactivated because of compatibility issues with Pleroma
-			//$tags[] = [
-			//	'type'      => 'Link',
-			//	'mediaType' => 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
-			//	'href'      => $quote_url,
-			//	'name'      => '♲ ' . BBCode::convertForUriId($item['uri-id'], $quote_url, BBCode::ACTIVITYPUB)
-			//];
+			$tags[] = [
+				'type'      => 'Link',
+				'mediaType' => 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+				'href'      => $quote_url,
+				'name'      => 'RE: ' . $quote_url,
+			];
 		}
 
 		return $tags;
@@ -1862,6 +1861,7 @@ class Transmitter
 			if (!empty($item['quote-uri-id']) && ($item['quote-uri-id'] != $item['uri-id'])) {
 				if (Post::exists(['uri-id' => $item['quote-uri-id'], 'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN]])) {
 					$real_quote = true;
+					$data['_misskey_content'] = BBCode::removeSharedData($body);
 					$data['quoteUrl'] = $item['quote-uri'];
 					$body = DI::contentItem()->addShareLink($body, $item['quote-uri-id']);
 				} else {
