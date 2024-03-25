@@ -26,13 +26,22 @@ use Friendica\DI;
 
 class Feature
 {
+	const ACCOUNTS          = 'accounts';
 	const ADD_ABSTRACT      = 'add_abstract';
+	const ARCHIVE           = 'archive';
 	const CATEGORIES        = 'categories';
+	const CHANNELS          = 'channels';
+	const CIRCLES           = 'circles';
+	const COMMUNITY         = 'community';
 	const EXPLICIT_MENTIONS = 'explicit_mentions';
+	const FOLDERS           = 'folders';
 	const GROUPS            = 'forumlist_profile';
 	const MEMBER_SINCE      = 'profile_membersince';
+	const NETWORKS          = 'networks';
+	const NOSHARER          = 'nosharer';
 	const PHOTO_LOCATION    = 'photo_location';
 	const PUBLIC_CALENDAR   = 'public_calendar';
+	const SEARCHES          = 'searches';
 	const TAGCLOUD          = 'tagadelic';
 	const TRENDING_TAGS     = 'trending_tags';
 
@@ -46,21 +55,14 @@ class Feature
 	 */
 	public static function isEnabled(int $uid, $feature): bool
 	{
-		$x = DI::config()->get('feature_lock', $feature, false);
-
-		if ($x === false) {
-			$x = DI::pConfig()->get($uid, 'feature', $feature, false);
+		if (!DI::config()->get('feature_lock', $feature, false)) {
+			$enabled = DI::config()->get('feature', $feature) ?? self::getDefault($feature);
+			$enabled = DI::pConfig()->get($uid, 'feature', $feature) ?? $enabled;
+		} else {
+			$enabled = true;
 		}
 
-		if ($x === false) {
-			$x = DI::config()->get('feature', $feature, false);
-		}
-
-		if ($x === false) {
-			$x = self::getDefault($feature);
-		}
-
-		$arr = ['uid' => $uid, 'feature' => $feature, 'enabled' => $x];
+		$arr = ['uid' => $uid, 'feature' => $feature, 'enabled' => $enabled];
 		Hook::callAll('isEnabled', $arr);
 		return (bool)$arr['enabled'];
 	}
@@ -74,8 +76,7 @@ class Feature
 	 */
 	private static function getDefault($feature)
 	{
-		$f = self::get();
-		foreach ($f as $cat) {
+		foreach (self::get() as $cat) {
 			foreach ($cat as $feat) {
 				if (is_array($feat) && $feat[0] === $feature) {
 					return $feat[3];
@@ -105,8 +106,8 @@ class Feature
 			'general' => [
 				DI::l10n()->t('General Features'),
 				//array('expire',         DI::l10n()->t('Content Expiration'),		DI::l10n()->t('Remove old posts/comments after a period of time')),
-				[self::PHOTO_LOCATION, DI::l10n()->t('Photo Location'),         DI::l10n()->t("Photo metadata is normally stripped. This extracts the location \x28if present\x29 prior to stripping metadata and links it to a map."), false, DI::config()->get('feature_lock', self::PHOTO_LOCATION, false)],
-				[self::TRENDING_TAGS,  DI::l10n()->t('Trending Tags'),          DI::l10n()->t('Show a community page widget with a list of the most popular tags in recent public posts.'), false, DI::config()->get('feature_lock', self::TRENDING_TAGS, false)],
+				[self::PHOTO_LOCATION, DI::l10n()->t('Photo Location'), DI::l10n()->t("Photo metadata is normally stripped. This extracts the location \x28if present\x29 prior to stripping metadata and links it to a map."), false, DI::config()->get('feature_lock', self::PHOTO_LOCATION, false)],
+				[self::COMMUNITY, DI::l10n()->t('Display the community in the navigation'), DI::l10n()->t('If enabled, the community can be accessed via the navigation menu. Independant from this setting, the community timelines can always be accessed via the channels.'), true, DI::config()->get('feature_lock', self::COMMUNITY, false)],
 			],
 
 			// Post composition
@@ -122,10 +123,24 @@ class Feature
 				[self::CATEGORIES, DI::l10n()->t('Post Categories'),         DI::l10n()->t('Add categories to your posts'), false, DI::config()->get('feature_lock', self::CATEGORIES, false)],
 			],
 
+			// Widget visibility on the network stream
+			'network' => [
+				DI::l10n()->t('Network Widgets'),
+				[self::CIRCLES, DI::l10n()->t('Circles'), DI::l10n()->t('Display posts that have been created by accounts of the selected circle.'), true, false, true],
+				[self::GROUPS, DI::l10n()->t('Groups'), DI::l10n()->t('Display posts that have been distributed by the selected group.'), true, false, true],
+				[self::ARCHIVE, DI::l10n()->t('Archives'), DI::l10n()->t('Display an archive where posts can be selected by month and year.'), true, false, true],
+				[self::NETWORKS, DI::l10n()->t('Protocols'), DI::l10n()->t('Display posts with the selected protocols.'), true, false, true],
+				[self::ACCOUNTS, DI::l10n()->t('Account Types'), DI::l10n()->t('Display posts done by accounts with the selected account type.'), true, false, true],
+				[self::CHANNELS, DI::l10n()->t('Channels'), DI::l10n()->t('Display posts in the system channels and user defined channels.'), true, false, true],
+				[self::SEARCHES, DI::l10n()->t('Saved Searches'), DI::l10n()->t('Display posts that contain subscribed hashtags.'), true, false, true],
+				[self::FOLDERS, DI::l10n()->t('Saved Folders'), DI::l10n()->t('Display a list of folders in which posts are stored.'), true, false, true],
+				[self::NOSHARER, DI::l10n()->t('Own Contacts'), DI::l10n()->t('Include or exclude posts from subscribed accounts. This widget is not visible on all channels.'), true, false, true],
+				[self::TRENDING_TAGS,  DI::l10n()->t('Trending Tags'), DI::l10n()->t('Display a list of the most popular tags in recent public posts.'), false, false, true],
+			],
+
 			// Advanced Profile Settings
 			'advanced_profile' => [
 				DI::l10n()->t('Advanced Profile Settings'),
-				[self::GROUPS,       DI::l10n()->t('List Groups'),             DI::l10n()->t('Show visitors public groups at the Advanced Profile Page'), false, DI::config()->get('feature_lock', 'forumlist_profile', false)],
 				[self::TAGCLOUD,     DI::l10n()->t('Tag Cloud'),               DI::l10n()->t('Provide a personal tag cloud on your profile page'), false, DI::config()->get('feature_lock', self::TAGCLOUD, false)],
 				[self::MEMBER_SINCE, DI::l10n()->t('Display Membership Date'), DI::l10n()->t('Display membership date in profile'), false, DI::config()->get('feature_lock', self::MEMBER_SINCE, false)],
 			],

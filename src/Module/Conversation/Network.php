@@ -130,20 +130,34 @@ class Network extends Timeline
 
 		$o = '';
 
-		$this->page['aside'] .= Circle::sidebarWidget($module, $module . '/circle', 'standard', $this->circleId);
-		$this->page['aside'] .= GroupManager::widget($this->session->getLocalUserId());
-		$this->page['aside'] .= Widget::postedByYear($module . '/archive', $this->session->getLocalUserId(), false);
-		$this->page['aside'] .= Widget::networks($module, $this->network);
-		$this->page['aside'] .= Widget::accountTypes($module, $this->accountTypeString);
-		$this->page['aside'] .= Widget::channels($module, $this->selectedTab, $this->session->getLocalUserId());
-		$this->page['aside'] .= Widget\SavedSearches::getHTML($this->args->getQueryString());
-		$this->page['aside'] .= Widget::fileAs('filed', '');
-
+		if (Feature::isEnabled($this->session->getLocalUserId(), Feature::CIRCLES)) {
+			$this->page['aside'] .= Circle::sidebarWidget($module, $module . '/circle', 'standard', $this->circleId);
+		}
+		if (Feature::isEnabled($this->session->getLocalUserId(), Feature::GROUPS)) {
+			$this->page['aside'] .= GroupManager::widget($this->session->getLocalUserId());
+		}
+		if (Feature::isEnabled($this->session->getLocalUserId(), Feature::ARCHIVE)) {
+			$this->page['aside'] .= Widget::postedByYear($module . '/archive', $this->session->getLocalUserId(), false);
+		}
+		if (Feature::isEnabled($this->session->getLocalUserId(), Feature::NETWORKS)) {
+			$this->page['aside'] .= Widget::networks($module, $this->network);
+		}
+		if (Feature::isEnabled($this->session->getLocalUserId(), Feature::ACCOUNTS)) {
+			$this->page['aside'] .= Widget::accountTypes($module, $this->accountTypeString);
+		}
+		if (Feature::isEnabled($this->session->getLocalUserId(), Feature::CHANNELS)) {
+			$this->page['aside'] .= Widget::channels($module, $this->selectedTab, $this->session->getLocalUserId());
+		}
+		if (Feature::isEnabled($this->session->getLocalUserId(), Feature::SEARCHES)) {
+			$this->page['aside'] .= Widget\SavedSearches::getHTML($this->args->getQueryString());
+		}
+		if (Feature::isEnabled($this->session->getLocalUserId(), Feature::FOLDERS)) {
+			$this->page['aside'] .= Widget::fileAs('filed', '');
+		}
 		if (($this->channel->isTimeline($this->selectedTab) || $this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId())) &&
-			!in_array($this->selectedTab, [Channel::FOLLOWERS, Channel::FORYOU, Channel::DISCOVER])) {
+			!in_array($this->selectedTab, [Channel::FOLLOWERS, Channel::FORYOU, Channel::DISCOVER]) && Feature::isEnabled($this->session->getLocalUserId(), Feature::NOSHARER)) {
 			$this->page['aside'] .= $this->getNoSharerWidget('network');
 		}
-
 		if (Feature::isEnabled($this->session->getLocalUserId(), Feature::TRENDING_TAGS)) {
 			$this->page['aside'] .= TrendingTags::getHTML($this->selectedTab);
 		}

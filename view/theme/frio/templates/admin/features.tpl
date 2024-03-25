@@ -18,7 +18,9 @@
 							{{foreach $f.1 as $fcat}}
 								<div class="settings-block">
 									{{include file="field_checkbox.tpl" field=$fcat.0}}
-									{{include file="field_checkbox.tpl" field=$fcat.1}}
+									{{if $fcat.1}}
+										{{include file="field_checkbox.tpl" field=$fcat.1}}
+									{{/if}}
 								</div>
 							{{/foreach}}
 						</div>
