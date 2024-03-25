@@ -126,16 +126,16 @@ class Feature
 			// Widget visibility on the network stream
 			'network' => [
 				DI::l10n()->t('Network Widgets'),
-				[self::CIRCLES, DI::l10n()->t('Circles'), DI::l10n()->t('Display posts that have been created by accounts of the selected circle.'), true, false, true],
-				[self::GROUPS, DI::l10n()->t('Groups'), DI::l10n()->t('Display posts that have been distributed by the selected group.'), true, false, true],
-				[self::ARCHIVE, DI::l10n()->t('Archives'), DI::l10n()->t('Display an archive where posts can be selected by month and year.'), true, false, true],
-				[self::NETWORKS, DI::l10n()->t('Protocols'), DI::l10n()->t('Display posts with the selected protocols.'), true, false, true],
-				[self::ACCOUNTS, DI::l10n()->t('Account Types'), DI::l10n()->t('Display posts done by accounts with the selected account type.'), true, false, true],
-				[self::CHANNELS, DI::l10n()->t('Channels'), DI::l10n()->t('Display posts in the system channels and user defined channels.'), true, false, true],
-				[self::SEARCHES, DI::l10n()->t('Saved Searches'), DI::l10n()->t('Display posts that contain subscribed hashtags.'), true, false, true],
-				[self::FOLDERS, DI::l10n()->t('Saved Folders'), DI::l10n()->t('Display a list of folders in which posts are stored.'), true, false, true],
-				[self::NOSHARER, DI::l10n()->t('Own Contacts'), DI::l10n()->t('Include or exclude posts from subscribed accounts. This widget is not visible on all channels.'), true, false, true],
-				[self::TRENDING_TAGS,  DI::l10n()->t('Trending Tags'), DI::l10n()->t('Display a list of the most popular tags in recent public posts.'), false, false, true],
+				[self::CIRCLES, DI::l10n()->t('Circles'), DI::l10n()->t('Display posts that have been created by accounts of the selected circle.'), true, DI::config()->get('feature_lock', self::CIRCLES, false)],
+				[self::GROUPS, DI::l10n()->t('Groups'), DI::l10n()->t('Display posts that have been distributed by the selected group.'), true, DI::config()->get('feature_lock', self::GROUPS, false)],
+				[self::ARCHIVE, DI::l10n()->t('Archives'), DI::l10n()->t('Display an archive where posts can be selected by month and year.'), true, DI::config()->get('feature_lock', self::ARCHIVE, false)],
+				[self::NETWORKS, DI::l10n()->t('Protocols'), DI::l10n()->t('Display posts with the selected protocols.'), true, DI::config()->get('feature_lock', self::NETWORKS, false)],
+				[self::ACCOUNTS, DI::l10n()->t('Account Types'), DI::l10n()->t('Display posts done by accounts with the selected account type.'), true, DI::config()->get('feature_lock', self::ACCOUNTS, false)],
+				[self::CHANNELS, DI::l10n()->t('Channels'), DI::l10n()->t('Display posts in the system channels and user defined channels.'), true, DI::config()->get('feature_lock', self::CHANNELS, false)],
+				[self::SEARCHES, DI::l10n()->t('Saved Searches'), DI::l10n()->t('Display posts that contain subscribed hashtags.'), true, DI::config()->get('feature_lock', self::SEARCHES, false)],
+				[self::FOLDERS, DI::l10n()->t('Saved Folders'), DI::l10n()->t('Display a list of folders in which posts are stored.'), true, DI::config()->get('feature_lock', self::FOLDERS, false)],
+				[self::NOSHARER, DI::l10n()->t('Own Contacts'), DI::l10n()->t('Include or exclude posts from subscribed accounts. This widget is not visible on all channels.'), true, DI::config()->get('feature_lock', self::NOSHARER, false)],
+				[self::TRENDING_TAGS,  DI::l10n()->t('Trending Tags'), DI::l10n()->t('Display a list of the most popular tags in recent public posts.'), false, DI::config()->get('feature_lock', self::TRENDING_TAGS, false)],
 			],
 
 			// Advanced Profile Settings
