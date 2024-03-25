@@ -28,8 +28,12 @@ class Network extends NetworkModule
 {
 	protected function rawContent(array $request = [])
 	{
+		if (!$this->session->getLocalUserId()) {
+			System::exit();
+		}
+
 		if (!empty($request['ping'])) {
-			$request = $this->session->get('network-request');
+			$request = $this->getTimelineRequestBySession();
 		}
 
 		if (!isset($request['p']) || !isset($request['item'])) {
@@ -40,10 +44,6 @@ class Network extends NetworkModule
 
 		if ($this->force || !is_null($this->maxId)) {
 			System::httpExit('');
-		}
-
-		if (empty($request['ping'])) {
-			$this->session->set('network-request', $request);
 		}
 
 		$this->itemsPerPage = 100;
