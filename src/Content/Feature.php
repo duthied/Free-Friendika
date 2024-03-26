@@ -107,7 +107,7 @@ class Feature
 				DI::l10n()->t('General Features'),
 				//array('expire',         DI::l10n()->t('Content Expiration'),		DI::l10n()->t('Remove old posts/comments after a period of time')),
 				[self::PHOTO_LOCATION, DI::l10n()->t('Photo Location'), DI::l10n()->t("Photo metadata is normally stripped. This extracts the location \x28if present\x29 prior to stripping metadata and links it to a map."), false, DI::config()->get('feature_lock', self::PHOTO_LOCATION, false)],
-				[self::COMMUNITY, DI::l10n()->t('Display the community in the navigation'), DI::l10n()->t('If enabled, the community can be accessed via the navigation menu. Independent from this setting, the community timelines can always be accessed via the channels.'), true, DI::config()->get('feature_lock', self::COMMUNITY, false)],
+				[self::COMMUNITY, DI::l10n()->t('Display the community in the navigation'), DI::l10n()->t('If enabled, the community can be accessed via the navigation menu. Independant from this setting, the community timelines can always be accessed via the channels.'), true, DI::config()->get('feature_lock', self::COMMUNITY, false)],
 			],
 
 			// Post composition
