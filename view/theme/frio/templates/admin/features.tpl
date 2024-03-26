@@ -17,8 +17,7 @@
 						<div class="panel-body">
 							{{foreach $f.1 as $fcat}}
 								<div class="settings-block">
-									{{include file="field_checkbox.tpl" field=$fcat.0}}
-									{{include file="field_checkbox.tpl" field=$fcat.1}}
+									{{include file="field_select.tpl" field=$fcat}}
 								</div>
 							{{/foreach}}
 						</div>

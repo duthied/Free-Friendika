@@ -37,15 +37,21 @@ class Features extends BaseAdmin
 		foreach (Feature::get(false) as $fdata) {
 			foreach (array_slice($fdata, 1) as $f) {
 				$feature = $f[0];
-				$feature_state = 'feature_' . $feature;
-				$featurelock = 'featurelock_' . $feature;
+				switch ($_POST['featureselect_' . $feature]) {
+					case 0:
+						DI::config()->set('feature', $feature, false);
+						DI::config()->delete('feature_lock', $feature);
+						break;
 
-				DI::config()->set('feature', $feature, !empty($_POST[$feature_state]));
+					case 1:
+						DI::config()->set('feature', $feature, true);
+						DI::config()->delete('feature_lock', $feature);
+						break;
 
-				if (!empty($_POST[$featurelock])) {
-					DI::config()->set('feature_lock', $feature, true);
-				} else {
-					DI::config()->delete('feature_lock', $feature);
+					case 2:
+						DI::config()->delete('feature', $feature);
+						DI::config()->set('feature_lock', $feature, true);
+						break;
 				}
 			}
 		}
@@ -57,17 +63,15 @@ class Features extends BaseAdmin
 	{
 		parent::content();
 
-		$features = [];
-
+		$features  = [];
+		$selection = [DI::l10n()->t('No'), DI::l10n()->t('Yes'), DI::l10n()->t('Locked')];
 		foreach (Feature::get(false) as $fname => $fdata) {
 			$features[$fname] = [];
 			$features[$fname][0] = $fdata[0];
 			foreach (array_slice($fdata, 1) as $f) {
 				$set = DI::config()->get('feature', $f[0], $f[3]);
-				$features[$fname][1][] = [
-					['feature_' . $f[0], $f[1], $set, $f[2]],
-					['featurelock_' . $f[0], DI::l10n()->t('Lock feature %s', $f[1]), $f[4], '']
-				];
+				$selected = $f[4] ? 2 : (int)$set;
+				$features[$fname][1][] = ['featureselect_' . $f[0], $f[1], $selected, $f[2], $selection];
 			}
 		}
 
