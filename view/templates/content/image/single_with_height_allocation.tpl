@@ -2,7 +2,7 @@
 	As a result, we need to add a wrapping element for non-flex (non-image grid) environments, mostly single-image cases.
  *}}
 {{if $allocated_max_width}}
-<div style="max-width: {{$allocated_max_width|default:"auto"}};">
+<div class="img-allocated-max-width" style="max-width: {{$allocated_max_width|default:"auto"}};">
 {{/if}}
 
 <figure class="img-allocated-height" style="width: {{$allocated_width|default:"auto"}}; padding-bottom: {{$allocated_height}}">
