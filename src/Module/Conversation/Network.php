@@ -309,7 +309,7 @@ class Network extends Timeline
 		$this->circleId = (int)($this->parameters['circle_id'] ?? 0);
 
 		if (!$this->selectedTab) {
-			$this->selectedTab = self::getTimelineOrderBySession($this->session, $this->pConfig);
+			$this->selectedTab = $this->getTimelineOrderBySession();
 		} elseif (!$this->networkFactory->isTimeline($this->selectedTab) && !$this->channel->isTimeline($this->selectedTab) && !$this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId()) && !$this->community->isTimeline($this->selectedTab)) {
 			throw new HTTPException\BadRequestException($this->l10n->t('Network feed not available.'));
 		}
@@ -371,6 +371,11 @@ class Network extends Timeline
 		$this->dateTo = $this->parameters['to'] ?? '';
 
 		$this->setMaxMinByOrder($request);
+
+		if (is_null($this->maxId) && !is_null($this->minId)) {
+			$this->session->set('network-request', $request);
+			$this->pConfig->set($this->session->getLocalUserId(), 'network.view', 'request', $request);
+		}
 	}
 
 	protected function getItems()
@@ -483,14 +488,24 @@ class Network extends Timeline
 	/**
 	 * Returns the selected network tab of the currently logged-in user
 	 *
-	 * @param IHandleUserSessions         $session
-	 * @param IManagePersonalConfigValues $pconfig
 	 * @return string
 	 */
-	public static function getTimelineOrderBySession(IHandleUserSessions $session, IManagePersonalConfigValues $pconfig): string
+	private function getTimelineOrderBySession(): string
 	{
-		return $session->get('network-tab')
-			?? $pconfig->get($session->getLocalUserId(), 'network.view', 'selected_tab')
+		return $this->session->get('network-tab')
+			?? $this->pConfig->get($this->session->getLocalUserId(), 'network.view', 'selected_tab')
 			?? '';
+	}
+
+	/**
+	 * Returns the lst request parameters of the currently logged-in user
+	 *
+	 * @return array
+	 */
+	protected function getTimelineRequestBySession(): array
+	{
+		return $this->session->get('network-request')
+			?? $this->pConfig->get($this->session->getLocalUserId(), 'network.view', 'request')
+			?? [];
 	}
 }
