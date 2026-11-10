@@ -1,0 +1,18 @@
+/*
+ * SPDX-FileCopyrightText: 2010-2026 the Friendica project
+ *
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
+#nav-user-linklabel {
+  display: none;
+}
+
+nav#topbar-first ul li .menu-popup {
+  left: auto;
+  right: 0px;
+}
+
+nav#topbar-first #nav-search-box #nav-search-text {
+  width: 100px;
+}

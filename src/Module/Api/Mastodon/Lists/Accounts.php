@@ -1,0 +1,127 @@
+<?php
+
+// Copyright (C) 2010-2026, the Friendica project
+// SPDX-FileCopyrightText: 2010-2026 the Friendica project
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+namespace Friendica\Module\Api\Mastodon\Lists;
+
+use Friendica\Database\DBA;
+use Friendica\DI;
+use Friendica\Model\Circle;
+use Friendica\Module\BaseApi;
+
+/**
+ * @see https://docs.joinmastodon.org/methods/timelines/lists/#accounts-in-a-list
+ *
+ * Currently the output will be unordered since we use public contact ids in the api and not user contact ids.
+ */
+class Accounts extends BaseApi
+{
+	protected function delete(array $request = [])
+	{
+		$this->checkAllowedScope(self::SCOPE_WRITE);
+		$uid = self::getCurrentUserID();
+
+		$request = $this->getRequest([
+			'account_ids' => [], // Array of account IDs to remove from the list
+		], $request);
+
+		if (empty($request['account_ids']) || empty($this->parameters['id'])) {
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
+		}
+
+		if (!Circle::exists((int) $this->parameters['id'], $uid)) {
+			$this->logAndJsonError(404, $this->errorFactory->RecordNotFound());
+		}
+
+		Circle::removeMembers($this->parameters['id'], $request['account_ids']);
+	}
+
+	protected function post(array $request = [])
+	{
+		$this->checkAllowedScope(self::SCOPE_WRITE);
+		$uid = self::getCurrentUserID();
+
+		$request = $this->getRequest([
+			'account_ids' => [], // Array of account IDs to add to the list
+		], $request);
+
+		if (empty($request['account_ids']) || empty($this->parameters['id'])) {
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
+		}
+
+		if (!Circle::exists((int) $this->parameters['id'], $uid)) {
+			$this->logAndJsonError(404, $this->errorFactory->RecordNotFound());
+		}
+
+		Circle::addMembers($this->parameters['id'], $request['account_ids']);
+	}
+
+	/**
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	protected function get(array $request = [])
+	{
+		$this->checkAllowedScope(self::SCOPE_READ);
+		$uid = self::getCurrentUserID();
+
+		if (empty($this->parameters['id'])) {
+			$this->logAndJsonError(422, $this->errorFactory->UnprocessableEntity());
+		}
+
+		$id = $this->parameters['id'];
+		if (!Circle::exists((int) $id, $uid)) {
+			$this->logAndJsonError(404, $this->errorFactory->RecordNotFound());
+		}
+
+		$request = $this->getRequest([
+			'max_id'   => 0,  // Return results older than this id
+			'since_id' => 0,  // Return results newer than this id
+			'min_id'   => 0,  // Return results immediately newer than id
+			'limit'    => 40, // Maximum number of results. Defaults to 40. Max 40. Set to 0 in order to get all accounts without pagination.
+		], $request);
+
+		$params = ['order' => ['contact-id' => true]];
+
+		if ($request['limit'] != 0) {
+			$params['limit'] = min($request['limit'], 40);
+		}
+
+		$condition = ['gid' => $id];
+
+		if (!empty($request['max_id'])) {
+			$condition = DBA::mergeConditions($condition, ["`contact-id` < ?", $request['max_id']]);
+		}
+
+		if (!empty($request['since_id'])) {
+			$condition = DBA::mergeConditions($condition, ["`contact-id` > ?", $request['since_id']]);
+		}
+
+		if (!empty($request['min_id'])) {
+			$condition = DBA::mergeConditions($condition, ["`contact-id` > ?", $request['min_id']]);
+
+			$params['order'] = ['contact-id'];
+		}
+
+		$accounts = [];
+
+		$members = DBA::select('group_member', ['contact-id'], $condition, $params);
+		while ($member = DBA::fetch($members)) {
+			self::setBoundaries($member['contact-id']);
+			try {
+				$accounts[] = DI::mstdnAccount()->createFromContactId($member['contact-id'], $uid);
+			} catch (\Exception) {
+			}
+		}
+		DBA::close($members);
+
+		if (!empty($request['min_id'])) {
+			$accounts = array_reverse($accounts);
+		}
+
+		$this->setPaginationLinkHeader();
+		$this->earlyJsonExit($accounts);
+	}
+}

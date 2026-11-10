@@ -1,0 +1,357 @@
+<?php
+
+// Copyright (C) 2010-2026, the Friendica project
+// SPDX-FileCopyrightText: 2010-2026 the Friendica project
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+namespace Friendica\Module;
+
+use Friendica\BaseModule;
+use Friendica\DI;
+use Friendica\Model\Photo;
+use Friendica\Model\User;
+use Friendica\Network\HTTPException\BadRequestException;
+use Friendica\Network\HTTPException\NotFoundException;
+use Friendica\Protocol\ActivityNamespace;
+use Friendica\Util\HTTPCache;
+use Friendica\Util\Network;
+use Friendica\Util\XML;
+
+/**
+ * Prints responses to /.well-known/webfinger  or /xrd requests
+ */
+class Xrd extends BaseModule
+{
+	protected function rawContent(array $request = [])
+	{
+		// @TODO: Replace with parameter from router
+		if (DI::args()->getArgv()[0] == 'xrd') {
+			if (empty($_GET['uri'])) {
+				throw new BadRequestException();
+			}
+
+			$uri  = urldecode(trim((string) $_GET['uri']));
+			$mode = self::getAcceptedContentType($_SERVER['HTTP_ACCEPT'] ?? '', Response::TYPE_XML);
+		} else {
+			if (empty($_GET['resource'])) {
+				throw new BadRequestException();
+			}
+
+			$uri  = urldecode(trim((string) $_GET['resource']));
+			$mode = self::getAcceptedContentType($_SERVER['HTTP_ACCEPT'] ?? '', Response::TYPE_JSON);
+		}
+
+		if (Network::isValidHttpUrl($uri)) {
+			$name = ltrim(basename($uri), '~');
+			$host = parse_url($uri, PHP_URL_HOST);
+		} elseif (preg_match('/^[[:alpha:]][[:alnum:]+-.]+:/', $uri)) {
+			$local = str_replace('acct:', '', $uri);
+			if (str_starts_with($local, '//')) {
+				$local = substr($local, 2);
+			}
+
+			[$name, $host] = explode('@', $local);
+		} else {
+			throw new BadRequestException();
+		}
+
+		if (!empty($host) && $host !== DI::baseUrl()->getHost()) {
+			DI::logger()->notice('Invalid host name for xrd query', ['host' => $host, 'uri' => $uri]);
+			throw new NotFoundException('Invalid host name for xrd query: ' . $host);
+		}
+
+		header('Vary: Accept', false);
+		header(sprintf('Cache-Control: max-age=%d, public', HTTPCache::DISCOVERY_MAX_AGE));
+
+		$aliases = [];
+
+		if ($name == User::getActorName()) {
+			$owner = User::getSystemAccount();
+			if (empty($owner)) {
+				throw new NotFoundException('System account was not found. Please setup your Friendica installation properly.');
+			}
+			$this->printSystemJSON($owner);
+		} else {
+			$owner = User::getOwnerDataByNick($name);
+			if (empty($owner)) {
+				DI::logger()->notice('No owner data for user id', ['uri' => $uri, 'name' => $name]);
+				throw new NotFoundException('Owner was not found for user->uid=' . $name);
+			}
+
+			$aliases[] = str_replace('/profile/', '/~', $owner['url']);
+			if ($owner['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
+				$aliases[] = $this->baseUrl . '/group/' . $owner['nickname'];
+			}
+
+			$avatar = Photo::selectFirst(['type'], ['uid' => $owner['uid'], 'profile' => true]);
+		}
+
+		if (empty($avatar)) {
+			$avatar = ['type' => 'image/jpeg'];
+		}
+
+		if ($mode == Response::TYPE_XML) {
+			$this->printXML($aliases, $owner, $avatar);
+		} else {
+			$this->printJSON($aliases, $owner, $avatar);
+		}
+	}
+
+	/**
+	 * Detect the accepted content type.
+	 * @todo Handle priorities (see "application/xrd+xml,text/xml;q=0.9")
+	 *
+	 * @param string $accept
+	 * @param string $default
+	 * @return string
+	 */
+	private function getAcceptedContentType(string $accept, string $default): string
+	{
+		$parts = [];
+		foreach (explode(',', $accept) as $part) {
+			$parts[] = current(explode(';', $part));
+		}
+
+		if (in_array('application/jrd+json', $parts) && !in_array('application/xrd+xml', $parts)) {
+			return Response::TYPE_JSON;
+		} elseif (!in_array('application/jrd+json', $parts) && in_array('application/xrd+xml', $parts)) {
+			return Response::TYPE_XML;
+		} elseif (in_array('application/json', $parts) && !in_array('text/xml', $parts)) {
+			return Response::TYPE_JSON;
+		} elseif (!in_array('application/json', $parts) && in_array('text/xml', $parts)) {
+			return Response::TYPE_XML;
+		} else {
+			return $default;
+		}
+	}
+
+	private function printSystemJSON(array $owner): never
+	{
+		$baseURL = (string) $this->baseUrl;
+		$json    = [
+			'subject' => 'acct:' . $owner['addr'],
+			'aliases' => [$owner['url']],
+			'links'   => [
+				[
+					'rel'  => ActivityNamespace::FEED,
+					'type' => 'application/atom+xml',
+					'href' => $owner['poll'] ?? $baseURL,
+				],
+				[
+					'rel'  => ActivityNamespace::WEBFINGERPROFILE,
+					'type' => 'text/html',
+					'href' => $owner['url'],
+				],
+				[
+					'rel'  => 'self',
+					'type' => 'application/activity+json',
+					'href' => $owner['url'],
+				],
+				[
+					'rel'  => ActivityNamespace::HCARD,
+					'type' => 'text/html',
+					'href' => $baseURL . '/hcard/' . $owner['nickname'],
+				],
+				[
+					'rel'  => ActivityNamespace::DIASPORA_SEED,
+					'type' => 'text/html',
+					'href' => $baseURL,
+				],
+				[
+					'rel'  => 'salmon',
+					'href' => $baseURL . '/receive/users/' . $owner['guid'],
+				],
+				[
+					'rel'      => ActivityNamespace::OSTATUSSUB,
+					'template' => $baseURL . '/contact/follow?url={uri}',
+				],
+				[
+					'rel'      => ActivityNamespace::FEP3B86_FOLLOW,
+					'template' => $baseURL . '/contact/follow?url={object}',
+				],
+				[
+					'rel'      => ActivityNamespace::FEP3B86_CREATE,
+					'template' => $baseURL . '/compose?body={content}&title={name}&summary={summary}&attachment={attachment}',
+				],
+			],
+		];
+		header('Access-Control-Allow-Origin: *');
+		$this->earlyJsonExit($json, 'application/jrd+json; charset=utf-8');
+	}
+
+	private function printJSON(array $aliases, array $owner, array $avatar): never
+	{
+		$baseURL = (string) $this->baseUrl;
+
+		$json = [
+			'subject' => 'acct:' . $owner['addr'],
+			'aliases' => [
+				...$aliases,
+				$owner['url'],
+			],
+			'links' => [
+				[
+					'rel'  => ActivityNamespace::DFRN,
+					'href' => $owner['url'],
+				],
+				[
+					'rel'  => ActivityNamespace::FEED,
+					'type' => 'application/atom+xml',
+					'href' => $owner['poll'],
+				],
+				[
+					'rel'  => ActivityNamespace::WEBFINGERPROFILE,
+					'type' => 'text/html',
+					'href' => $owner['url'],
+				],
+				[
+					'rel'  => 'self',
+					'type' => 'application/activity+json',
+					'href' => $owner['url'],
+				],
+				[
+					'rel'  => ActivityNamespace::HCARD,
+					'type' => 'text/html',
+					'href' => $baseURL . '/hcard/' . $owner['nickname'],
+				],
+				[
+					'rel'  => ActivityNamespace::WEBFINGERAVATAR,
+					'type' => $avatar['type'],
+					'href' => User::getAvatarUrl($owner),
+				],
+				[
+					'rel'  => ActivityNamespace::DIASPORA_SEED,
+					'type' => 'text/html',
+					'href' => $baseURL,
+				],
+				[
+					'rel'  => 'salmon',
+					'href' => $baseURL . '/receive/users/' . $owner['guid'],
+				],
+				[
+					'rel'      => ActivityNamespace::OSTATUSSUB,
+					'template' => $baseURL . '/contact/follow?url={uri}',
+				],
+				[
+					'rel'      => ActivityNamespace::FEP3B86_FOLLOW,
+					'template' => $baseURL . '/contact/follow?url={object}',
+				],
+				[
+					'rel'      => ActivityNamespace::FEP3B86_CREATE,
+					'template' => $baseURL . '/compose?body={content}&title={name}&summary={summary}&attachment={attachment}',
+				],
+				[
+					'rel'  => ActivityNamespace::OPENWEBAUTH,
+					'type' => 'application/x-zot+json',
+					'href' => $baseURL . '/owa',
+				],
+			],
+		];
+
+		header('Access-Control-Allow-Origin: *');
+		$this->earlyJsonExit($json, 'application/jrd+json; charset=utf-8');
+	}
+
+	private function printXML(array $aliases, array $owner, array $avatar): never
+	{
+		$baseURL = (string) $this->baseUrl;
+
+		$xmlAliases = ['1:Alias' => $owner['url']];
+		foreach ($aliases as $index => $alias) {
+			$xmlAliases[($index + 2) . ':Alias'] = $alias;
+		}
+
+		$xmlString = XML::fromArray([
+			'XRD' => array_merge([
+				'@attributes' => [
+					'xmlns' => 'http://docs.oasis-open.org/ns/xri/xrd-1.0',
+				],
+				'Subject' => 'acct:' . $owner['addr'],
+			], $xmlAliases, [
+				'1:link' => [
+					'@attributes' => [
+						'rel'  => ActivityNamespace::DFRN,
+						'href' => $owner['url'],
+					],
+				],
+				'2:link' => [
+					'@attributes' => [
+						'rel'  => ActivityNamespace::FEED,
+						'type' => 'application/atom+xml',
+						'href' => $owner['poll'],
+					],
+				],
+				'3:link' => [
+					'@attributes' => [
+						'rel'  => ActivityNamespace::WEBFINGERPROFILE,
+						'type' => 'text/html',
+						'href' => $owner['url'],
+					],
+				],
+				'4:link' => [
+					'@attributes' => [
+						'rel'  => 'self',
+						'type' => 'application/activity+json',
+						'href' => $owner['url'],
+					],
+				],
+				'5:link' => [
+					'@attributes' => [
+						'rel'  => ActivityNamespace::HCARD,
+						'type' => 'text/html',
+						'href' => $baseURL . '/hcard/' . $owner['nickname'],
+					],
+				],
+				'6:link' => [
+					'@attributes' => [
+						'rel'  => ActivityNamespace::WEBFINGERAVATAR,
+						'type' => $avatar['type'],
+						'href' => User::getAvatarUrl($owner),
+					],
+				],
+				'7:link' => [
+					'@attributes' => [
+						'rel'  => ActivityNamespace::DIASPORA_SEED,
+						'type' => 'text/html',
+						'href' => $baseURL,
+					],
+				],
+				'8:link' => [
+					'@attributes' => [
+						'rel'  => 'salmon',
+						'href' => $baseURL . '/receive/users/' . $owner['guid'],
+					],
+				],
+				'9:link' => [
+					'@attributes' => [
+						'rel'      => ActivityNamespace::OSTATUSSUB,
+						'template' => $baseURL . '/contact/follow?url={uri}',
+					],
+				],
+				'10:link' => [
+					'@attributes' => [
+						'rel'      => ActivityNamespace::FEP3B86_FOLLOW,
+						'template' => $baseURL . '/contact/follow?url={object}',
+					],
+				],
+				'11:link' => [
+					'@attributes' => [
+						'rel'      => ActivityNamespace::FEP3B86_CREATE,
+						'template' => $baseURL . '/compose?body={content}&title={name}&summary={summary}&attachment={attachment}',
+					],
+				],
+				'12:link' => [
+					'@attributes' => [
+						'rel'  => ActivityNamespace::OPENWEBAUTH,
+						'type' => 'application/x-zot+json',
+						'href' => $baseURL . '/owa',
+					],
+				],
+			]),
+		]);
+
+		header('Access-Control-Allow-Origin: *');
+		$this->earlyHttpExit($xmlString, Response::TYPE_XML, 'application/xrd+xml');
+	}
+}

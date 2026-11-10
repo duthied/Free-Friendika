@@ -1,0 +1,186 @@
+<?php
+
+// Copyright (C) 2010-2026, the Friendica project
+// SPDX-FileCopyrightText: 2010-2026 the Friendica project
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+namespace Friendica;
+
+use Exception;
+use Friendica\Capabilities\ICanCreateFromTableRow;
+use Friendica\Database\Database;
+use Friendica\Database\DBA;
+use Friendica\Network\HTTPException\NotFoundException;
+use Psr\Log\LoggerInterface;
+
+/**
+ * Repositories are meant to store and retrieve Entities from the database.
+ *
+ * The reason why there are methods prefixed with an underscore is because PHP doesn't support generic polymorphism
+ * which means we can't directly overload base methods and make parameters more strict (from a parent class to a child
+ * class for example)
+ *
+ * Similarly, we can't make an overloaded method return type more strict until we only support PHP version 7.4 but this
+ * is less pressing.
+ */
+abstract class BaseRepository
+{
+	public const LIMIT = 30;
+
+	/**
+	 * @var string This should be set to the main database table name the depository is using
+	 */
+	protected static $table_name;
+
+	/** @var Database */
+	protected $db;
+
+	/** @var LoggerInterface */
+	protected $logger;
+
+	/**
+	 * @var ICanCreateFromTableRow
+	 *
+	 * @deprecated 2026.08 Implement getFactory() instead
+	 */
+	protected $factory;
+
+	public function __construct(Database $database, LoggerInterface $logger, ICanCreateFromTableRow $factory)
+	{
+		$this->db      = $database;
+		$this->logger  = $logger;
+		$this->factory = $factory; // @phpstan-ignore property.deprecated (self-call in deprecated flow)
+	}
+
+	/**
+	 * Returns the TableRowFactory
+	 *
+	 * @deprecated 2026.08 This method will become abstract in a future release, implement it in your child class instead.
+	 */
+	protected function getFactory(): ICanCreateFromTableRow
+	{
+		@trigger_error('`' . __METHOD__ . '()` is deprecated since 2026.08 and will be removed after 5 months, implement it in your child class instead.', E_USER_DEPRECATED);
+
+		return $this->factory;
+	}
+
+	/**
+	 * Populates the collection according to the condition. Retrieves a limited subset of entities depending on the
+	 * boundaries and the limit. The total count of rows matching the condition is stored in the collection.
+	 *
+	 * Depends on the corresponding table featuring a numerical auto incremented column called `id`.
+	 *
+	 * max_id and min_id are susceptible to the query order:
+	 * - min_id alone only reliably works with ASC order
+	 * - max_id alone only reliably works with DESC order
+	 * If the wrong order is detected in either case, we reverse the query order and the entity list order after the query
+	 *
+	 * Chainable.
+	 *
+	 * @param array    $condition
+	 * @param array    $params
+	 * @param int|null $min_id Retrieve models with an id no fewer than this, as close to it as possible
+	 * @param int|null $max_id Retrieve models with an id no greater than this, as close to it as possible
+	 * @param int      $limit
+	 * @return BaseCollection
+	 * @throws \Exception
+	 */
+	protected function _selectByBoundaries(
+		array $condition = [],
+		array $params = [],
+		?int $min_id = null,
+		?int $max_id = null,
+		int $limit = self::LIMIT,
+	): BaseCollection {
+		$totalCount = $this->count($condition);
+
+		$boundCondition = $condition;
+
+		$reverseOrder = false;
+
+		if (isset($min_id)) {
+			$boundCondition = DBA::mergeConditions($boundCondition, ['`id` > ?', $min_id]);
+			if (!isset($max_id) && isset($params['order']['id']) && ($params['order']['id'] === true || $params['order']['id'] === 'DESC')) {
+				$reverseOrder = true;
+
+				$params['order']['id'] = 'ASC';
+			}
+		}
+
+		if (isset($max_id) && $max_id > 0) {
+			$boundCondition = DBA::mergeConditions($boundCondition, ['`id` < ?', $max_id]);
+			if (!isset($min_id) && (!isset($params['order']['id']) || $params['order']['id'] === false || $params['order']['id'] === 'ASC')) {
+				$reverseOrder = true;
+
+				$params['order']['id'] = 'DESC';
+			}
+		}
+
+		$params['limit'] = $limit;
+
+		$Entities = $this->_select($boundCondition, $params);
+		if ($reverseOrder) {
+			$Entities->reverse();
+		}
+
+		return new BaseCollection($Entities->getArrayCopy(), $totalCount);
+	}
+
+	/**
+	 * @param array $condition
+	 * @param array $params
+	 * @return BaseCollection
+	 * @throws Exception
+	 */
+	protected function _select(array $condition, array $params = []): BaseCollection
+	{
+		$rows = $this->db->selectToArray(static::$table_name, [], $condition, $params);
+
+		$Entities = new BaseCollection();
+		foreach ($rows as $fields) {
+			$Entities[] = $this->getFactory()->createFromTableRow($fields); // @phpstan-ignore method.deprecated (BC: keep until getFactory() becomes abstract)
+		}
+
+		return $Entities;
+	}
+
+	/**
+	 * Selects the fields of the first row as array
+	 *
+	 * @throws NotFoundException
+	 *
+	 * @return array The resulted fields as array
+	 */
+	final protected function _selectFirstRowAsArray(array $condition, array $params = []): array
+	{
+		$fields = $this->db->selectFirst(static::$table_name, [], $condition, $params);
+
+		if (!$this->db->isResult($fields)) {
+			throw new NotFoundException();
+		}
+
+		return $fields;
+	}
+
+	/**
+	 * @param array $condition
+	 * @param array $params
+	 * @return int
+	 * @throws Exception
+	 */
+	public function count(array $condition, array $params = []): int
+	{
+		return $this->db->count(static::$table_name, $condition, $params);
+	}
+
+	/**
+	 * @param array $condition
+	 * @return bool
+	 * @throws Exception
+	 */
+	public function exists(array $condition): bool
+	{
+		return $this->db->exists(static::$table_name, $condition);
+	}
+}

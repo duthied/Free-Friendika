@@ -1,0 +1,364 @@
+<?php
+
+// Copyright (C) 2010-2026, the Friendica project
+// SPDX-FileCopyrightText: 2010-2026 the Friendica project
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+namespace Friendica\Module\Profile;
+
+use Friendica\App\Arguments;
+use Friendica\App\BaseURL;
+use Friendica\App\Page;
+use Friendica\AppHelper;
+use Friendica\Content\Pager;
+use Friendica\Core\Config\Capability\IManageConfigValues;
+use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
+use Friendica\Database\Database;
+use Friendica\Event\ArrayFilterEvent;
+use Friendica\Model\Contact;
+use Friendica\Model\Photo;
+use Friendica\Model\Profile;
+use Friendica\Module\Response;
+use Friendica\Navigation\SystemMessages;
+use Friendica\Network\HTTPException;
+use Friendica\Object\Image;
+use Friendica\Security\Security;
+use Friendica\Util\ACLFormatter;
+use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Images;
+use Friendica\Util\Profiler;
+use Friendica\Util\Strings;
+use Psr\EventDispatcher\EventDispatcherInterface;
+use Psr\Log\LoggerInterface;
+
+class Photos extends \Friendica\Module\BaseProfile
+{
+	/** @var array owner-view record */
+	private $owner;
+
+	public function __construct(
+		private readonly ACLFormatter $aclFormatter,
+		private readonly SystemMessages $systemMessages,
+		private readonly Database $database,
+		private readonly AppHelper $appHelper,
+		private readonly IManageConfigValues $config,
+		private Page $page,
+		private readonly IHandleUserSessions $session,
+		private readonly EventDispatcherInterface $eventDispatcher,
+		L10n $l10n,
+		BaseURL $baseUrl,
+		Arguments $args,
+		LoggerInterface $logger,
+		Profiler $profiler,
+		Response $response,
+		array $server,
+		array $parameters = [],
+	) {
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+
+		$owner = Profile::load($this->appHelper, $this->parameters['nickname'] ?? '', false);
+		if (!$owner || $owner['account_removed'] || $owner['account_expired']) {
+			throw new HTTPException\NotFoundException($this->t('User not found.'));
+		}
+
+		$this->owner = $owner;
+	}
+
+	protected function post(array $request = [])
+	{
+		if ($this->session->getLocalUserId() != $this->owner['uid']) {
+			throw new HTTPException\ForbiddenException($this->t('Permission denied.'));
+		}
+
+		$str_contact_allow = isset($request['contact_allow']) ? $this->aclFormatter->toString($request['contact_allow']) : $this->owner['allow_cid'] ?? '';
+		$str_circle_allow  = isset($request['circle_allow'])  ? $this->aclFormatter->toString($request['circle_allow'])  : $this->owner['allow_gid'] ?? '';
+		$str_contact_deny  = isset($request['contact_deny'])  ? $this->aclFormatter->toString($request['contact_deny'])  : $this->owner['deny_cid']  ?? '';
+		$str_circle_deny   = isset($request['circle_deny'])   ? $this->aclFormatter->toString($request['circle_deny'])   : $this->owner['deny_gid']  ?? '';
+
+		$visibility = $request['visibility'] ?? '';
+		if ($visibility === 'public') {
+			// The ACL selector introduced in version 2019.12 sends ACL input data even when the Public visibility is selected
+			$str_contact_allow = $str_circle_allow = $str_contact_deny = $str_circle_deny = '';
+		} elseif ($visibility === 'custom') {
+			// Since we know from the visibility parameter the item should be private, we have to prevent the empty ACL
+			// case that would make it public. So we always append the author's contact id to the allowed contacts.
+			// See https://github.com/friendica/friendica/issues/9672
+			$str_contact_allow .= $this->aclFormatter->toString((string) Contact::getPublicIdByUserId($this->owner['uid']));
+		}
+
+		$hook_data = [
+			'request' => $request,
+		];
+
+		// default post action - upload a photo
+		$hook_data = $this->eventDispatcher->dispatch(
+			new ArrayFilterEvent(ArrayFilterEvent::PHOTO_UPLOAD_START, $hook_data),
+		)->getArray();
+
+		$request = $hook_data['request'] ?? $request;
+
+		// Determine the album to use
+		$album    = strip_tags(trim($request['album'] ?? ''));
+		$newalbum = strip_tags(trim($request['newalbum'] ?? ''));
+
+		$this->logger->debug('album= ' . $album . ' newalbum= ' . $newalbum);
+
+		$album = $album ?: $newalbum ?: DateTimeFormat::localNow('Y');
+
+		$hook_data = [
+			'src'      => '',
+			'filename' => '',
+			'filesize' => 0,
+			'type'     => '',
+		];
+
+		$hook_data = $this->eventDispatcher->dispatch(
+			new ArrayFilterEvent(ArrayFilterEvent::PHOTO_UPLOAD, $hook_data),
+		)->getArray();
+
+		$src      = null;
+		$filename = '';
+		$filesize = 0;
+		$type     = '';
+
+		if (!empty($hook_data['src']) && !empty($hook_data['filesize'])) {
+			$src      = $hook_data['src'];
+			$filename = $hook_data['filename'];
+			$filesize = $hook_data['filesize'];
+			$type     = $hook_data['type'];
+			$error    = UPLOAD_ERR_OK;
+		} elseif (!empty($_FILES['userfile'])) {
+			$src      = $_FILES['userfile']['tmp_name'];
+			$filename = basename((string) $_FILES['userfile']['name']);
+			$filesize = intval($_FILES['userfile']['size']);
+			$type     = $_FILES['userfile']['type'];
+			$error    = $_FILES['userfile']['error'];
+		} else {
+			$error = UPLOAD_ERR_NO_FILE;
+		}
+
+		if ($error !== UPLOAD_ERR_OK) {
+			switch ($error) {
+				case UPLOAD_ERR_INI_SIZE:
+					$this->systemMessages->addNotice($this->t('Image exceeds size limit of %s', ini_get('upload_max_filesize')));
+					break;
+				case UPLOAD_ERR_FORM_SIZE:
+					$this->systemMessages->addNotice($this->t('Image exceeds size limit of %s', Strings::formatBytes($request['MAX_FILE_SIZE'] ?? 0)));
+					break;
+				case UPLOAD_ERR_PARTIAL:
+					$this->systemMessages->addNotice($this->t('Image upload didn\'t complete, please try again'));
+					break;
+				case UPLOAD_ERR_NO_FILE:
+					$this->systemMessages->addNotice($this->t('Image file is missing'));
+					break;
+				case UPLOAD_ERR_NO_TMP_DIR:
+				case UPLOAD_ERR_CANT_WRITE:
+				case UPLOAD_ERR_EXTENSION:
+					$this->systemMessages->addNotice($this->t('Server can\'t accept new file upload at this time, please contact your administrator'));
+					break;
+			}
+
+			if ($src !== null) {
+				@unlink($src);
+			}
+
+			$this->eventDispatcher->dispatch(
+				new ArrayFilterEvent(ArrayFilterEvent::PHOTO_UPLOAD_END, ['id' => 0]),
+			);
+
+			return;
+		}
+
+		$this->logger->info('photos: upload: received file: ' . $filename . ' as ' . $src . ' (' . $type . ') ' . $filesize . ' bytes');
+
+		$maximagesize = Strings::getBytesFromShorthand($this->config->get('system', 'maximagesize'));
+
+		if ($maximagesize && ($filesize > $maximagesize)) {
+			$this->systemMessages->addNotice($this->t('Image exceeds size limit of %s', Strings::formatBytes($maximagesize)));
+			@unlink($src);
+
+			$this->eventDispatcher->dispatch(
+				new ArrayFilterEvent(ArrayFilterEvent::PHOTO_UPLOAD_END, ['id' => 0]),
+			);
+
+			return;
+		}
+
+		if (!$filesize) {
+			$this->systemMessages->addNotice($this->t('Image file is empty.'));
+			@unlink($src);
+
+			$this->eventDispatcher->dispatch(
+				new ArrayFilterEvent(ArrayFilterEvent::PHOTO_UPLOAD_END, ['id' => 0]),
+			);
+
+			return;
+		}
+
+		$this->logger->debug('loading contents', ['src' => $src]);
+
+		$imagedata = @file_get_contents($src);
+
+		$image = new Image($imagedata, $type, $filename);
+
+		if (!$image->isValid()) {
+			$this->logger->notice('unable to process image');
+			$this->systemMessages->addNotice($this->t('Unable to process image.'));
+			@unlink($src);
+
+			$this->eventDispatcher->dispatch(
+				new ArrayFilterEvent(ArrayFilterEvent::PHOTO_UPLOAD_END, ['id' => 0]),
+			);
+
+			return;
+		}
+
+		@unlink($src);
+
+		$max_length = $this->config->get('system', 'max_image_length');
+		if ($max_length > 0) {
+			$image->scaleDown($max_length);
+		}
+
+		$resource_id = Photo::newResource();
+
+		$preview = Photo::storeWithPreview($image, $this->owner['uid'], $resource_id, $filename, $filesize, $album, '', $str_contact_allow, $str_circle_allow, $str_contact_deny, $str_circle_deny);
+		if ($preview < 0) {
+			$this->logger->warning('image store failed');
+			$this->systemMessages->addNotice($this->t('Image upload failed.'));
+			$this->eventDispatcher->dispatch(
+				new ArrayFilterEvent(ArrayFilterEvent::PHOTO_UPLOAD_END, ['id' => 0]),
+			);
+			return;
+		}
+
+		// Update the photo albums cache
+		Photo::clearAlbumCache($this->owner['uid']);
+
+		$this->eventDispatcher->dispatch(
+			new ArrayFilterEvent(ArrayFilterEvent::PHOTO_UPLOAD_END, ['id' => $resource_id]),
+		);
+
+		$this->baseUrl->redirect($this->session->get('photo_return') ?? 'profile/' . $this->owner['nickname'] . '/photos');
+	}
+
+	protected function content(array $request = []): string
+	{
+		if ($this->config->get('system', 'block_public') && !$this->session->isAuthenticated()) {
+			throw new HttpException\ForbiddenException($this->t('Public access denied.'));
+		}
+
+		$owner_uid = $this->owner['uid'];
+		$is_owner  = $this->session->getLocalUserId() == $owner_uid;
+
+		if ($this->owner['hidewall'] && !$this->session->isAuthenticated()) {
+			$this->baseUrl->redirect('profile/' . $this->owner['nickname'] . '/restricted');
+		}
+
+		$this->session->set('photo_return', $this->args->getCommand());
+
+		$sql_extra = Security::getPermissionsSQLByUserId($owner_uid);
+
+		$photo = $this->database->toArray($this->database->p(
+			"SELECT COUNT(DISTINCT `resource-id`) AS `count`
+			FROM `photo`
+			WHERE `uid` = ?
+			  AND `photo-type` = ?
+			  $sql_extra",
+			$this->owner['uid'],
+			Photo::DEFAULT,
+		));
+		$total = $photo[0]['count'];
+
+		$pager = new Pager($this->l10n, $this->args->getQueryString(), 20);
+
+		$photos = $this->database->toArray($this->database->p(
+			"SELECT
+				`resource-id`,
+				MIN(`id`) AS `id`,
+				MIN(`filename`) AS `filename`,
+				MIN(`type`) AS `type`,
+				MIN(`album`) AS `album`,
+				MAX(`scale`) AS `scale`,
+				MIN(`created`) AS `created`
+			FROM `photo`
+			WHERE `uid` = ?
+			  AND `photo-type` = ?
+			  $sql_extra
+			GROUP BY `resource-id`
+			ORDER BY `created` DESC
+			LIMIT ? , ?",
+			$this->owner['uid'],
+			Photo::DEFAULT,
+			$pager->getStart(),
+			$pager->getItemsPerPage(),
+		));
+
+		$photos = array_map(function ($photo) {
+			return [
+				'id'    => $photo['id'],
+				'link'  => 'photos/' . $this->owner['nickname'] . '/image/' . $photo['resource-id'],
+				'title' => $this->t('View Photo'),
+				'src'   => 'photo/' . $photo['resource-id'] . '-' . ((($photo['scale']) == 6) ? 4 : $photo['scale']) . Images::getExtensionByMimeType($photo['type']),
+				'alt'   => $photo['filename'],
+				'album' => [
+					'link' => 'photos/' . $this->owner['nickname'] . '/album/' . bin2hex((string) $photo['album']),
+					'name' => $photo['album'],
+					'alt'  => $this->t('View Album'),
+				],
+			];
+		}, $photos);
+
+		$tpl = Renderer::getMarkupTemplate('photos_head.tpl');
+		$this->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
+			'$ispublic' => $this->t('everybody'),
+		]);
+
+		if ($albums = Photo::getAlbums($this->owner['uid'])) {
+			$albums = array_map(function ($album) {
+				return [
+					'text'      => $album['album'],
+					'total'     => $album['total'],
+					'url'       => 'photos/' . $this->owner['nickname'] . '/album/' . bin2hex((string) $album['album']),
+					'urlencode' => urlencode((string) $album['album']),
+					'bin2hex'   => bin2hex((string) $album['album']),
+				];
+			}, $albums);
+
+			$photo_albums_widget = Renderer::replaceMacros(Renderer::getMarkupTemplate('photo_albums.tpl'), [
+				'$nick'     => $this->owner['nickname'],
+				'$title'    => $this->t('Photo Albums'),
+				'$recent'   => $this->t('Recent Photos'),
+				'$albums'   => $albums,
+				'$upload'   => [$this->t('Upload photo'), 'photos/' . $this->owner['nickname'] . '/upload'],
+				'$can_post' => $this->session->getLocalUserId() && $this->owner['uid'] == $this->session->getLocalUserId(),
+			]);
+		}
+
+		// Removing vCard for owner
+		if ($is_owner) {
+			$this->page['aside'] = '';
+		}
+
+		if (!empty($photo_albums_widget)) {
+			$this->page['aside'] .= $photo_albums_widget;
+		}
+
+		$o = self::getTabsHTML('photos', $is_owner, $this->owner['nickname'], Profile::getByUID($this->owner['uid'])['hide-friends'] ?? false);
+
+		$tpl = Renderer::getMarkupTemplate('photos_recent.tpl');
+		$o .= Renderer::replaceMacros($tpl, [
+			'$title'      => $this->t('Recent Photos'),
+			'$can_post'   => $is_owner,
+			'$upload'     => [$this->t('Upload photo'), 'photos/' . $this->owner['nickname'] . '/upload'],
+			'$photos'     => $photos,
+			'$paginate'   => $pager->renderFull($total),
+			'upload_text' => $this->t('Upload photo'),
+		]);
+
+		return $o;
+	}
+}

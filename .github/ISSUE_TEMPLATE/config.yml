@@ -1,0 +1,9 @@
+# SPDX-FileCopyrightText: 2010-2026 the Friendica project
+#
+# SPDX-License-Identifier: CC0-1.0
+
+blank_issues_enabled: true
+contact_links:
+  - name: Friendica Community Support
+    url: https://forum.friendi.ca/
+    about: Please ask and answer questions here.

@@ -1,0 +1,334 @@
+version = 1
+SPDX-PackageName = "Friendica"
+SPDX-PackageSupplier = "Friendica Project <info@friendi.ca>"
+SPDX-PackageDownloadLocation = "https://friendi.ca"
+
+[[annotations]]
+path = [
+     "database.sql",
+     "composer.*",
+     "package.json",
+     "package-lock.json",
+     "eslint-suppressions.json",
+     "deptrac-baseline.yaml",
+     "template-invariants-baseline.json",
+     "doc/**",
+     "spec/*",
+     "tests/**",
+     ".devcontainer/**",
+     ".docker/**",
+     ".vscode/*",
+     ".phpactor.json",
+     "**/.gitignore",
+     "src/**/README.md",
+     "mods/**",
+     "static/*.jsonld",
+     ".github/ISSUE_TEMPLATE/*",
+     "view/theme/frio/README.md",
+     "view/theme/vier/README.md",
+     "view/theme/**/screenshot.jpg",
+     "view/theme/**/screenshot.png",
+     "images/icons/**",
+     "images/friendica*",
+     "images/ff*",
+     "images/person-*.jpg",
+     "view/install/*.png",
+     "images/screenshots/*",
+     "view/theme/frio/img/**",
+     "config/local-sample.config.php",
+     "images/article.gif",
+     "images/audio.gif",
+     "images/b_block.gif",
+     "images/b_drop.gif",
+     "images/b_drop.png",
+     "images/b_drophide.gif",
+     "images/b_dropshow.gif",
+     "images/b_edit.gif",
+     "images/b_edit.png",
+     "images/beer_mug.gif",
+     "images/blank.png",
+     "images/bug-x.gif",
+     "images/calendar.png",
+     "images/camera-icon.gif",
+     "images/coffee.gif",
+     "images/connect-bg.png",
+     "images/content-types.png",
+     "images/default-profile-mm.jpg",
+     "images/default-profile-sm.jpg",
+     "images/default-profile.jpg",
+     "images/dislike.gif",
+     "images/document.gif",
+     "images/globe.gif",
+     "images/hide_off.png",
+     "images/hide_on.png",
+     "images/icons.png",
+     "images/larrow.gif",
+     "images/larrw.gif",
+     "images/like.gif",
+     "images/link-icon.gif",
+     "images/lock_icon.gif",
+     "images/lrarrow.gif",
+     "images/mail.png",
+     "images/mapicon.gif",
+     "images/no.gif",
+     "images/noglobe.gif",
+     "images/nosign.jpg",
+     "images/onoff.jpg",
+     "images/pause.gif",
+     "images/pen.png",
+     "images/pencil.gif",
+     "images/penhover.png",
+     "images/people.gif",
+     "images/play.gif",
+     "images/plugin.png",
+     "images/rarrow.gif",
+     "images/rarrw.gif",
+     "images/recycle.gif",
+     "images/remote-link.gif",
+     "images/rotator.gif",
+     "images/search_18.png",
+     "images/selected.png",
+     "images/share.gif",
+     "images/show_all_off.png",
+     "images/show_all_on.png",
+     "images/show_off.png",
+     "images/show_on.png",
+     "images/smiley-Oo.gif",
+     "images/smiley-bangheaddesk.gif",
+     "images/smiley-brokenheart.gif",
+     "images/smiley-cool.gif",
+     "images/smiley-cry.gif",
+     "images/smiley-embarrassed.gif",
+     "images/smiley-facepalm.gif",
+     "images/smiley-foot-in-mouth.gif",
+     "images/smiley-frown.gif",
+     "images/smiley-heart.gif",
+     "images/smiley-innocent.gif",
+     "images/smiley-kiss.gif",
+     "images/smiley-laughing.gif",
+     "images/smiley-money-mouth.gif",
+     "images/smiley-sealed.gif",
+     "images/smiley-shaka.gif",
+     "images/smiley-smile.gif",
+     "images/smiley-surprised.gif",
+     "images/smiley-thumbsup.gif",
+     "images/smiley-tongue-out.gif",
+     "images/smiley-undecided.gif",
+     "images/smiley-wink.gif",
+     "images/smiley-yell.gif",
+     "images/spencil.gif",
+     "images/star.png",
+     "images/star_dummy.png",
+     "images/tools.png",
+     "images/twopeople.png",
+     "images/unlock_icon.gif",
+     "images/video.gif",
+     "images/logo.png",
+]
+SPDX-FileCopyrightText = "2010-2026 The Friendica Project"
+SPDX-License-Identifier = "CC0-1.0"
+
+[[annotations]]
+path = [
+     "view/lang/**/strings.php",
+     "view/lang/**/messages.po"
+     ]
+SPDX-FileCopyrightText = "2010-2026 The Friendica Project"
+SPDX-License-Identifier = "AGPL-3.0-or-later"
+
+[[annotations]]
+path = "view/fonts/*"
+SPDX-FileCopyrightText = "2014, Andi Stadler for the Friendica project"
+SPDX-License-Identifier = "CC-BY-SA-4.0"
+
+[[annotations]]
+path = [
+     "view/theme/vier/css/font-awesome*.css",
+     "view/theme/vier/css/font2.css"
+]
+SPDX-FileCopyrightText = "Dave Gandy"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "view/theme/vier/font/*"
+SPDX-FileCopyrightText = "Dave Gandy"
+SPDX-License-Identifier = "OFL-1.1"
+
+[[annotations]]
+path = "view/fonts/accessibility/opendyslexic/**"
+SPDX-FileCopyrightText = "2012-2019 Abbie Gonzalez (Abelardo Gonzalez) (https://abbiecod.es), with Reserved Font Name OpenDyslexic"
+SPDX-License-Identifier = "OFL-1.1"
+
+[[annotations]]
+path = "view/fonts/accessibility/atkinson-hyperlegible/**"
+SPDX-FileCopyrightText = "2020-2024 The Atkinson Hyperlegible Next Project Authors (https://github.com/googlefonts/atkinson-hyperlegible-next)"
+SPDX-License-Identifier = "OFL-1.1"
+
+[[annotations]]
+path = "view/fonts/accessibility/andika/**"
+SPDX-FileCopyrightText = "2004-2025 SIL Global (https://www.sil.org/), with Reserved Font Names Andika and SIL"
+SPDX-License-Identifier = "OFL-1.1"
+
+[[annotations]]
+path = "view/fonts/accessibility/lexend/**"
+SPDX-FileCopyrightText = "2018 The Lexend Project Authors (https://github.com/googlefonts/lexend), with Reserved Font Name RevReading Lexend"
+SPDX-License-Identifier = "OFL-1.1"
+
+[[annotations]]
+path = "view/fonts/accessibility/luciole/**"
+SPDX-FileCopyrightText = "Luciole & Laurent Bourcellier & Jonathan Perez"
+SPDX-License-Identifier = "CC-BY-4.0"
+
+[[annotations]]
+path = "view/theme/frio/font/open_sans/**"
+SPDX-FileCopyrightText = "2010 Steve Matteson, Google LLC"
+SPDX-License-Identifier = "OFL-1.1"
+
+[[annotations]]
+path = "view/theme/frio/frameworks/bootstrap/**"
+SPDX-FileCopyrightText = "2011-2019 Twitter, Inc."
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "view/theme/frio/frameworks/bootstrap-colorpicker/**"
+SPDX-FileCopyrightText = "2012 Stefan Petre"
+SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = "view/theme/frio/frameworks/bootstrap-select/**"
+SPDX-FileCopyrightText = "2013-2026 bootstrap-select"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "view/theme/frio/frameworks/bootstrap-toggle/**"
+SPDX-FileCopyrightText = "2014 Min Hur, The New York Times Company"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "view/theme/frio/frameworks/jasny/**"
+SPDX-FileCopyrightText = "2012-2014 Arnold Daniels"
+SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = "view/theme/frio/frameworks/justifiedGallery/**"
+SPDX-FileCopyrightText = "2023 Miro Mannino, Hypolite Petovan"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "view/js/fancybox/**"
+SPDX-FileCopyrightText = "2019 fancyApps"
+SPDX-License-Identifier = "GPL-3.0-only"
+
+[[annotations]]
+path = [
+     "view/js/modernizr.js"
+]
+SPDX-FileCopyrightText = "modernizrJS"
+SPDX-License-Identifier = "MIT OR BSD-3-Clause"
+
+[[annotations]]
+path = "view/theme/frio/frameworks/flexMenu/*"
+SPDX-FileCopyrightText = "2012-2014 352 Inc. & Contributors"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = [
+     "view/theme/frio/js/jquery.tools.min.js"
+]
+SPDX-FileCopyrightText = "NO COPYRIGHTS OR LICENSES. DO WHAT YOU LIKE. http://flowplayer.org/tools/"
+SPDX-License-Identifier = "CC0-1.0"
+
+[[annotations]]
+path = "view/theme/frio/php/PHPColors/*"
+SPDX-FileCopyrightText = "Arlo Carreon"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "view/theme/frio/frameworks/autosize/*"
+SPDX-FileCopyrightText = "Jack Moore"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "view/theme/frio/frameworks/sticky-kit/jquery.sticky-kit.min.js"
+SPDX-FileCopyrightText = "2015 Leaf Corcoran"
+SPDX-License-Identifier = "WTFPL"
+
+[[annotations]]
+path = "view/theme/frio/frameworks/jquery-scrollspy/*"
+SPDX-FileCopyrightText = "2011 Samuel Alexander, 2015 SoftwareSpot"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "view/theme/frio/frameworks/ekko-lightbox/*"
+SPDX-FileCopyrightText = "2013 Ashley White"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "view/theme/frio/frameworks/awesome-bootstrap-checkbox/*"
+SPDX-FileCopyrightText = "2014 Philip Daineka"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "view/js/vanillaEmojiPicker/*"
+SPDX-FileCopyrightText = "2020, woody180 https://github.com/woody180/vanilla-javascript-emoji-picker"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "view/js/country.js"
+SPDX-FileCopyrightText = "Jim Carlock"
+SPDX-License-Identifier = "CC0-1.0"
+
+[[annotations]]
+path = "view/js/hls/**"
+SPDX-FileCopyrightText = "2017 Dailymotion (http://www.dailymotion.com)"
+SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = "view/js/videojs/**"
+SPDX-FileCopyrightText = "Copyright 2010-present Video.js contributors"
+SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = [ "images/rm-16.png", "images/rhash-16.png"]
+SPDX-FileCopyrightText = "Red Matrix Project"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "images/pumpio.png"
+SPDX-FileCopyrightText = "2012 E14N"
+SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = "images/buffer.png"
+SPDX-FileCopyrightText = "buffer.com"
+SPDX-License-Identifier = "CC0-1.0"
+
+[[annotations]]
+path = "images/default/corgidon.png"
+SPDX-FileCopyrightText = "Coridon https://github.com/corgidon/"
+SPDX-License-Identifier = "AGPL-3.0-or-later"
+
+[[annotations]]
+path = "images/default/koyuspace.png"
+SPDX-FileCopyrightText = "Koyuspace https://github.com/koyuspace/mastodon"
+SPDX-License-Identifier = "AGPL-3.0-or-later"
+
+[[annotations]]
+path = "images/default/pleroma.png"
+SPDX-FileCopyrightText = "017-2022 Pleroma Authors <https://pleroma.social/>"
+SPDX-License-Identifier = "CC-BY-SA-4.0"
+
+[[annotations]]
+path = "images/dreamwidth.png"
+SPDX-FileCopyrightText = "Dreamwidth Studios, LLC. https://www.dreamwidth.org/site/opensource"
+SPDX-License-Identifier = "CC-BY-SA-3.0"
+
+[[annotations]]
+path = "images/insanejournal.gif"
+SPDX-FileCopyrightText = "Insane Journal https://www.insanejournal.com"
+SPDX-License-Identifier = "CC0-1.0"
+
+[[annotations]]
+path = "images/humane-tech-badge.svg"
+SPDX-FileCopyrightText = "delightful humane design"
+SPDX-License-Identifier = "CC0-1.0"

@@ -1,0 +1,280 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Parameter \#1 \$entities of method Friendica\\BaseCollection\:\:__construct\(\) expects array\<Friendica\\BaseEntity\>, array\<Friendica\\Object\\Api\\Mastodon\\Field\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Collection/Api/Mastodon/Fields.php
+
+		-
+			message: '''
+				#^Call to deprecated method getPermissionsSQLByUserId\(\) of class Friendica\\Model\\Item\:
+				2026\.11 \- Use \\Friendica\\Security\\PostPermissions\:\:getSQL\(\) instead$#
+			'''
+			identifier: staticMethod.deprecated
+			count: 1
+			path: src/Content/Widget/TagCloud.php
+
+		-
+			message: '''
+				#^Call to deprecated method loadINIConfigFile\(\) of class Friendica\\Core\\Config\\Util\\ConfigFileManager\:
+				2018\.12 since version 2018\.12$#
+			'''
+			identifier: method.deprecated
+			count: 2
+			path: src/Core/Config/Util/ConfigFileManager.php
+
+		-
+			message: '''
+				#^Call to deprecated method loadLegacyConfig\(\) of class Friendica\\Core\\Config\\Util\\ConfigFileManager\:
+				2018\.09 since version 2018\.09$#
+			'''
+			identifier: method.deprecated
+			count: 2
+			path: src/Core/Config/Util/ConfigFileManager.php
+
+		-
+			message: '#^Parameter \#2 \$code of class Friendica\\Core\\Storage\\Exception\\ReferenceStorageException constructor expects int, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Core/Storage/Type/ExternalResource.php
+
+		-
+			message: '#^Parameter \#1 \$entities of class Friendica\\Collection\\Api\\Mastodon\\Emojis constructor expects array\<Friendica\\BaseEntity\>, list\<Friendica\\Object\\Api\\Mastodon\\Emoji\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Factory/Api/Mastodon/Emoji.php
+
+		-
+			message: '''
+				#^Call to deprecated method getPermissionsSQLByUserId\(\) of class Friendica\\Model\\Item\:
+				2026\.11 \- Use \\Friendica\\Security\\PostPermissions\:\:getSQL\(\) instead$#
+			'''
+			identifier: staticMethod.deprecated
+			count: 2
+			path: src/Model/Event.php
+
+		-
+			message: '''
+				#^Call to deprecated method fetchByLink\(\) of class Friendica\\Model\\Item\:
+				2026\.11 \- Use \\Friendica\\Protocol\\PostFetcher\:\:fetchByLink\(\) instead$#
+			'''
+			identifier: staticMethod.deprecated
+			count: 1
+			path: src/Model/Post/Media.php
+
+		-
+			message: '''
+				#^Call to deprecated method fetchByLink\(\) of class Friendica\\Model\\Item\:
+				2026\.11 \- Use \\Friendica\\Protocol\\PostFetcher\:\:fetchByLink\(\) instead$#
+			'''
+			identifier: staticMethod.deprecated
+			count: 2
+			path: src/Module/Api/Mastodon/Search.php
+
+		-
+			message: '''
+				#^Call to deprecated method fetchByLink\(\) of class Friendica\\Model\\Item\:
+				2026\.11 \- Use \\Friendica\\Protocol\\PostFetcher\:\:fetchByLink\(\) instead$#
+			'''
+			identifier: staticMethod.deprecated
+			count: 2
+			path: src/Module/Api/Twitter/Search/Tweets.php
+
+		-
+			message: '#^PHPDoc type Friendica\\Module\\Api\\ApiResponse of property Friendica\\Module\\BaseApi\:\:\$response is not the same as PHPDoc type Friendica\\Module\\Response of overridden property Friendica\\BaseModule\:\:\$response\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: src/Module/BaseApi.php
+
+		-
+			message: '''
+				#^Call to deprecated method fetchByLink\(\) of class Friendica\\Model\\Item\:
+				2026\.11 \- Use \\Friendica\\Protocol\\PostFetcher\:\:fetchByLink\(\) instead$#
+			'''
+			identifier: staticMethod.deprecated
+			count: 2
+			path: src/Module/Contact/Follow.php
+
+		-
+			message: '''
+				#^Call to deprecated method getPermissionsSQLByUserId\(\) of class Friendica\\Model\\Item\:
+				2026\.11 \- Use \\Friendica\\Security\\PostPermissions\:\:getSQL\(\) instead$#
+			'''
+			identifier: staticMethod.deprecated
+			count: 1
+			path: src/Module/Item/Display.php
+
+		-
+			message: '''
+				#^Call to deprecated method getPermissionsConditionArrayByUserId\(\) of class Friendica\\Model\\Item\:
+				2026\.11 \- Use \\Friendica\\Security\\PostPermissions\:\:getConditionArray\(\) instead$#
+			'''
+			identifier: staticMethod.deprecated
+			count: 1
+			path: src/Module/Profile/Conversations.php
+
+		-
+			message: '''
+				#^Call to deprecated method fetchByLink\(\) of class Friendica\\Model\\Item\:
+				2026\.11 \- Use \\Friendica\\Protocol\\PostFetcher\:\:fetchByLink\(\) instead$#
+			'''
+			identifier: staticMethod.deprecated
+			count: 2
+			path: src/Module/Search/Index.php
+
+		-
+			message: '''
+				#^Call to deprecated method searchByLink\(\) of class Friendica\\Model\\Item\:
+				2026\.11 \- Use \\Friendica\\Post\\LinkResolver\:\:searchByLink\(\) instead$#
+			'''
+			identifier: staticMethod.deprecated
+			count: 1
+			path: src/Module/Search/Index.php
+
+		-
+			message: '''
+				#^Call to deprecated method getPermissionsSQLByUserId\(\) of class Friendica\\Model\\Item\:
+				2026\.11 \- Use \\Friendica\\Security\\PostPermissions\:\:getSQL\(\) instead$#
+			'''
+			identifier: staticMethod.deprecated
+			count: 1
+			path: src/Module/Update/Profile.php
+
+		-
+			message: '''
+				#^Call to deprecated method getConfig\(\) of class GuzzleHttp\\Client\:
+				ClientInterface\:\:getConfig will be removed in guzzlehttp/guzzle\:8\.0\.$#
+			'''
+			identifier: method.deprecated
+			count: 1
+			path: src/Network/HTTPClient/Client/HttpClient.php
+
+		-
+			message: '''
+				#^Call to deprecated method fetchByLink\(\) of class Friendica\\Model\\Item\:
+				2026\.11 \- Use \\Friendica\\Protocol\\PostFetcher\:\:fetchByLink\(\) instead$#
+			'''
+			identifier: staticMethod.deprecated
+			count: 1
+			path: src/Protocol/ActivityPub/ClientToServer.php
+
+		-
+			message: '''
+				#^Call to deprecated method fetchByLink\(\) of class Friendica\\Model\\Item\:
+				2026\.11 \- Use \\Friendica\\Protocol\\PostFetcher\:\:fetchByLink\(\) instead$#
+			'''
+			identifier: staticMethod.deprecated
+			count: 1
+			path: src/Protocol/ActivityPub/Processor.php
+
+		-
+			message: '''
+				#^Call to deprecated method getQuoteUriId\(\) of class Friendica\\Model\\Item\:
+				2026\.11 \- Use \\Friendica\\Protocol\\PostFetcher\:\:getQuoteUriId\(\) instead$#
+			'''
+			identifier: staticMethod.deprecated
+			count: 1
+			path: src/Protocol/ActivityPub/Processor.php
+
+		-
+			message: '''
+				#^Call to deprecated method searchByLink\(\) of class Friendica\\Model\\Item\:
+				2026\.11 \- Use \\Friendica\\Post\\LinkResolver\:\:searchByLink\(\) instead$#
+			'''
+			identifier: staticMethod.deprecated
+			count: 3
+			path: src/Protocol/ActivityPub/Processor.php
+
+		-
+			message: '''
+				#^Call to deprecated method getURIByLink\(\) of class Friendica\\Model\\Item\:
+				2026\.11 \- Use \\Friendica\\Post\\LinkResolver\:\:getURIByLink\(\) instead$#
+			'''
+			identifier: staticMethod.deprecated
+			count: 3
+			path: src/Protocol/ActivityPub/Receiver.php
+
+		-
+			message: '''
+				#^Call to deprecated method searchByLink\(\) of class Friendica\\Model\\Item\:
+				2026\.11 \- Use \\Friendica\\Post\\LinkResolver\:\:searchByLink\(\) instead$#
+			'''
+			identifier: staticMethod.deprecated
+			count: 1
+			path: src/Protocol/ActivityPub/Receiver.php
+
+		-
+			message: '''
+				#^Call to deprecated method getQuoteUriId\(\) of class Friendica\\Model\\Item\:
+				2026\.11 \- Use \\Friendica\\Protocol\\PostFetcher\:\:getQuoteUriId\(\) instead$#
+			'''
+			identifier: staticMethod.deprecated
+			count: 1
+			path: src/Protocol/DFRN.php
+
+		-
+			message: '#^Parameter \#1 \$permissions of method Friendica\\Util\\ACLFormatter\:\:toString\(\) expects array\|string, int given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Security/PermissionSet/Repository/PermissionSet.php
+
+		-
+			message: '#^Parameter \#1 \$logLevel of method Friendica\\Core\\Logger\\Factory\\StreamLoggerFactory\:\:createLogger\(\) expects ''alert''\|''critical''\|''debug''\|''emergency''\|''error''\|''info''\|''notice''\|''warning'', ''unsupported\-loglevel'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Unit/Core/Logger/Factory/StreamLoggerFactoryTest.php
+
+		-
+			message: '#^Parameter \#1 \$logLevel of method Friendica\\Core\\Logger\\Factory\\SyslogLoggerFactory\:\:createLogger\(\) expects ''alert''\|''critical''\|''debug''\|''emergency''\|''error''\|''info''\|''notice''\|''warning'', ''unsupported\-loglevel'' given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/Unit/Core/Logger/Factory/SyslogLoggerFactoryTest.php
+
+		-
+			message: '#^Parameter \#2 \$config of class Friendica\\Console\\AutomaticInstallation constructor expects Friendica\\Core\\Config\\Capability\\IManageConfigValues, PHPUnit\\Framework\\MockObject\\MockObject given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/src/Console/AutomaticInstallationConsoleTest.php
+
+		-
+			message: '#^Parameter \#3 \$assertion of method Friendica\\Test\\src\\Console\\AutomaticInstallationConsoleTest\:\:assertConfigEntry\(\) expects array\|null, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/src/Console/AutomaticInstallationConsoleTest.php
+
+		-
+			message: '#^Parameter \#3 \$dba of class Friendica\\Console\\AutomaticInstallation constructor expects Friendica\\Database\\Database, PHPUnit\\Framework\\MockObject\\Stub given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/src/Console/AutomaticInstallationConsoleTest.php
+
+		-
+			message: '#^Parameter \#4 \$installer of class Friendica\\Console\\AutomaticInstallation constructor expects Friendica\\Core\\Installer\|null, PHPUnit\\Framework\\MockObject\\MockObject given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/src/Console/AutomaticInstallationConsoleTest.php
+
+		-
+			message: '#^Parameter \#1 \$fixture of method Friendica\\Test\\src\\Core\\Config\\ConfigTest\:\:loadDirectFixture\(\) expects array\<array\<string\>\>, array\<string, array\<int, array\<string, string\>\>\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/src/Core/Config/ConfigTest.php
+
+		-
+			message: '#^Call to an undefined method Dice\\Dice\:\:shouldReceive\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/src/Core/InstallerTest.php
+
+		-
+			message: '#^Property Friendica\\Test\\src\\Core\\InstallerTest\:\:\$dice \(Dice\\Dice&Mockery\\MockInterface\) does not accept Dice\\Dice\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: tests/src/Core/InstallerTest.php
+
+		-
+			message: '#^Property Friendica\\Test\\src\\Profile\\ProfileField\\Entity\\ProfileFieldTest\:\:\$permissionSetFactory \(Friendica\\Security\\PermissionSet\\Factory\\PermissionSet&Mockery\\MockInterface\) does not accept Friendica\\Security\\PermissionSet\\Factory\\PermissionSet\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: tests/src/Profile/ProfileField/Entity/ProfileFieldTest.php

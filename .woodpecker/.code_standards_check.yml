@@ -1,0 +1,61 @@
+# SPDX-FileCopyrightText: 2010-2026 the Friendica project
+#
+# SPDX-License-Identifier: CC0-1.0
+
+matrix:
+  include:
+    - PHP_MAJOR_VERSION: 8.5
+      PHP_VERSION: 8.5.5
+
+# The code standard check is just triggered for PRs and pushes to non-stable branches of Friendica
+when:
+  branch:
+    exclude: [ stable ]
+  event: [ pull_request, push ]
+
+steps:
+  restore_cache:
+    image: meltwater/drone-cache:dev
+    settings:
+      backend: "filesystem"
+      restore: true
+      cache_key: '{{ .Repo.Name }}_phpcs_{{ arch }}_{{ os }}'
+      archive_format: "gzip"
+      mount:
+        - '.composer'
+    volumes:
+      - /tmp/drone-cache:/tmp/cache
+
+  composer_install:
+    image: friendicaci/php${PHP_MAJOR_VERSION}:php${PHP_VERSION}
+    commands:
+      - mkdir addon # create empty addon folder to appease composer
+      - export COMPOSER_HOME=.composer
+      - ./bin/composer.phar install --prefer-dist || { ./bin/composer.phar clear-cache && ./bin/composer.phar install --prefer-dist; }
+
+  rebuild_cache:
+    image: meltwater/drone-cache:dev
+    settings:
+      backend: "filesystem"
+      rebuild: true
+      cache_key: '{{ .Repo.Name }}_phpcs_{{ arch }}_{{ os }}'
+      archive_format: "gzip"
+      mount:
+        - '.composer'
+    volumes:
+      - /tmp/drone-cache:/tmp/cache
+
+  check:
+    image: php:8.3
+    commands:
+      - echo "**** Run `composer run cs:fix` in case of errors ****"
+      - apt-get update -q
+      - DEBIAN_FRONTEND=noninteractive apt-get install -q -y git
+      - if [ ! -z "$${CI_COMMIT_PULL_REQUEST}" ]; then
+          git fetch --no-tags --unshallow origin ${CI_COMMIT_TARGET_BRANCH}:refs/remotes/origin/${CI_COMMIT_TARGET_BRANCH};
+          CHANGED_FILES="$(git diff --name-only --diff-filter=ACMRTUXB $(git merge-base ${CI_COMMIT_SHA} origin/${CI_COMMIT_TARGET_BRANCH})..${CI_COMMIT_SHA})";
+        else
+          CHANGED_FILES="$(git diff --name-only --diff-filter=ACMRTUXB ${CI_COMMIT_SHA})";
+        fi
+      - EXTRA_ARGS="--path-mode=intersection -- $${CHANGED_FILES}";
+      - ./vendor/bin/php-cs-fixer check --config=.php-cs-fixer.dist.php -v --diff --using-cache=no $${EXTRA_ARGS}

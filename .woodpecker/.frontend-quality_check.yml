@@ -1,0 +1,30 @@
+# SPDX-FileCopyrightText: 2010-2026 the Friendica project
+#
+# SPDX-License-Identifier: CC0-1.0
+
+# Linting of Friendica's own JavaScript and CSS. Needs neither PHP nor the addon
+# repository, so it runs on a plain Node image without the composer setup.
+when:
+  branch:
+    exclude: [ stable ]
+  event: [ pull_request, push ]
+
+# This forces PHP Unit executions at the "opensocial" labeled location (because of access issues with git.friendi.ca)
+labels:
+  location: opensocial
+
+steps:
+  npm_install:
+    image: node:24-alpine
+    commands:
+      - npm ci
+
+  eslint:
+    image: node:24-alpine
+    commands:
+      - npm run lint:js
+
+  stylelint:
+    image: node:24-alpine
+    commands:
+      - npm run lint:css

@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Listen for Xdebug",
+            "type": "php",
+            "request": "launch",
+            "port": 9000,
+            "runtimeArgs": [
+                "-dzend_extension=xdebug.so",
+                "-dxdebug.mode=debug",
+                "-dxdebug.start_with_request=yes",
+                "-dxdebug.client_host=127.0.0.1",
+                "-dxdebug.client_port=9000",
+                "-dxdebug.log=/tmp/xdebug.log"
+            ]
+        }
+    ]
+}

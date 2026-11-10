@@ -1,0 +1,63 @@
+{{*
+  * Copyright (C) 2010-2026, the Friendica project
+  * SPDX-FileCopyrightText: 2010-2026 the Friendica project
+  *
+  * SPDX-License-Identifier: AGPL-3.0-or-later
+  *}}
+<div class="generic-page-wrapper">
+	{{$tabs nofilter}}
+	{{include file="section_title.tpl" title=$title pullright=1}}
+
+	{{* The link to create a new event *}}
+	{{if $new_event.0}}
+	<div class="pull-right" id="new-event-link">
+		<a class="btn btn-primary page-action" href="{{$new_event.0}}">
+			<i class="ri ri-add-line"></i>
+			<span>{{$new_event.1}}</span>
+		</a>
+	</div>
+	{{/if}}
+
+	{{* We create our own fullcalendar header (with title & calendar view *}}
+	<div id="fc-header" class="clear">
+
+		{{* The buttons to change the month/weeks/days *}}
+		<div id="fc-fc-header-left" class="btn-group">
+			<button class="btn btn-eventnav" onclick="changeView('prev', false);" title="{{$prev}}"><i class="ri ri-arrow-up-s-line" aria-hidden="true"></i></button>
+			<button class="btn btn-eventnav btn-separator" onclick="changeView('next', false);" title="{{$next}}"><i class="ri ri-arrow-down-s-line" aria-hidden="true"></i></button>
+			<button class="btn btn-eventnav btn-separator" onclick="changeView('today', false);">{{$today}}</button>
+		</div>
+
+		{{* The title (e.g. name of the mont/week/day) *}}
+		<div id="event-calendar-title"><h4 id="fc-title"></h4></div>
+
+		<div id="fc-header-right">
+			{{* The dropdown to change the calendar view *}}
+			<ul class="nav nav-pills">
+				<li class="dropdown pull-right">
+					<button class="btn btn-link dropdown-toggle" type="button" id="event-calendar-views" data-toggle="dropdown" aria-expanded="false">
+						<i class="ri ri-arrow-down-s-line" aria-hidden="true"></i> {{$view}}
+					</button>
+					<ul class="dropdown-menu pull-right" role="menu" aria-labelledby="event-calendar-views">
+						<li>
+							<button role="menuitem" type="button" class="btn-link" onclick="changeView('changeView', 'month');$('#events-calendar').fullCalendar('option', {contentHeight: '', aspectRatio: 1});">{{$month}}</button>
+						</li>
+						<li>
+							<button role="menuitem" type="button" class="btn-link" onclick="changeView('changeView', 'agendaWeek');$('#events-calendar').fullCalendar('option', 'contentHeight', 'auto');">{{$week}}</button>
+						</li>
+						<li>
+							<button role="menuitem" type="button" class="btn-link" onclick="changeView('changeView', 'agendaDay');$('#events-calendar').fullCalendar('option', 'contentHeight', 'auto');">{{$day}}</button>
+						</li>
+						<li>
+							<button role="menuitem" type="button" class="btn-link" onclick="changeView('changeView', 'listMonth');$('#events-calendar').fullCalendar('option', 'contentHeight', 'auto');">{{$list}}</button>
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+
+	</div>
+
+	{{* This is the container where the fullCalendar is inserted through js *}}
+	<div id="events-calendar" data-token="{{$form_security_token}}"></div>
+</div>

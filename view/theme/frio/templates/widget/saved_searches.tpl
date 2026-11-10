@@ -1,0 +1,31 @@
+{{*
+  * Copyright (C) 2010-2026, the Friendica project
+  * SPDX-FileCopyrightText: 2010-2026 the Friendica project
+  *
+  * SPDX-License-Identifier: AGPL-3.0-or-later
+  *}}
+<!-- NOTE: Place "sidebar-widget-list" only on one element: The one that should be expanded/collapsed -->
+{{if $saved}}
+	<nav id="saved-search-sidebar" class="widget">
+		<button class="widget-btn fakelink" onclick="openCloseWidget('saved-search-sidebar');" aria-expanded="false">
+			<h3 id="search">
+				<i class="ri ri-search-line" aria-hidden="true"></i>
+				{{$title}}
+			</h3>
+		</button>
+		<ul id="saved-search-list" class="sidebar-widget-list">
+			{{foreach $saved as $search}}
+				<li class="saved-search-li clear">
+					<a href="search/saved/remove?term={{$search.encodedterm}}&amp;return_url={{$return_url}}" title="{{$search.delete}}" onclick="return confirmDelete();" id="drop-saved-search-term-{{$search.id}}" class="savedsearchdrop pull-right widget-action faded-icon">
+						<i class="ri ri-delete-bin-line" aria-hidden="true"></i>
+					</a>
+					<a href="{{$search.searchpath}}" id="saved-search-term-{{$search.id}}" class="savedsearchterm">{{$search.term}}</a>
+				</li>
+			{{/foreach}}
+		</ul>
+		<div class="clearfix"></div>
+	</nav>
+	<script>
+		initWidget('saved-search-sidebar');
+	</script>
+{{/if}}

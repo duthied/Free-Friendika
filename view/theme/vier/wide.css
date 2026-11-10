@@ -1,0 +1,34 @@
+/*
+ * SPDX-FileCopyrightText: 2010-2026 the Friendica project
+ *
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
+#right-aside-section {
+  display: block;
+}
+
+#right-aside-section span.sbox {
+  margin-left: 10px;
+}
+
+#right-aside-section .directory-item {
+  width: 50px;
+  height: 50px;
+}
+
+#right-aside-section img.directory-photo-img {
+  width: 45px;
+  height: 45px;
+}
+
+#right-aside-section #right_services img {
+  width: 34px;
+}
+
+#right-aside-section #lastusers-wrapper,
+#right-aside-section div.items-wrapper,
+#right-aside-section #right_services_icons {
+  margin-left: 10px;
+  margin-top: 5px;
+}

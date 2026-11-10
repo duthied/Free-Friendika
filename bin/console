@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# SPDX-FileCopyrightText: 2010-2026 the Friendica project
+#
+# SPDX-License-Identifier: CC0-1.0
+
+dir=$(cd "$(dirname "$0")" > /dev/null 2>&1; pwd)
+
+if [ -d /proc/cygdrive ] && [ "$(which php)" = "$(readlink -n /proc/cygdrive)/*" ]; then
+   # We are in Cygwin using Windows php, so the path must be translated
+   dir=$(cygpath -m "$dir")
+fi
+
+php "${dir}/console.php" "$@"

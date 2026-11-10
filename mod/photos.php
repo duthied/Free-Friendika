@@ -1,1391 +1,860 @@
 <?php
-require_once('include/Photo.php');
-require_once('include/items.php');
-require_once('include/acl_selectors.php');
-require_once('include/bbcode.php');
-require_once('include/security.php');
 
-function photos_init(&$a) {
+/**
+ * Copyright (C) 2010-2026, the Friendica project
+ * SPDX-FileCopyrightText: 2010-2026 the Friendica project
+ *
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ *
+ */
 
+use Friendica\Content\Nav;
+use Friendica\Content\Pager;
+use Friendica\Core\ACL;
+use Friendica\Core\Renderer;
+use Friendica\Core\System;
+use Friendica\Database\DBA;
+use Friendica\Database\DBStructure;
+use Friendica\DI;
+use Friendica\Event\ArrayFilterEvent;
+use Friendica\Model\Contact;
+use Friendica\Model\Photo;
+use Friendica\Model\Profile;
+use Friendica\Model\User;
+use Friendica\Module\BaseProfile;
+use Friendica\Network\HTTPException;
+use Friendica\Security\Security;
+use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Images;
+use Friendica\Util\Strings;
 
-	if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
+function photos_init(): void
+{
+	if (DI::config()->get('system', 'block_public') && !DI::userSession()->isAuthenticated()) {
 		return;
 	}
-	$o = '';
 
-	if($a->argc > 1) {
-		$nick = $a->argv[1];
-		$r = q("SELECT * FROM `user` WHERE `nickname` = '%s' AND `blocked` = 0 LIMIT 1",
-			dbesc($nick)
-		);
+	Nav::setSelected('home');
 
-		if(! count($r))
-			return;
-
-		$a->data['user'] = $r[0];
-
-		$sql_extra = permissions_sql($a->data['user']['uid']);
-
-		$albums = q("SELECT distinct(`album`) AS `album` FROM `photo` WHERE `uid` = %d $sql_extra ",
-			intval($a->data['user']['uid'])
-		);
-
-		if(count($albums)) {
-			$a->data['albums'] = $albums;
-
-			$o .= '<div class="vcard">';
-			$o .= '<div class="fn">' . $a->data['user']['username'] . '</div>';
-			$o .= '<div id="profile-photo-wrapper"><img class="photo" style="width: 175px; height: 175px;" src="' . $a->get_baseurl() . '/photo/profile/' . $a->data['user']['uid'] . '.jpg" alt="' . $a->data['user']['username'] . '" /></div>';
-			$o .= '</div>';
-			
-			$o .= '<div id="side-bar-photos-albums" class="widget">';
-			$o .= '<h3>' . '<a href="' . $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '">' . t('Photo Albums') . '</a></h4>';
-					
-			$o .= '<ul>';
-			foreach($albums as $album) {
-
-				// don't show contact photos. We once translated this name, but then you could still access it under
-				// a different language setting. Now we store the name in English and check in English (and translated for legacy albums).
-
-				if((! strlen($album['album'])) || ($album['album'] === 'Contact Photos') || ($album['album'] === t('Contact Photos')))
-					continue;
-				$o .= '<li>' . '<a href="photos/' . $a->argv[1] . '/album/' . bin2hex($album['album']) . '" />' . $album['album'] . '</a></li>'; 
-			}
-			$o .= '</ul>';
+	if (DI::args()->getArgc() > 1) {
+		$owner = Profile::load(DI::appHelper(), DI::args()->getArgv()[1], false);
+		if (!isset($owner['account_removed']) || $owner['account_removed']) {
+			throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 		}
 
-		if(! x($a->page,'aside'))
-			$a->page['aside'] = '';
-		$a->page['aside'] .= $o;
+		$albums = Photo::getAlbums($owner['uid']);
 
+		$albums_visible = ((intval($owner['hidewall']) && !DI::userSession()->isAuthenticated()) ? false : true);
 
-		$a->page['htmlhead'] .= "<script> var ispublic = '" . t('everybody') . "';" ;
+		// add various encodings to the array so we can just loop through and pick them out in a template
+		$ret = ['success' => false];
 
-		$a->page['htmlhead'] .= <<< EOT
+		if ($albums) {
+			if ($albums_visible) {
+				$ret['success'] = true;
+			}
 
-		$(document).ready(function() {
+			$ret['albums'] = [];
+			foreach ($albums as $k => $album) {
+				$entry = [
+					'text'      => $album['album'],
+					'total'     => $album['total'],
+					'url'       => 'photos/' . $owner['nickname'] . '/album/' . bin2hex((string) $album['album']),
+					'urlencode' => urlencode((string) $album['album']),
+					'bin2hex'   => bin2hex((string) $album['album']),
+				];
+				$ret['albums'][] = $entry;
+			}
+		}
 
-			$('#contact_allow, #contact_deny, #group_allow, #group_deny').change(function() {
-				var selstr;
-				$('#contact_allow option:selected, #contact_deny option:selected, #group_allow option:selected, #group_deny option:selected').each( function() {
-					selstr = $(this).text();
-					$('#jot-perms-icon').removeClass('unlock').addClass('lock');
-					$('#jot-public').hide();
-				});
-				if(selstr == null) { 
-					$('#jot-perms-icon').removeClass('lock').addClass('unlock');
-					$('#jot-public').show();
-				}
+		if ($ret['success']) {
+			$photo_albums_widget = Renderer::replaceMacros(Renderer::getMarkupTemplate('photo_albums.tpl'), [
+				'$nick'     => $owner['nickname'],
+				'$title'    => DI::l10n()->t('Photo Albums'),
+				'$recent'   => DI::l10n()->t('Recent Photos'),
+				'$albums'   => $ret['albums'],
+				'$upload'   => [DI::l10n()->t('Upload photo'), 'photos/' . $owner['nickname'] . '/upload'],
+				'$can_post' => (DI::userSession()->getLocalUserId() && $owner['uid'] === DI::userSession()->getLocalUserId()),
+			]);
+		}
 
-			}).trigger('change');
+		if (!empty($photo_albums_widget)) {
+			DI::page()['aside'] .= $photo_albums_widget;
+		}
 
-		});
+		$tpl = Renderer::getMarkupTemplate("photos_head.tpl");
 
-		</script>
-EOT;
+		DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
+			'$ispublic' => DI::l10n()->t('everybody'),
+		]);
 	}
 
 	return;
 }
 
+function photos_post(): void
+{
+	$user = User::getByNickname(DI::args()->getArgv()[1]);
+	if (!DBA::isResult($user)) {
+		throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
+	}
 
+	$can_post = false;
+	$visitor  = 0;
 
-function photos_post(&$a) {
+	$page_owner_uid = intval($user['uid']);
+	$community_page = in_array($user['page-flags'], [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_COMM_MAN]);
 
-	logger('mod-photos: photos_post(): begin' , 'LOGGER_DEBUG');
-
-
-	logger('mod_photos: REQUEST ' . print_r($_REQUEST,true), LOGGER_DATA);
-	logger('mod_photos: FILES '   . print_r($_FILES,true), LOGGER_DATA);
-
-	$can_post  = false;
-	$visitor   = 0;
-
-	$page_owner_uid = $a->data['user']['uid'];
-	$community_page = (($a->data['user']['page-flags'] == PAGE_COMMUNITY) ? true : false);
-
-	if((local_user()) && (local_user() == $page_owner_uid))
+	if (DI::userSession()->getLocalUserId() && (DI::userSession()->getLocalUserId() == $page_owner_uid)) {
 		$can_post = true;
-	else {
-		if($community_page && remote_user()) {
-			$r = q("SELECT `uid` FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 AND `id` = %d AND `uid` = %d LIMIT 1",
-				intval(remote_user()),
-				intval($page_owner_uid)
-			);
-			if(count($r)) {
-				$can_post = true;
-				$visitor = remote_user();
-			}
+	} elseif ($community_page && !empty(DI::userSession()->getRemoteContactID($page_owner_uid))) {
+		$contact_id = DI::userSession()->getRemoteContactID($page_owner_uid);
+		$can_post   = true;
+		$visitor    = $contact_id;
+	}
+
+	if (!$can_post) {
+		DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
+		System::exit();
+	}
+
+	$owner_record = User::getOwnerDataById($page_owner_uid);
+
+	if (!$owner_record) {
+		DI::sysmsg()->addNotice(DI::l10n()->t('Contact information unavailable'));
+		DI::logger()->info('photos_post: unable to locate contact record for page owner. uid=' . $page_owner_uid);
+		System::exit();
+	}
+
+	$aclFormatter      = DI::aclFormatter();
+	$str_contact_allow = isset($_REQUEST['contact_allow']) ? $aclFormatter->toString($_REQUEST['contact_allow']) : $owner_record['allow_cid'] ?? '';
+	$str_circle_allow  = isset($_REQUEST['circle_allow'])  ? $aclFormatter->toString($_REQUEST['circle_allow'])  : $owner_record['allow_gid'] ?? '';
+	$str_contact_deny  = isset($_REQUEST['contact_deny'])  ? $aclFormatter->toString($_REQUEST['contact_deny'])  : $owner_record['deny_cid']  ?? '';
+	$str_circle_deny   = isset($_REQUEST['circle_deny'])   ? $aclFormatter->toString($_REQUEST['circle_deny'])   : $owner_record['deny_gid']  ?? '';
+
+	$visibility = $_REQUEST['visibility'] ?? '';
+	if ($visibility === 'public') {
+		// The ACL selector introduced in version 2019.12 sends ACL input data even when the Public visibility is selected
+		$str_contact_allow = $str_circle_allow = $str_contact_deny = $str_circle_deny = '';
+	} elseif ($visibility === 'custom') {
+		// Since we know from the visibility parameter the item should be private, we have to prevent the empty ACL
+		// case that would make it public. So we always append the author's contact id to the allowed contacts.
+		// See https://github.com/friendica/friendica/issues/9672
+		$str_contact_allow .= $aclFormatter->toString(Contact::getPublicIdByUserId($page_owner_uid));
+	}
+
+	if (DI::args()->getArgc() > 3 && DI::args()->getArgv()[2] === 'album') {
+		if (!Strings::isHex(DI::args()->getArgv()[3] ?? '')) {
+			DI::baseUrl()->redirect('profile/' . $user['nickname'] . '/photos');
 		}
-	}
+		$album = hex2bin((string) DI::args()->getArgv()[3]);
 
-	if(! $can_post) {
-		notice( t('Permission denied.') . EOL );
-		killme();
-	}
-
-	$r = q("SELECT `contact`.*, `user`.`nickname` FROM `contact` LEFT JOIN `user` ON `user`.`uid` = `contact`.`uid` 
-		WHERE `user`.`uid` = %d AND `self` = 1 LIMIT 1",
-		intval($page_owner_uid)
-	);
-
-	if(! count($r)) {
-		notice( t('Contact information unavailable') . EOL);
-		logger('photos_post: unable to locate contact record for page owner. uid=' . $page_owner_uid);
-		killme();
-	}
-
-	$owner_record = $r[0];	
-
-
-	if(($a->argc > 3) && ($a->argv[2] === 'album')) {
-		$album = hex2bin($a->argv[3]);
-
-		if($album === t('Profile Photos') || $album === 'Contact Photos' || $album === t('Contact Photos')) {
-			goaway($a->get_baseurl() . '/' . $_SESSION['photo_return']);
+		if (!DBA::exists('photo', ['album' => $album, 'uid' => $page_owner_uid, 'photo-type' => Photo::DEFAULT])) {
+			DI::sysmsg()->addNotice(DI::l10n()->t('Album not found.'));
+			DI::baseUrl()->redirect('profile/' . $user['nickname'] . '/photos');
 			return; // NOTREACHED
 		}
 
-		$r = q("SELECT count(*) FROM `photo` WHERE `album` = '%s' AND `uid` = %d",
-			dbesc($album),
-			intval($page_owner_uid)
-		);
-		if(! count($r)) {
-			notice( t('Album not found.') . EOL);
-			goaway($a->get_baseurl() . '/' . $_SESSION['photo_return']);
+		// Check if the user has responded to a delete confirmation query
+		if (!empty($_REQUEST['canceled'])) {
+			DI::baseUrl()->redirect('photos/' . $user['nickname'] . '/album/' . DI::args()->getArgv()[3]);
+		}
+
+		// RENAME photo album
+		$newalbum = trim($_POST['albumname'] ?? '');
+		if ($newalbum != $album) {
+			Photo::update(['album' => $newalbum], ['album' => $album, 'uid' => $page_owner_uid]);
+			// Update the photo albums cache
+			Photo::clearAlbumCache($page_owner_uid);
+
+			DI::baseUrl()->redirect('photos/' . DI::userSession()->getLocalUserNickname() . '/album/' . bin2hex($newalbum));
 			return; // NOTREACHED
 		}
 
-		$newalbum = notags(trim($_POST['albumname']));
-		if($newalbum != $album) {
-			q("UPDATE `photo` SET `album` = '%s' WHERE `album` = '%s' AND `uid` = %d",
-				dbesc($newalbum),
-				dbesc($album),
-				intval($page_owner_uid)
-			);
-			$newurl = str_replace(bin2hex($album),bin2hex($newalbum),$_SESSION['photo_return']);
-			goaway($a->get_baseurl() . '/' . $newurl);
-			return; // NOTREACHED
-		}
-
-
-		if($_POST['dropalbum'] == t('Delete Album')) {
-
-			$res = array();
+		/*
+		 * DELETE all photos filed in a given album
+		 */
+		if (!empty($_POST['dropalbum'])) {
+			$res = [];
 
 			// get the list of photos we are about to delete
+			if ($visitor) {
+				$r = DBA::toArray(DBA::p(
+					"SELECT distinct(`resource-id`) AS `rid` FROM `photo` WHERE `contact-id` = ? AND `uid` = ? AND `album` = ?",
+					$visitor,
+					$page_owner_uid,
+					$album,
+				));
+			} else {
+				$r = DBA::toArray(DBA::p(
+					"SELECT distinct(`resource-id`) AS `rid` FROM `photo` WHERE `uid` = ? AND `album` = ?",
+					DI::userSession()->getLocalUserId(),
+					$album,
+				));
+			}
 
-			if($visitor) {
-				$r = q("SELECT distinct(`resource-id`) as `rid` FROM `photo` WHERE `contact-id` = %d AND `uid` = %d AND `album` = '%s'",
-					intval($visitor),
-					intval($page_owner_uid),
-					dbesc($album)
-				);
-			}
-			else {
-				$r = q("SELECT distinct(`resource-id`) as `rid` FROM `photo` WHERE `uid` = %d AND `album` = '%s'",
-					intval(local_user()),
-					dbesc($album)
-				);
-			}
-			if(count($r)) {
-				foreach($r as $rr) {
-					$res[] = "'" . dbesc($rr['rid']) . "'" ;
+			if (DBA::isResult($r)) {
+				foreach ($r as $rr) {
+					$res[] = $rr['rid'];
 				}
-			}
-			else {
-				goaway($a->get_baseurl() . '/' . $_SESSION['photo_return']);
-				return; // NOTREACHED
-			}
 
-			$str_res = implode(',', $res);
+				// remove the associated photos
+				Photo::delete(['resource-id' => $res, 'uid' => $page_owner_uid]);
 
-			// remove the associated photos
-
-			q("DELETE FROM `photo` WHERE `resource-id` IN ( $str_res ) AND `uid` = %d",
-				intval($page_owner_uid)
-			);
-
-			// find and delete the corresponding item with all the comments and likes/dislikes
-
-			$r = q("SELECT `parent-uri` FROM `item` WHERE `resource-id` IN ( $str_res ) AND `uid` = %d",
-				intval($page_owner_uid)
-			);
-			if(count($r)) {
-				foreach($r as $rr) {
-					q("UPDATE `item` SET `deleted` = 1, `changed` = '%s' WHERE `parent-uri` = '%s' AND `uid` = %d",
-						dbesc(datetime_convert()),
-						dbesc($rr['parent-uri']),
-						intval($page_owner_uid)
-					);
-
-					$drop_id = intval($rr['id']);
-
-					// send the notification upstream/downstream as the case may be
-
-					if($rr['visible'])
-						proc_run('php',"include/notifier.php","drop","$drop_id");
-				}
+				// Update the photo albums cache
+				Photo::clearAlbumCache($page_owner_uid);
+				DI::sysmsg()->addNotice(DI::l10n()->t('Album successfully deleted'));
+			} else {
+				DI::sysmsg()->addNotice(DI::l10n()->t('Album was empty.'));
 			}
 		}
-		goaway($a->get_baseurl() . '/photos/' . $a->data['user']['nickname']);
-		return; // NOTREACHED
+
+		DI::baseUrl()->redirect('profile/' . $user['nickname'] . '/photos');
 	}
 
-	if(($a->argc > 2) && (x($_POST,'delete')) && ($_POST['delete'] == t('Delete Photo'))) {
-
-		// same as above but remove single photo
-
-		if($visitor) {
-			$r = q("SELECT `id`, `resource-id` FROM `photo` WHERE `contact-id` = %d AND `uid` = %d AND `resource-id` = '%s' LIMIT 1",
-				intval($visitor),
-				intval($page_owner_uid),
-				dbesc($a->argv[2])
-			);
+	if (DI::args()->getArgc() > 3 && DI::args()->getArgv()[2] === 'image') {
+		// Check if the user has responded to a delete confirmation query for a single photo
+		if (!empty($_POST['canceled'])) {
+			DI::baseUrl()->redirect('photos/' . DI::args()->getArgv()[1] . '/image/' . DI::args()->getArgv()[3]);
 		}
-		else {
-			$r = q("SELECT `id`, `resource-id` FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s' LIMIT 1",
-				intval(local_user()),
-				dbesc($a->argv[2])
-			);
-		}
-		if(count($r)) {
-			q("DELETE FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s'",
-				intval($page_owner_uid),
-				dbesc($r[0]['resource-id'])
-			);
-			$i = q("SELECT * FROM `item` WHERE `resource-id` = '%s' AND `uid` = %d LIMIT 1",
-				dbesc($r[0]['resource-id']),
-				intval($page_owner_uid)
-			);
-			if(count($i)) {
-				q("UPDATE `item` SET `deleted` = 1, `edited` = '%s', `changed` = '%s' WHERE `parent-uri` = '%s' AND `uid` = %d",
-					dbesc(datetime_convert()),
-					dbesc(datetime_convert()),
-					dbesc($i[0]['uri']),
-					intval($page_owner_uid)
-				);
 
-				$url = $a->get_baseurl();
-				$drop_id = intval($i[0]['id']);
-
-				if($i[0]['visible'])
-					proc_run('php',"include/notifier.php","drop","$drop_id");
+		if (!empty($_POST['delete'])) {
+			// same as above but remove single photo
+			if ($visitor) {
+				$condition = ['contact-id' => $visitor, 'uid' => $page_owner_uid, 'resource-id' => DI::args()->getArgv()[3]];
+			} else {
+				$condition = ['uid' => DI::userSession()->getLocalUserId(), 'resource-id' => DI::args()->getArgv()[3]];
 			}
-		}
 
-		goaway($a->get_baseurl() . '/' . $_SESSION['photo_return']);
-		return; // NOTREACHED
+			$photo = DBA::selectFirst('photo', ['resource-id'], $condition);
+
+			if (DBA::isResult($photo)) {
+				Photo::delete(['uid' => $page_owner_uid, 'resource-id' => $photo['resource-id']]);
+
+				// Update the photo albums cache
+				Photo::clearAlbumCache($page_owner_uid);
+			} else {
+				DI::sysmsg()->addNotice(DI::l10n()->t('Failed to delete the photo.'));
+				DI::baseUrl()->redirect('photos/' . DI::args()->getArgv()[1] . '/image/' . DI::args()->getArgv()[3]);
+			}
+
+			DI::baseUrl()->redirect('profile/' . DI::args()->getArgv()[1] . '/photos');
+		}
 	}
 
-	if(($a->argc > 2) && ((x($_POST,'desc') !== false) || (x($_POST,'newtag') !== false)) || (x($_POST,'albname') !== false)) {
+	if (DI::args()->getArgc() > 2 && (!empty($_POST['desc']) || !empty($_POST['newtag']) || isset($_POST['albname']))) {
+		$desc      = !empty($_POST['desc'])      ? trim((string) $_POST['desc'])      : '';
+		$albname   = !empty($_POST['albname'])   ? trim((string) $_POST['albname'])   : '';
+		$origaname = !empty($_POST['origaname']) ? trim((string) $_POST['origaname']) : '';
 
-		$desc        = ((x($_POST,'desc'))    ? notags(trim($_POST['desc']))    : '');
-		$rawtags     = ((x($_POST,'newtag'))  ? notags(trim($_POST['newtag']))  : '');
-		$item_id     = ((x($_POST,'item_id')) ? intval($_POST['item_id'])       : 0);
-		$albname     = ((x($_POST,'albname')) ? notags(trim($_POST['albname'])) : '');
-		$str_group_allow   = perms2str($_POST['group_allow']);
-		$str_contact_allow = perms2str($_POST['contact_allow']);
-		$str_group_deny    = perms2str($_POST['group_deny']);
-		$str_contact_deny  = perms2str($_POST['contact_deny']);
+		$resource_id = DI::args()->getArgv()[3];
 
-		$resource_id = $a->argv[2];
-
-		if(! strlen($albname))
-			$albname = datetime_convert('UTC',date_default_timezone_get(),'now', 'Y');
-		
-
-		$p = q("SELECT * FROM `photo` WHERE `resource-id` = '%s' AND `uid` = %d ORDER BY `scale` DESC",
-			dbesc($resource_id),
-			intval($page_owner_uid)
-		);
-		if(count($p)) {
-			$r = q("UPDATE `photo` SET `desc` = '%s', `album` = '%s', `allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s' WHERE `resource-id` = '%s' AND `uid` = %d",
-				dbesc($desc),
-				dbesc($albname),
-				dbesc($str_contact_allow),
-				dbesc($str_group_allow),
-				dbesc($str_contact_deny),
-				dbesc($str_group_deny),
-				dbesc($resource_id),
-				intval($page_owner_uid)
-			);
+		if (!strlen($albname)) {
+			$albname = DateTimeFormat::localNow('Y');
 		}
 
-		/* Don't make the item visible if the only change was the album name */
+		if (!empty($_POST['rotate']) && (intval($_POST['rotate']) == 1 || intval($_POST['rotate']) == 2)) {
+			DI::logger()->debug('rotate');
 
-		$visibility = 0;
-		if($p[0]['desc'] !== $desc || strlen($rawtags))
-			$visibility = 1;
-		
-		if(! $item_id) {
+			$photo = Photo::getPhotoForUser($page_owner_uid, $resource_id);
 
-			// Create item container
+			if (DBA::isResult($photo)) {
+				$image = Photo::getImageForPhoto($photo);
 
-			$title = '';
-			$basename = basename($filename);
-			$uri = item_new_uri($a->get_hostname(),$page_owner_uid);
+				if ($image->isValid()) {
+					$rotate_deg = ((intval($_POST['rotate']) == 1) ? 270 : 90);
+					$image->rotate($rotate_deg);
 
-			$arr = array();
+					$width  = $image->getWidth();
+					$height = $image->getHeight();
 
-			$arr['uid']           = $page_owner_uid;
-			$arr['uri']           = $uri;
-			$arr['parent-uri']    = $uri; 
-			$arr['type']          = 'photo';
-			$arr['wall']          = 1;
-			$arr['resource-id']   = $p[0]['resource-id'];
-			$arr['contact-id']    = $owner_record['id'];
-			$arr['owner-name']    = $owner_record['name'];
-			$arr['owner-link']    = $owner_record['url'];
-			$arr['owner-avatar']  = $owner_record['thumb'];
-			$arr['author-name']   = $owner_record['name'];
-			$arr['author-link']   = $owner_record['url'];
-			$arr['author-avatar'] = $owner_record['thumb'];
-			$arr['title']         = $title;
-			$arr['allow_cid']     = $p[0]['allow_cid'];
-			$arr['allow_gid']     = $p[0]['allow_gid'];
-			$arr['deny_cid']      = $p[0]['deny_cid'];
-			$arr['deny_gid']      = $p[0]['deny_gid'];
-			$arr['last-child']    = 1;
-			$arr['visible']       = $visibility;
-			
-			$arr['body']          = '[url=' . $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/image/' . $p[0]['resource-id'] . ']' 
-						. '[img]' . $a->get_baseurl() . '/photo/' . $p[0]['resource-id'] . '-' . $p[0]['scale'] . '.jpg' . '[/img]' 
-						. '[/url]';
-		
-			$item_id = item_store($arr);
+					Photo::update(['height' => $height, 'width' => $width], ['resource-id' => $resource_id, 'uid' => $page_owner_uid, 'scale' => 0], $image);
 
-		}
+					if ($width > \Friendica\Util\Proxy::PIXEL_MEDIUM || $height > \Friendica\Util\Proxy::PIXEL_MEDIUM) {
+						$image->scaleDown(\Friendica\Util\Proxy::PIXEL_MEDIUM);
+						$width  = $image->getWidth();
+						$height = $image->getHeight();
 
-		if($item_id) {
-			$r = q("SELECT * FROM `item` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-				intval($item_id),
-				intval($page_owner_uid)
-			);
-		}
-		if(count($r)) {
-			$old_tag    = $r[0]['tag'];
-			$old_inform = $r[0]['inform'];
-		}
+						Photo::update(['height' => $height, 'width' => $width], ['resource-id' => $resource_id, 'uid' => $page_owner_uid, 'scale' => 1], $image);
+					}
 
-		if(strlen($rawtags)) {
+					if ($width > \Friendica\Util\Proxy::PIXEL_SMALL || $height > \Friendica\Util\Proxy::PIXEL_SMALL) {
+						$image->scaleDown(\Friendica\Util\Proxy::PIXEL_SMALL);
+						$width  = $image->getWidth();
+						$height = $image->getHeight();
 
-			$str_tags = '';
-			$inform   = '';
-
-			// if the new tag doesn't have a namespace specifier (@foo or #foo) give it a hashtag
-
-			$x = substr($rawtags,0,1);
-			if($x !== '@' && $x !== '#')
-				$rawtags = '#' . $rawtags;
-
-			$taginfo = array();
-			$tags = get_tags($rawtags);
-
-			if(count($tags)) {
-				foreach($tags as $tag) {
-					if(isset($profile))
-						unset($profile);
-					if(strpos($tag,'@') === 0) {
-						$name = substr($tag,1);
-						if((strpos($name,'@')) || (strpos($name,'http://'))) {
-							$newname = $name;
-							$links = @lrdd($name);
-							if(count($links)) {
-								foreach($links as $link) {
-									if($link['@attributes']['rel'] === 'http://webfinger.net/rel/profile-page')
-        		            			$profile = $link['@attributes']['href'];
-									if($link['@attributes']['rel'] === 'salmon') {
-										$salmon = '$url:' . str_replace(',','%sc',$link['@attributes']['href']);
-										if(strlen($inform))
-											$inform .= ',';
-                    					$inform .= $salmon;
-									}
-								}
-							}
-							$taginfo[] = array($newname,$profile,$salmon);
-						}
-						else {
-							$newname = $name;
-							if(strstr($name,'_') || strstr($name,' ')) {
-								$newname = str_replace('_',' ',$name);
-								$r = q("SELECT * FROM `contact` WHERE `name` = '%s' AND `uid` = %d LIMIT 1",
-									dbesc($newname),
-									intval($page_owner_uid)
-								);
-							}
-							else {
-								$r = q("SELECT * FROM `contact` WHERE `attag` = '%s' OR `nick` = '%s' AND `uid` = %d ORDER BY `attag` DESC LIMIT 1",
-									dbesc($name),
-									dbesc($name),
-									intval($page_owner_uid)
-								);
-							}
-							if(count($r)) {
-								$newname = $r[0]['name'];
-								$profile = $r[0]['url'];
-								$notify = 'cid:' . $r[0]['id'];
-								if(strlen($inform))
-									$inform .= ',';
-								$inform .= $notify;
-							}
-						}
-						if($profile) {
-							if(substr($notify,0,4) === 'cid:')
-								$taginfo[] = array($newname,$profile,$notify,$r[0],'@[url=' . str_replace(',','%2c',$profile) . ']' . $newname	. '[/url]');
-							else
-								$taginfo[] = array($newname,$profile,$notify,null,$str_tags .= '@[url=' . $profile . ']' . $newname	. '[/url]');
-							if(strlen($str_tags))
-								$str_tags .= ',';
-							$profile = str_replace(',','%2c',$profile);
-							$str_tags .= '@[url=' . $profile . ']' . $newname	. '[/url]';
-						}
+						Photo::update(['height' => $height, 'width' => $width], ['resource-id' => $resource_id, 'uid' => $page_owner_uid, 'scale' => 2], $image);
 					}
 				}
 			}
+		}
 
-			$newtag = $old_tag;
-			if(strlen($newtag) && strlen($str_tags)) 
-				$newtag .= ',';
-			$newtag .= $str_tags;
+		$photos_stmt = DBA::select('photo', [], ['resource-id' => $resource_id, 'uid' => $page_owner_uid], ['order' => ['scale' => true]]);
 
-			$newinform = $old_inform;
-			if(strlen($newinform) && strlen($inform))
-				$newinform .= ',';
-			$newinform .= $inform;
+		$photos = DBA::toArray($photos_stmt);
 
-			$r = q("UPDATE `item` SET `tag` = '%s', `inform` = '%s', `edited` = '%s', `changed` = '%s' WHERE `id` = %d AND `uid` = %d LIMIT 1",
-				dbesc($newtag),
-				dbesc($newinform),
-				dbesc(datetime_convert()),
-				dbesc(datetime_convert()),
-				intval($item_id),
-				intval($page_owner_uid)
+		if (DBA::isResult($photos)) {
+			$photo = $photos[0];
+			Photo::update(
+				['desc' => $desc, 'album' => $albname, 'allow_cid' => $str_contact_allow, 'allow_gid' => $str_circle_allow, 'deny_cid' => $str_contact_deny, 'deny_gid' => $str_circle_deny],
+				['resource-id' => $resource_id, 'uid' => $page_owner_uid],
 			);
 
-			$best = 0;
-			foreach($p as $scales) {
-				if(intval($scales['scale']) == 2) {
-					$best = 2;
-					break;
-				}
-				if(intval($scales['scale']) == 4) {
-					$best = 4;
-					break;
-				}
+			// Update the photo albums cache if album name was changed
+			if ($albname !== $origaname) {
+				Photo::clearAlbumCache($page_owner_uid);
 			}
-
-			if(count($taginfo)) {
-				foreach($taginfo as $tagged) {
-		
-					$uri = item_new_uri($a->get_hostname(),$page_owner_uid);
-
-					$arr = array();
-
-					$arr['uid']           = $page_owner_uid;
-					$arr['uri']           = $uri;
-					$arr['parent-uri']    = $uri;
-					$arr['type']          = 'activity';
-					$arr['wall']          = 1;
-					$arr['contact-id']    = $owner_record['id'];
-					$arr['owner-name']    = $owner_record['name'];
-					$arr['owner-link']    = $owner_record['url'];
-					$arr['owner-avatar']  = $owner_record['thumb'];
-					$arr['author-name']   = $owner_record['name'];
-					$arr['author-link']   = $owner_record['url'];
-					$arr['author-avatar'] = $owner_record['thumb'];
-					$arr['title']         = '';
-					$arr['allow_cid']     = $p[0]['allow_cid'];
-					$arr['allow_gid']     = $p[0]['allow_gid'];
-					$arr['deny_cid']      = $p[0]['deny_cid'];
-					$arr['deny_gid']      = $p[0]['deny_gid'];
-					$arr['last-child']    = 1;
-					$arr['visible']       = 1;
-					$arr['verb']          = ACTIVITY_TAG;
-					$arr['object-type']   = ACTIVITY_OBJ_PERSON;
-					$arr['target-type']   = ACTIVITY_OBJ_PHOTO;
-					$arr['tag']           = $tagged[4];
-					$arr['inform']        = $tagged[2];
-
-					$arr['body']          = '[url=' . $tagged[1] . ']' . $tagged[0] . '[/url]' . ' ' . t('was tagged in a') . ' ' . '[url=' . $a->get_baseurl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . ']' . t('photo') . '[/url]' . ' ' . t('by') . ' ' . '[url=' . $owner_record['url'] . ']' . $owner_record['name'] . '[/url]' ;
-					$arr['body'] .= "\n\n" . '[url=' . $a->get_baseurl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . ']' . '[img]' . $a->get_baseurl() . "/photo/" . $p[0]['resource-id'] . '-' . $best . '.jpg' . '[/img][/url]' . "\n" ;
-
-					$arr['object'] = '<object><type>' . ACTIVITY_OBJ_PERSON . '</type><title>' . $tagged[0] . '</title><id>' . $tagged[1] . '/' . $tagged[0] . '</id>';
-					$arr['object'] .= '<link>' . xmlify('<link rel="alternate" type="text/html" href="' . $tagged[1] . '" />' . "\n");
-					if($tagged[3])
-						$arr['object'] .= xmlify('<link rel="photo" type="image/jpeg" href="' . $tagged[3]['photo'] . '" />' . "\n");
-					$arr['object'] .= '</link></object>' . "\n";
-
-					$arr['target'] = '<target><type>' . ACTIVITY_OBJ_PHOTO . '</type><title>' . $p[0]['desc'] . '</title><id>'
-						. $a->get_baseurl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . '</id>';
-					$arr['target'] .= '<link>' . xmlify('<link rel="alternate" type="text/html" href="' . $a->get_baseurl() . '/photos/' . $owner_record['nickname'] . '/image/' . $p[0]['resource-id'] . '" />' . "\n" . '<link rel="preview" type="image/jpeg" href="' . $a->get_baseurl() . "/photo/" . $p[0]['resource-id'] . '-' . $best . '.jpg' . '" />') . '</link></target>';
-
-					$item_id = item_store($arr);
-					if($item_id) {
-						q("UPDATE `item` SET `plink` = '%s' WHERE `uid` = %d AND `id` = %d LIMIT 1",
-							dbesc($a->get_baseurl() . '/display/' . $owner_record['nickname'] . '/' . $item_id),
-							intval($page_owner_uid),
-							intval($item_id)
-						);
-
-						proc_run('php',"include/notifier.php","tag","$item_id");
-					}
-				}
-
-			}
-
 		}
-		goaway($a->get_baseurl() . '/' . $_SESSION['photo_return']);
+
+		DI::baseUrl()->redirect($_SESSION['photo_return']);
 		return; // NOTREACHED
 	}
-
-
-	/**
-	 * default post action - upload a photo
-	 */
-
-	call_hooks('photo_post_init', $_POST);
-
-	/**
-	 * Determine the album to use
-	 */
-
-	$album    = notags(trim($_REQUEST['album']));
-	$newalbum = notags(trim($_REQUEST['newalbum']));
-
-	logger('mod/photos.php: photos_post(): album= ' . $album . ' newalbum= ' . $newalbum , 'LOGGER_DEBUG');
-
-	if(! strlen($album)) {
-		if(strlen($newalbum))
-			$album = $newalbum;
-		else
-			$album = datetime_convert('UTC',date_default_timezone_get(),'now', 'Y');
-	}
-
-	/**
-	 *
-	 * We create a wall item for every photo, but we don't want to
-	 * overwhelm the data stream with a hundred newly uploaded photos.
-	 * So we will make the first photo uploaded to this album in the last several hours
-	 * visible by default, the rest will become visible over time when and if
-	 * they acquire comments, likes, dislikes, and/or tags 
-	 *
-	 */
-
-	$r = q("SELECT * FROM `photo` WHERE `album` = '%s' AND `uid` = %d AND `created` > UTC_TIMESTAMP() - INTERVAL 3 HOUR ",
-		dbesc($album),
-		intval($page_owner_uid)
-	);
-	if((! count($r)) || ($album == t('Profile Photos')))
-		$visible = 1;
-	else
-		$visible = 0;
-
-	if(intval($_REQUEST['not_visible']))
-		$visible = 0;
-
-	$str_group_allow   = perms2str(((is_array($_REQUEST['group_allow']))   ? $_REQUEST['group_allow']   : explode(',',$_REQUEST['group_allow'])));
-	$str_contact_allow = perms2str(((is_array($_REQUEST['contact_allow'])) ? $_REQUEST['contact_allow'] : explode(',',$_REQUEST['contact_allow'])));
-	$str_group_deny    = perms2str(((is_array($_REQUEST['group_deny']))    ? $_REQUEST['group_deny']    : explode(',',$_REQUEST['group_deny'])));
-	$str_contact_deny  = perms2str(((is_array($_REQUEST['contact_deny']))  ? $_REQUEST['contact_deny']  : explode(',',$_REQUEST['contact_deny'])));
-
-	$ret = array('src' => '', 'filename' => '', 'filesize' => 0);
-
-	call_hooks('photo_post_file',$ret);
-
-	if(x($ret,'src') && x($ret,'filesize')) {
-		$src      = $ret['src'];
-		$filename = $ret['filename'];
-		$filesize = $ret['filesize'];
-	}
-	else {
-		$src        = $_FILES['userfile']['tmp_name'];
-		$filename   = basename($_FILES['userfile']['name']);
-		$filesize   = intval($_FILES['userfile']['size']);
-	}
-
-
-	logger('photos: upload: received file: ' . $filename . ' as ' . $src . ' ' . $filesize . ' bytes', LOGGER_DEBUG);
-
-	$maximagesize = get_config('system','maximagesize');
-
-	if(($maximagesize) && ($filesize > $maximagesize)) {
-		notice( t('Image exceeds size limit of ') . $maximagesize . EOL);
-		@unlink($src);
-		$foo = 0;
-		call_hooks('photo_post_end',$foo);
-		return;
-	}
-
-	if(! $filesize) {
-		notice( t('Image file is empty.') . EOL);
-		@unlink($src);
-		$foo = 0;
-		call_hooks('photo_post_end',$foo);
-		return;
-	}
-
-	logger('mod/photos.php: photos_post(): loading the contents of ' . $src , 'LOGGER_DEBUG');
-
-	$imagedata = @file_get_contents($src);
-	$ph = new Photo($imagedata);
-
-	if(! $ph->is_valid()) {
-		logger('mod/photos.php: photos_post(): unable to process image' , 'LOGGER_DEBUG');
-		notice( t('Unable to process image.') . EOL );
-		@unlink($src);
-		$foo = 0;
-		call_hooks('photo_post_end',$foo);
-		killme();
-	}
-
-	@unlink($src);
-
-	$width  = $ph->getWidth();
-	$height = $ph->getHeight();
-
-	$smallest = 0;
-
-	$photo_hash = photo_new_resource();
-
-	$r = $ph->store($page_owner_uid, $visitor, $photo_hash, $filename, $album, 0 , 0, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
-
-	if(! $r) {
-		logger('mod/photos.php: photos_post(): image store failed' , 'LOGGER_DEBUG');
-		notice( t('Image upload failed.') . EOL );
-		killme();
-	}
-
-	if($width > 640 || $height > 640) {
-		$ph->scaleImage(640);
-		$ph->store($page_owner_uid, $visitor, $photo_hash, $filename, $album, 1, 0, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
-		$smallest = 1;
-	}
-
-	if($width > 320 || $height > 320) {
-		$ph->scaleImage(320);
-		$ph->store($page_owner_uid, $visitor, $photo_hash, $filename, $album, 2, 0, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
-		$smallest = 2;
-	}
-	
-	$basename = basename($filename);
-	$uri = item_new_uri($a->get_hostname(), $page_owner_uid);
-
-	// Create item container
-
-	$arr = array();
-
-	$arr['uid']           = $page_owner_uid;
-	$arr['uri']           = $uri;
-	$arr['parent-uri']    = $uri;
-	$arr['type']          = 'photo';
-	$arr['wall']          = 1;
-	$arr['resource-id']   = $photo_hash;
-	$arr['contact-id']    = $owner_record['id'];
-	$arr['owner-name']    = $owner_record['name'];
-	$arr['owner-link']    = $owner_record['url'];
-	$arr['owner-avatar']  = $owner_record['thumb'];
-	$arr['author-name']   = $owner_record['name'];
-	$arr['author-link']   = $owner_record['url'];
-	$arr['author-avatar'] = $owner_record['thumb'];
-	$arr['title']         = '';
-	$arr['allow_cid']     = $str_contact_allow;
-	$arr['allow_gid']     = $str_group_allow;
-	$arr['deny_cid']      = $str_contact_deny;
-	$arr['deny_gid']      = $str_group_deny;
-	$arr['last-child']    = 1;
-	$arr['visible']       = $visible;
-	$arr['body']          = '[url=' . $a->get_baseurl() . '/photos/' . $owner_record['nickname'] . '/image/' . $photo_hash . ']' 
-				. '[img]' . $a->get_baseurl() . "/photo/{$photo_hash}-{$smallest}.jpg" . '[/img]' 
-				. '[/url]';
-
-	$item_id = item_store($arr);
-
-	if($item_id) {
-		q("UPDATE `item` SET `plink` = '%s' WHERE `uid` = %d AND `id` = %d LIMIT 1",
-			dbesc($a->get_baseurl() . '/display/' . $owner_record['nickname'] . '/' . $item_id),
-			intval($page_owner_uid),
-			intval($item_id)
-		);
-	}
-	
-	if($visible) 
-		proc_run('php', "include/notifier.php", 'wall-new', $item_id);
-
-	call_hooks('photo_post_end',intval($item_id));
-
-	// addon uploaders should call "killme()" [e.g. exit] within the photo_post_end hook
-	// if they do not wish to be redirected
-
-	goaway($a->get_baseurl() . '/' . $_SESSION['photo_return']);
-	// NOTREACHED
 }
 
-
-
-function photos_content(&$a) {
-
+function photos_content()
+{
 	// URLs:
-	// photos/name
 	// photos/name/upload
+	// photos/name/upload/xxxxx (xxxxx is album name)
 	// photos/name/album/xxxxx
 	// photos/name/album/xxxxx/edit
+	// photos/name/album/xxxxx/drop
 	// photos/name/image/xxxxx
 	// photos/name/image/xxxxx/edit
+	// photos/name/image/xxxxx/drop
+	// photos/name/image/xxxxx/usage
 
+	$user = User::getByNickname(DI::args()->getArgv()[1] ?? '');
+	if (!DBA::isResult($user)) {
+		throw new HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
+	}
 
-	if((get_config('system','block_public')) && (! local_user()) && (! remote_user())) {
-		notice( t('Public access denied.') . EOL);
+	if (DI::config()->get('system', 'block_public') && !DI::userSession()->isAuthenticated()) {
+		DI::sysmsg()->addNotice(DI::l10n()->t('Public access denied.'));
 		return;
 	}
 
-
-	require_once('include/bbcode.php');
-	require_once('include/security.php');
-	require_once('include/conversation.php');
-
-	if(! x($a->data,'user')) {
-		notice( t('No photos selected') . EOL );
+	if (empty($user)) {
+		DI::sysmsg()->addNotice(DI::l10n()->t('No photos selected'));
 		return;
 	}
 
-	$_SESSION['photo_return'] = $a->cmd;
+	$profile = Profile::getByUID($user['uid']);
 
-	//
-	// Parse arguments 
-	//
+	$_SESSION['photo_return'] = DI::args()->getCommand();
 
-	if($a->argc > 3) {
-		$datatype = $a->argv[2];
-		$datum = $a->argv[3];
-	}
-	elseif(($a->argc > 2) && ($a->argv[2] === 'upload'))
+	// Parse arguments
+	$datum = null;
+	if (DI::args()->getArgc() > 3) {
+		$datatype = DI::args()->getArgv()[2];
+		$datum    = DI::args()->getArgv()[3];
+	} elseif ((DI::args()->getArgc() > 2) && (DI::args()->getArgv()[2] === 'upload')) {
 		$datatype = 'upload';
-	else
+	} else {
 		$datatype = 'summary';
+	}
 
-	if($a->argc > 4)
-		$cmd = $a->argv[4];
-	else
+	if (DI::args()->getArgc() > 4) {
+		$cmd = DI::args()->getArgv()[4];
+	} else {
 		$cmd = 'view';
+	}
 
-	//
 	// Setup permissions structures
-	//
-
 	$can_post       = false;
 	$visitor        = 0;
 	$contact        = null;
 	$remote_contact = false;
+	$contact_id     = 0;
+	$edit           = '';
+	$drop           = '';
+	$download       = '';
 
-	$owner_uid = $a->data['user']['uid'];
+	$owner_uid = $user['uid'];
 
-	$community_page = (($a->data['user']['page-flags'] == PAGE_COMMUNITY) ? true : false);
+	$community_page = in_array($user['page-flags'], [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_COMM_MAN]);
 
-	if((local_user()) && (local_user() == $owner_uid))
+	if (DI::userSession()->getLocalUserId() && (DI::userSession()->getLocalUserId() == $owner_uid)) {
 		$can_post = true;
-	else {
-		if($community_page && remote_user()) {
-			$r = q("SELECT `uid` FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 AND `id` = %d AND `uid` = %d LIMIT 1",
-				intval(remote_user()),
-				intval($owner_uid)
-			);
-			if(count($r)) {
-				$can_post = true;
-				$contact  = $r[0];
-				$remote_contact = true;
-				$visitor = remote_user();
-			}
+	} elseif ($community_page && !empty(DI::userSession()->getRemoteContactID($owner_uid))) {
+		$contact_id = DI::userSession()->getRemoteContactID($owner_uid);
+		$contact    = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => $owner_uid, 'blocked' => false, 'pending' => false]);
+
+		if (DBA::isResult($contact)) {
+			$can_post       = true;
+			$remote_contact = true;
+			$visitor        = $contact_id;
 		}
 	}
 
 	// perhaps they're visiting - but not a community page, so they wouldn't have write access
+	if (!empty(DI::userSession()->getRemoteContactID($owner_uid)) && !$visitor) {
+		$contact_id = DI::userSession()->getRemoteContactID($owner_uid);
 
-	if(remote_user() && (! $visitor)) {
-		$contact_id = $_SESSION['visitor_id'];
-		$groups = init_groups_visitor($contact_id);
-		$r = q("SELECT * FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 AND `id` = %d AND `uid` = %d LIMIT 1",
-			intval(remote_user()),
-			intval($owner_uid)
-		);
-		if(count($r)) {
-			$contact = $r[0];
-			$remote_contact = true;
-		}
+		$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => $owner_uid, 'blocked' => false, 'pending' => false]);
+
+		$remote_contact = DBA::isResult($contact);
 	}
 
-	if(! $remote_contact) {
-		if(local_user()) {
-			$contact_id = $_SESSION['cid'];
-			$contact = $a->contact;
-		}
+	if (!$remote_contact && DI::userSession()->getLocalUserId()) {
+		$contact_id = $_SESSION['cid'];
+
+		$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => $owner_uid, 'blocked' => false, 'pending' => false]);
 	}
 
-	if($a->data['user']['hidewall'] && (local_user() != $owner_uid) && (! $remote_contact)) {
-		notice( t('Access to this item is restricted.') . EOL);
-		return;
+	if ($user['hidewall'] && !DI::userSession()->isAuthenticated()) {
+		DI::baseUrl()->redirect('profile/' . $user['nickname'] . '/restricted');
 	}
 
-	$sql_extra = permissions_sql($owner_uid,$remote_contact,$groups);
+	$sql_extra = Security::getPermissionsSQLByUserId($owner_uid);
 
 	$o = "";
 
 	// tabs
-	$tpl = get_markup_template('profile_tabs.tpl');
-	$_is_owner = (local_user() && (local_user() == $owner_uid));
-	$o .= replace_macros($tpl,array(
-		'$url' => $a->get_baseurl() . '/profile/' .$a->data['user']['nickname'],
-		'$phototab' => $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'],
-		'$status' => t('Status'),
-		'$profile' => t('Profile'),
-		'$photos' => t('Photos'),
-		'$events' => (($_is_owner) ? t('Events') : ''),
-		'$notes' => (($_is_owner) ? 	t('Personal Notes') : ''),
-		'$activetab' => "photos",
-	));	
+	$is_owner = (DI::userSession()->getLocalUserId() && (DI::userSession()->getLocalUserId() == $owner_uid));
+	$o .= BaseProfile::getTabsHTML('photos', $is_owner, $user['nickname'], $profile['hide-friends']);
 
-	//
-	// dispatch request
-	//
-
-
-	if($datatype === 'upload') {
-		if(! ($can_post)) {
-			notice( t('Permission denied.'));
+	// Display upload form
+	if ($datatype === 'upload') {
+		if (!$can_post) {
+			DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied.'));
 			return;
 		}
-		$albumselect = '<select id="photos-upload-album-select" name="album" size="4">';
 
-		$albumselect .= '<option value="" selected="selected" >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>';
-		if(count($a->data['albums'])) {
-			foreach($a->data['albums'] as $album) {
-				if(($album['album'] === '') || ($album['album'] === 'Contact Photos') || ($album['album'] === t('Contact Photos')))
-					continue;
-				$albumselect .= '<option value="' . $album['album'] . '">' . $album['album'] . '</option>';
+		// This prevents the photo upload form to return to itself without a hint the picture has been correctly uploaded.
+		DI::session()->remove('photo_return');
+
+		$selname = (!is_null($datum) && Strings::isHex($datum)) ? hex2bin($datum) : '';
+
+		$albumselect = ['' => '<current year>'];
+
+		foreach (Photo::getAlbums($owner_uid) as $album) {
+			if ($album['album'] === '') {
+				continue;
 			}
+
+			$albumselect[$album['album']] = $album['album'];
 		}
-
-		$celeb = ((($a->user['page-flags'] == PAGE_SOAPBOX) || ($a->user['page-flags'] == PAGE_COMMUNITY)) ? true : false);
-
-		$albumselect .= '</select>';
 
 		$uploader = '';
 
-		$ret = array('post_url' => $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'],
-				'addon_text' => $uploader,
-				'default_upload' => true);
+		$ret = [
+			'post_url'       => 'profile/' . $user['nickname'] . '/photos',
+			'addon_text'     => $uploader,
+			'default_upload' => true,
+		];
 
+		$eventDispatcher = DI::eventDispatcher();
 
-		call_hooks('photo_upload_form',$ret);
+		$ret = $eventDispatcher->dispatch(
+			new ArrayFilterEvent(ArrayFilterEvent::PHOTO_UPLOAD_FORM, $ret),
+		)->getArray();
 
-		$default_upload = '<input type="file" name="userfile" /> 	<div class="photos-upload-submit-wrapper" >
-		<input type="submit" name="submit" value="' . t('Submit') . '" id="photos-upload-submit" /> </div>';
+		// Determine if we're in album context (uploading to a specific album)
+		$is_album_context = !empty($selname);
 
+		$default_upload_box    = Renderer::replaceMacros(Renderer::getMarkupTemplate('photos_default_uploader_box.tpl'), []);
+		$default_upload_submit = Renderer::replaceMacros(Renderer::getMarkupTemplate('photos_default_uploader_submit.tpl'), [
+			'$submit' => $is_album_context ? DI::l10n()->t('Upload photo to this album') : DI::l10n()->t('Upload selected photo'),
+		]);
 
- 
+		// Get the relevant size limits for uploads. Abbreviated var names: MaxImageSize -> mis; upload_max_filesize -> umf
+		$mis_bytes = Strings::getBytesFromShorthand(DI::config()->get('system', 'maximagesize'));
+		$umf_bytes = Strings::getBytesFromShorthand(ini_get('upload_max_filesize'));
 
-		$tpl = get_markup_template('photos_upload.tpl');
-		$o .= replace_macros($tpl,array(
-			'$pagename' => t('Upload Photos'),
-			'$sessid' => session_id(),
-			'$nickname' => $a->data['user']['nickname'],
-			'$newalbum' => t('New album name: '),
-			'$existalbumtext' => t('or existing album name: '),
-			'$nosharetext' => t('Do not show a status post for this upload'),
-			'$albumselect' => template_escape($albumselect),
-			'$permissions' => t('Permissions'),
-			'$aclselect' => (($visitor) ? '' : template_escape(populate_acl($a->user, $celeb))),
-			'$uploader' => $ret['addon_text'],
-			'$default' => (($ret['default_upload']) ? $default_upload : ''),
-			'$uploadurl' => $ret['post_url']
-
-		));
-
-		return $o; 
-	}
-
-	if($datatype === 'album') {
-
-		$album = hex2bin($datum);
-
-		$r = q("SELECT `resource-id`, max(`scale`) AS `scale` FROM `photo` WHERE `uid` = %d AND `album` = '%s' 
-			AND `scale` <= 4 $sql_extra GROUP BY `resource-id`",
-			intval($owner_uid),
-			dbesc($album)
-		);
-		if(count($r)) {
-			$a->set_pager_total(count($r));
-			$a->set_pager_itemspage(20);
+		// Per Friendica definition a value of '0' means unlimited:
+		if ($mis_bytes == 0) {
+			$mis_bytes = INF;
 		}
 
-		$r = q("SELECT `resource-id`, `id`, `filename`, max(`scale`) AS `scale`, `desc` FROM `photo` WHERE `uid` = %d AND `album` = '%s' 
-			AND `scale` <= 4 $sql_extra GROUP BY `resource-id` ORDER BY `created` DESC LIMIT %d , %d",
-			intval($owner_uid),
-			dbesc($album),
-			intval($a->pager['start']),
-			intval($a->pager['itemspage'])
-		);
+		// When PHP is configured with upload_max_filesize less than maximagesize provide this lower limit.
+		$maximagesize_bytes = (is_numeric($mis_bytes) && ($mis_bytes < $umf_bytes) ? $mis_bytes : $umf_bytes);
 
-		$o .= '<h3>' . $album . '</h3>';
-		
-		if($cmd === 'edit') {		
-			if(($album !== t('Profile Photos')) && ($album !== 'Contact Photos') && ($album !== t('Contact Photos'))) {
-				if($can_post) {
-					$edit_tpl = get_markup_template('album_edit.tpl');
-					$o .= replace_macros($edit_tpl,array(
-						'$nametext' => t('New album name: '),
-						'$nickname' => $a->data['user']['nickname'],
-						'$album' => template_escape($album),
-						'$hexalbum' => bin2hex($album),
-						'$submit' => t('Submit'),
-						'$dropsubmit' => t('Delete Album')
-					));
-				}
-			}
-		}
-		else {
-			if(($album !== t('Profile Photos')) && ($album !== 'Contact Photos') && ($album !== t('Contact Photos'))) {
-				if($can_post) {
-					$o .= '<div id="album-edit-link"><a href="'. $a->get_baseurl() . '/photos/' 
-						. $a->data['user']['nickname'] . '/album/' . bin2hex($album) . '/edit' . '">' 
-						. t('Edit Album') . '</a></div>';
- 				}
-			}
-		}
-		$tpl = get_markup_template('photo_album.tpl');
-		if(count($r))
-			foreach($r as $rr) {
-				$o .= replace_macros($tpl,array(
-					'$id' => $rr['id'],
-					'$photolink' => $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/image/' . $rr['resource-id'],
-					'$phototitle' => t('View Photo'),
-					'$imgsrc' => $a->get_baseurl() . '/photo/' . $rr['resource-id'] . '-' . $rr['scale'] . '.jpg',
-					'$imgalt' => template_escape($rr['filename']),
-					'$desc'=> template_escape($rr['desc'])
-				));
+		// @todo We may be want to use appropriate binary prefixed dynamically
+		$usage_message = DI::l10n()->t('The maximum accepted image size is %s', Strings::formatBytes($maximagesize_bytes));
 
-		}
-		$o .= '<div id="photo-album-end"></div>';
-		$o .= paginate($a);
+		$tpl = Renderer::getMarkupTemplate('photos_upload.tpl');
+
+		$aclselect_e = ($visitor ? '' : ACL::getFullSelectorHTML(DI::page(), DI::userSession()->getLocalUserId()));
+
+		$o .= Renderer::replaceMacros($tpl, [
+			'$pagename'              => $is_album_context ? DI::l10n()->t('Upload Photos to %s', $selname) : DI::l10n()->t('Upload Photos'),
+			'$sessid'                => session_id(),
+			'$usage'                 => $usage_message,
+			'$nickname'              => $user['nickname'],
+			'$albumtext_label'       => DI::l10n()->t('Album name: '),
+			'$albumtext_description' => DI::l10n()->t('If you want to add this photo to an album, begin typing its name, and existing albums will be suggested, which you can select. If you choose something new, it will be created.'),
+			'$albumselect'           => $albumselect,
+			'$selname'               => $selname,
+			'$permissions'           => DI::l10n()->t('Permissions'),
+			'$aclselect'             => $aclselect_e,
+			'$lockstate'             => ACL::getLockstateForUserId(DI::userSession()->getLocalUserId()) ? 'lock' : 'unlock',
+			'$alt_uploader'          => $ret['addon_text'],
+			'$default_upload_box'    => ($ret['default_upload'] ? $default_upload_box : ''),
+			'$default_upload_submit' => ($ret['default_upload'] ? $default_upload_submit : ''),
+			'$uploadurl'             => $ret['post_url'],
+			'$is_album_context'      => $is_album_context,
+			'$preselected_album'     => $selname,
+
+			// ACL permissions box
+			'$return_path' => DI::args()->getQueryString(),
+		]);
 
 		return $o;
+	}
 
-	}	
+	// Display a single photo album
+	if ($datatype === 'album') {
+		// if $datum is not a valid hex, redirect to the default page
+		if (is_null($datum) || !Strings::isHex($datum)) {
+			DI::baseUrl()->redirect('profile/' . $user['nickname'] . '/photos');
+		}
+		$album = hex2bin($datum);
 
+		if ($can_post && !Photo::exists(['uid' => $owner_uid, 'album' => $album, 'photo-type' => Photo::DEFAULT])) {
+			$can_post = false;
+		}
 
-	if($datatype === 'image') {
+		$total = 0;
+		$r     = DBA::toArray(DBA::p(
+			"SELECT `resource-id`, MAX(`scale`) AS `scale` FROM `photo` WHERE `uid` = ? AND `album` = ?
+			AND `scale` <= 4 $sql_extra GROUP BY `resource-id`",
+			$owner_uid,
+			$album,
+		));
+		if (DBA::isResult($r)) {
+			$total = count($r);
+		}
 
+		$pager = new Pager(DI::l10n(), DI::args()->getQueryString(), 20);
 
+		/// @TODO I have seen this many times, maybe generalize it script-wide and encapsulate it?
+		$order_field = $_GET['order'] ?? '';
+		if ($order_field === 'created') {
+			$order = 'ASC';
+		} else {
+			$order = 'DESC';
+		}
 
-		//$o = '';
-		// fetch image, item containing image, then comments
-
-		$ph = q("SELECT * FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s' 
-			$sql_extra ORDER BY `scale` ASC ",
+		$r = DBA::toArray(DBA::p(
+			"SELECT `resource-id`, MIN(`id`) AS `id`, MIN(`filename`) AS `filename`,
+			MIN(`type`) AS `type`, MAX(`scale`) AS `scale`, MIN(`desc`) AS `desc`,
+			MIN(`created`) AS `created`
+			FROM `photo` WHERE `uid` = ? AND `album` = ?
+			AND `scale` <= 4 $sql_extra GROUP BY `resource-id` ORDER BY `created` $order LIMIT ? , ?",
 			intval($owner_uid),
-			dbesc($datum)
-		);
+			DBA::escape($album),
+			$pager->getStart(),
+			$pager->getItemsPerPage(),
+		));
 
-		if(! count($ph)) {
-			$ph = q("SELECT `id` FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s' 
-				LIMIT 1",
-				intval($owner_uid),
-				dbesc($datum)
-			);
-			if(count($ph)) 
-				notice( t('Permission denied. Access to this item may be restricted.'));
-			else
-				notice( t('Photo not available') . EOL );
+		if ($cmd === 'drop') {
+			$drop_url = DI::args()->getQueryString();
+
+			return Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
+				'$l10n' => [
+					'message' => DI::l10n()->t('Do you really want to delete this photo album and all its photos?'),
+					'confirm' => DI::l10n()->t('Delete Album'),
+					'cancel'  => DI::l10n()->t('Cancel'),
+				],
+				'$method'        => 'post',
+				'$confirm_url'   => $drop_url,
+				'$confirm_name'  => 'dropalbum',
+				'$confirm_value' => 'dropalbum',
+			]);
+		}
+
+		// edit album name
+		if ($cmd === 'edit') {
+			if ($can_post) {
+				$edit_tpl = Renderer::getMarkupTemplate('album_edit.tpl');
+
+				$album_e = $album;
+
+				$o .= Renderer::replaceMacros($edit_tpl, [
+					'$nametext' => DI::l10n()->t('New album name: '),
+					'$nickname' => $user['nickname'],
+					'$album'    => $album_e,
+					'$hexalbum' => bin2hex($album),
+					'$submit'   => DI::l10n()->t('Save changes'),
+				]);
+			}
+		} elseif ($can_post) {
+			$edit = [DI::l10n()->t('Edit Album'), 'photos/' . $user['nickname'] . '/album/' . bin2hex($album) . '/edit'];
+			$drop = [DI::l10n()->t('Delete album'), 'photos/' . $user['nickname'] . '/album/' . bin2hex($album) . '/drop'];
+		}
+
+		if ($is_owner && class_exists('ZipArchive')) {
+			$download = [DI::l10n()->t('Download album'), 'photos/' . $user['nickname'] . '/album/' . bin2hex($album) . '/download'];
+		}
+
+		if ($order_field === 'created') {
+			$order = [DI::l10n()->t('Show Newest First'), 'photos/' . $user['nickname'] . '/album/' . bin2hex($album), 'oldest'];
+		} else {
+			$order = [DI::l10n()->t('Show Oldest First'), 'photos/' . $user['nickname'] . '/album/' . bin2hex($album) . '?order=created', 'newest'];
+		}
+
+		$photos = [];
+
+		if (DBA::isResult($r)) {
+			// "Twist" is only used for the duepunto theme with style "slackr"
+			$twist = false;
+			foreach ($r as $rr) {
+				$twist = !$twist;
+
+				$ext = Images::getExtensionByMimeType($rr['type']);
+
+				$imgalt_e = $rr['filename'];
+				$desc_e   = $rr['desc'];
+
+				$photos[] = [
+					'id'    => $rr['id'],
+					'twist' => ' ' . ($twist ? 'rotleft' : 'rotright') . random_int(2, 4),
+					'link'  => 'photos/' . $user['nickname'] . '/image/' . $rr['resource-id']
+						. ($order_field === 'created' ? '?order=created' : ''),
+					'title' => DI::l10n()->t('View Photo'),
+					'src'   => 'photo/' . $rr['resource-id'] . '-' . $rr['scale'] . $ext,
+					'alt'   => $imgalt_e,
+					'desc'  => $desc_e,
+					'ext'   => $ext,
+					'hash'  => $rr['resource-id'],
+				];
+			}
+		}
+
+		$tpl = Renderer::getMarkupTemplate('photo_album.tpl');
+		$o .= Renderer::replaceMacros($tpl, [
+			'$photos'   => $photos,
+			'$album'    => $album,
+			'$can_post' => $can_post,
+			'$upload'   => [DI::l10n()->t('Upload photo'), 'photos/' . $user['nickname'] . '/upload/' . bin2hex($album)],
+			'$order'    => $order,
+			'$edit'     => $edit,
+			'$drop'     => $drop,
+			'$download' => $download,
+			'$paginate' => $pager->renderFull($total),
+		]);
+
+		return $o;
+	}
+
+	// Display one photo
+	if ($datatype === 'image') {
+		// fetch image, item containing image, then comments
+		$ph = Photo::selectToArray([], ["`uid` = ? AND `resource-id` = ? " . $sql_extra, $owner_uid, $datum], ['order' => ['scale']]);
+
+		if (!DBA::isResult($ph)) {
+			if (DBA::exists('photo', ['resource-id' => $datum, 'uid' => $owner_uid])) {
+				DI::sysmsg()->addNotice(DI::l10n()->t('Permission denied. Access to this item may be restricted.'));
+			} else {
+				DI::sysmsg()->addNotice(DI::l10n()->t('Photo not available'));
+			}
 			return;
+		}
+
+		if ($cmd === 'drop') {
+			$drop_url = DI::args()->getQueryString();
+
+			return Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
+				'$l10n' => [
+					'message' => DI::l10n()->t('Do you really want to delete this photo?'),
+					'confirm' => DI::l10n()->t('Delete Photo'),
+					'cancel'  => DI::l10n()->t('Cancel'),
+				],
+				'$method'        => 'post',
+				'$confirm_url'   => $drop_url,
+				'$confirm_name'  => 'delete',
+				'$confirm_value' => 'delete',
+			]);
 		}
 
 		$prevlink = '';
 		$nextlink = '';
 
-		$prvnxt = q("SELECT `resource-id` FROM `photo` WHERE `album` = '%s' AND `uid` = %d AND `scale` = 0 
-			$sql_extra ORDER BY `created` DESC ",
-			dbesc($ph[0]['album']),
-			intval($owner_uid)
-		); 
+		/*
+		 * @todo This query is totally bad, the whole functionality has to be changed
+		 * The query leads to a really intense used index.
+		 * By now we hide it if someone wants to.
+		 */
+		if ($cmd === 'view' && !DI::config()->get('system', 'no_count', false)) {
+			$order_field = $_GET['order'] ?? '';
 
-		if(count($prvnxt)) {
-			for($z = 0; $z < count($prvnxt); $z++) {
-				if($prvnxt[$z]['resource-id'] == $ph[0]['resource-id']) {
-					$prv = $z - 1;
-					$nxt = $z + 1;
-					if($prv < 0)
-						$prv = count($prvnxt) - 1;
-					if($nxt >= count($prvnxt))
-						$nxt = 0;
-					break;
+			if ($order_field === 'created') {
+				$params = ['order' => [$order_field]];
+			} elseif (!empty($order_field) && DBStructure::existsColumn('photo', [$order_field])) {
+				$params = ['order' => [$order_field => true]];
+			} else {
+				$params = [];
+			}
+
+			$prvnxt = Photo::selectToArray(['resource-id'], ["`album` = ? AND `uid` = ? AND `scale` = ?" . $sql_extra, $ph[0]['album'], $owner_uid, 0], $params);
+
+			if (DBA::isResult($prvnxt)) {
+				$prv = null;
+				$nxt = null;
+				foreach ($prvnxt as $z => $entry) {
+					if ($entry['resource-id'] == $ph[0]['resource-id']) {
+						$prv = $order_field === 'created' ? $z - 1 : $z + 1;
+						$nxt = $order_field === 'created' ? $z + 1 : $z - 1;
+						if ($prv < 0) {
+							$prv = count($prvnxt) - 1;
+						}
+						if ($nxt < 0) {
+							$nxt = count($prvnxt) - 1;
+						}
+						if ($prv >= count($prvnxt)) {
+							$prv = 0;
+						}
+						if ($nxt >= count($prvnxt)) {
+							$nxt = 0;
+						}
+						break;
+					}
+				}
+
+				if (!is_null($prv)) {
+					$prevlink = 'photos/' . $user['nickname'] . '/image/' . $prvnxt[$prv]['resource-id'] . ($order_field === 'created' ? '?order=created' : '');
+				}
+				if (!is_null($nxt)) {
+					$nextlink = 'photos/' . $user['nickname'] . '/image/' . $prvnxt[$nxt]['resource-id'] . ($order_field === 'created' ? '?order=created' : '');
+				}
+
+				$tpl = Renderer::getMarkupTemplate('photo_edit_head.tpl');
+				DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
+					'$prevlink' => $prevlink,
+					'$nextlink' => $nextlink,
+				]);
+
+				if ($prevlink) {
+					$prevlink = [$prevlink, '<div class="icon prev"></div>'];
+				}
+
+				if ($nextlink) {
+					$nextlink = [$nextlink, '<div class="icon next"></div>'];
 				}
 			}
-			$edit_suffix = ((($cmd === 'edit') && ($can_post)) ? '/edit' : '');
-			$prevlink = $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/image/' . $prvnxt[$prv]['resource-id'] . $edit_suffix;
-			$nextlink = $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/image/' . $prvnxt[$nxt]['resource-id'] . $edit_suffix;
- 		}
+		}
 
-
-		if(count($ph) == 1)
+		if (count($ph) == 1) {
 			$hires = $lores = $ph[0];
-		if(count($ph) > 1) {
-			if($ph[1]['scale'] == 2) {
+		}
+
+		if (count($ph) > 1) {
+			if ($ph[1]['scale'] == 2) {
 				// original is 640 or less, we can display it directly
 				$hires = $lores = $ph[0];
-			}
-			else {
-			$hires = $ph[0];
-			$lores = $ph[1];
+			} else {
+				$hires = $ph[0];
+				$lores = $ph[1];
 			}
 		}
 
-		$album_link = $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($ph[0]['album']);
- 		$tools = Null;
- 		$lock = Null;
- 
-		if($can_post && ($ph[0]['uid'] == $owner_uid)) {
-			$tools = array(
-				'edit'	=> array($a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/image/' . $datum . (($cmd === 'edit') ? '' : '/edit'), (($cmd === 'edit') ? t('View photo') : t('Edit photo'))),
-				'profile'=>array($a->get_baseurl() . '/profile_photo/use/'.$ph[0]['resource-id'], t('Use as profile photo')),
-			);
+		$album_link = 'photos/' . $user['nickname'] . '/album/' . bin2hex((string) $ph[0]['album']);
 
-			// lock
-			$lock = ( ( ($ph[0]['uid'] == local_user()) && (strlen($ph[0]['allow_cid']) || strlen($ph[0]['allow_gid']) 
-					|| strlen($ph[0]['deny_cid']) || strlen($ph[0]['deny_gid'])) ) 
-					? t('Private Message')
-					: Null);
-	  		
-			
+		$tools = null;
+
+		if ($can_post && ($ph[0]['uid'] == $owner_uid)) {
+			$tools = [];
+			if (in_array($cmd, ['edit', 'usage'])) {
+				$tools['view'] = ['photos/' . $user['nickname'] . '/image/' . $datum, DI::l10n()->t('View photo')];
+			} else {
+				$tools['edit']    = ['photos/' . $user['nickname'] . '/image/' . $datum . '/edit', DI::l10n()->t('Edit photo')];
+				$tools['delete']  = ['photos/' . $user['nickname'] . '/image/' . $datum . '/drop', DI::l10n()->t('Delete photo')];
+				$tools['profile'] = ['settings/profile/photo/crop/' . $ph[0]['resource-id'], DI::l10n()->t('Use as profile picture')];
+				if ($is_owner) {
+					$tools['usage'] = ['photos/' . $user['nickname'] . '/image/' . $datum . '/usage', DI::l10n()->t('Used in posts')];
+				}
+			}
+
+			if (
+				$ph[0]['uid'] == DI::userSession()->getLocalUserId()
+				&& (strlen((string) $ph[0]['allow_cid']) || strlen((string) $ph[0]['allow_gid']) || strlen((string) $ph[0]['deny_cid']) || strlen((string) $ph[0]['deny_gid']))
+			) {
+				$tools['lock'] = DI::l10n()->t('Private Photo');
+			}
 		}
 
-		if($prevlink)
-			$prevlink = array($prevlink, '<div class="icon prev"></div>') ;
+		$photo = [
+			'href'     => 'photo/' . $hires['resource-id'] . '-' . $hires['scale'] . Images::getExtensionByMimeType($hires['type']),
+			'title'    => DI::l10n()->t('View Full Size'),
+			'src'      => 'photo/' . $lores['resource-id'] . '-' . $lores['scale'] . Images::getExtensionByMimeType($lores['type']) . '?_u=' . DateTimeFormat::utcNow('ymdhis'),
+			'lheight'  => $lores['height'],
+			'lwidth'   => $lores['width'],
+			'height'   => $hires['height'],
+			'width'    => $hires['width'],
+			'album'    => $hires['album'],
+			'filename' => $hires['filename'],
+		];
 
-		$photo = array(
-			'href' => $a->get_baseurl() . '/photo/' . $hires['resource-id'] . '-' . $hires['scale'] . '.jpg',
-			'title'=> t('View Full Size'),
-			'src'  => $a->get_baseurl() . '/photo/' . $lores['resource-id'] . '-' . $lores['scale'] . '.jpg'
-		);
-
-		if($nextlink)
-			$nextlink = array($nextlink, '<div class="icon next"></div>');
-
+		$total = 0;
 
 		// Do we have an item for this photo?
 
-		$linked_items = q("SELECT * FROM `item` WHERE `resource-id` = '%s' $sql_extra LIMIT 1",
-			dbesc($datum)
-		);
-		if(count($linked_items)) {
-			$link_item = $linked_items[0];
-			$r = q("SELECT COUNT(*) AS `total`
-				FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-				WHERE `parent-uri` = '%s' AND `uri` != '%s' AND `item`.`deleted` = 0
-				AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-				AND `item`.`uid` = %d 
-				$sql_extra ",
-				dbesc($link_item['uri']),
-				dbesc($link_item['uri']),
-				intval($link_item['uid'])
-
-			);
-
-			if(count($r))
-				$a->set_pager_total($r[0]['total']);
+		// FIXME! - replace following code to display the conversation with our normal
+		// conversation functions so that it works correctly and tracks changes
+		// in the evolving conversation code.
+		// The difference is that we won't be displaying the conversation head item
+		// as a "post" but displaying instead the photo it is linked to
 
 
-			$r = q("SELECT `item`.*, `item`.`id` AS `item_id`, 
-				`contact`.`name`, `contact`.`photo`, `contact`.`url`, `contact`.`network`, 
-				`contact`.`rel`, `contact`.`thumb`, `contact`.`self`, 
-				`contact`.`id` AS `cid`, `contact`.`uid` AS `contact-uid`
-				FROM `item` LEFT JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
-				WHERE `parent-uri` = '%s' AND `uri` != '%s' AND `item`.`deleted` = 0
-				AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-				AND `item`.`uid` = %d
-				$sql_extra
-				ORDER BY `parent` DESC, `id` ASC LIMIT %d ,%d ",
-				dbesc($link_item['uri']),
-				dbesc($link_item['uri']),
-				intval($link_item['uid']),
-				intval($a->pager['start']),
-				intval($a->pager['itemspage'])
+		$edit = null;
+		if ($cmd === 'edit' && $can_post) {
+			$edit_tpl = Renderer::getMarkupTemplate('photo_edit.tpl');
 
-			);
-		
-			if((local_user()) && (local_user() == $link_item['uid'])) {
-				q("UPDATE `item` SET `unseen` = 0 WHERE `parent` = %d and `uid` = %d",
-					intval($link_item['parent']),
-					intval(local_user())
-				);
-			}
-		}
+			$album_e     = $ph[0]['album'];
+			$caption_e   = $ph[0]['desc'];
+			$aclselect_e = ACL::getFullSelectorHTML(DI::page(), DI::userSession()->getLocalUserId(), false, ACL::getDefaultUserPermissions($ph[0]));
 
-		$tags=Null;
+			$edit = Renderer::replaceMacros($edit_tpl, [
+				'$id'          => $ph[0]['id'],
+				'$album'       => ['albname', DI::l10n()->t('New album name'), $album_e, ''],
+				'$caption'     => ['desc', DI::l10n()->t('Caption'), $caption_e, ''],
+				'$rotate_none' => ['rotate', DI::l10n()->t('Do not rotate'), 0, '', true],
+				'$rotate_cw'   => ['rotate', DI::l10n()->t("Rotate CW (right)"), 1, ''],
+				'$rotate_ccw'  => ['rotate', DI::l10n()->t("Rotate CCW (left)"), 2, ''],
 
-		if(count($linked_items) && strlen($link_item['tag'])) {
-			$arr = explode(',',$link_item['tag']);
-			// parse tags and add links
-			$tag_str = '';
-			foreach($arr as $t) {
-				if(strlen($tag_str))
-					$tag_str .= ', ';
-				$tag_str .= bbcode($t);
-			} 
-			$tags = array(t('Tags: '), $tag_str);
-			if($cmd === 'edit') {
-				$tags[] = $a->get_baseurl() . '/tagrm/' . $link_item['id'];
-				$tags[] = t('[Remove any tag]');
-			}
-		}
-
-
-		$edit = Null;
-		if(($cmd === 'edit') && ($can_post)) {
-			$edit_tpl = get_markup_template('photo_edit.tpl');
-			$edit = replace_macros($edit_tpl, array(
-				'$id' => $ph[0]['id'],
-				'$album' => template_escape($ph[0]['album']),
-				'$newalbum' => t('New album name'), 
-				'$nickname' => $a->data['user']['nickname'],
+				'$nickname'    => $user['nickname'],
 				'$resource_id' => $ph[0]['resource-id'],
-				'$capt_label' => t('Caption'),
-				'$caption' => template_escape($ph[0]['desc']),
-				'$tag_label' => t('Add a Tag'),
-				'$tags' => $link_item['tag'],
-				'$permissions' => t('Permissions'),
-				'$aclselect' => template_escape(populate_acl($ph[0])),
-				'$help_tags' => t('Example: @bob, @Barbara_Jensen, @jim@example.com, #California, #camping'),
-				'$item_id' => ((count($linked_items)) ? $link_item['id'] : 0),
-				'$submit' => t('Submit'),
-				'$delete' => t('Delete Photo')
-			));
+				'$permissions' => DI::l10n()->t('Permissions'),
+				'$aclselect'   => $aclselect_e,
+
+				'$submit' => DI::l10n()->t('Save changes'),
+				'$delete' => DI::l10n()->t('Delete Photo'),
+
+				// ACL permissions box
+				'$return_path' => DI::args()->getQueryString(),
+			]);
 		}
 
-		if(count($linked_items)) {
-
-			$cmnt_tpl = get_markup_template('comment_item.tpl');
-			$tpl = get_markup_template('photo_item.tpl');
-			$return_url = $a->cmd;
-
-			$like_tpl = get_markup_template('like_noshare.tpl');
-
-			$likebuttons = '';
-
-			if($can_post || can_write_wall($a,$owner_uid)) {
-				$likebuttons = replace_macros($like_tpl,array(
-					'$id' => $link_item['id'],
-					'$likethis' => t("I like this \x28toggle\x29"),
-					'$nolike' => t("I don't like this \x28toggle\x29"),
-					'$share' => t('Share'),
-					'$wait' => t('Please wait')
-				));
-			}
-
-			$comments = '';
-			if(! count($r)) {
-				if($can_post || can_write_wall($a,$owner_uid)) {
-					if($link_item['last-child']) {
-						$comments .= replace_macros($cmnt_tpl,array(
-							'$return_path' => '', 
-							'$jsreload' => $return_url,
-							'$type' => 'wall-comment',
-							'$id' => $link_item['id'],
-							'$parent' => $link_item['id'],
-							'$profile_uid' =>  $owner_uid,
-							'$mylink' => $contact['url'],
-							'$mytitle' => t('This is you'),
-							'$myphoto' => $contact['thumb'],
-							'$comment' => t('Comment'),
-							'$submit' => t('Submit'),
-							'$ww' => ''
-						));
-					}
-				}
-			}
-
-			$alike = array();
-			$dlike = array();
-			
-			$like = '';
-			$dislike = '';
-
-			// display comments
-			if(count($r)) {
-
-				foreach($r as $item) {
-					like_puller($a,$item,$alike,'like');
-					like_puller($a,$item,$dlike,'dislike');
-				}
-
-				$like    = ((isset($alike[$link_item['id']])) ? format_like($alike[$link_item['id']],$alike[$link_item['id'] . '-l'],'like',$link_item['id']) : '');
-				$dislike = ((isset($dlike[$link_item['id']])) ? format_like($dlike[$link_item['id']],$dlike[$link_item['id'] . '-l'],'dislike',$link_item['id']) : '');
-
-
-
-				if($can_post || can_write_wall($a,$owner_uid)) {
-					if($link_item['last-child']) {
-						$comments .= replace_macros($cmnt_tpl,array(
-							'$return_path' => '',
-							'$jsreload' => $return_url,
-							'$type' => 'wall-comment',
-							'$id' => $link_item['id'],
-							'$parent' => $link_item['id'],
-							'$profile_uid' =>  $owner_uid,
-							'$mylink' => $contact['url'],
-							'$mytitle' => t('This is you'),
-							'$myphoto' => $contact['thumb'],
-							'$comment' => t('Comment'),
-							'$submit' => t('Submit'),
-							'$ww' => ''
-						));
-					}
-				}
-
-
-				foreach($r as $item) {
-					$comment = '';
-					$template = $tpl;
-					$sparkle = '';
-
-					if(((activity_match($item['verb'],ACTIVITY_LIKE)) || (activity_match($item['verb'],ACTIVITY_DISLIKE))) && ($item['id'] != $item['parent']))
-						continue;
-
-					$redirect_url = $a->get_baseurl() . '/redir/' . $item['cid'] ;
-			
-					if($can_post || can_write_wall($a,$owner_uid)) {
-
-						if($item['last-child']) {
-							$comments .= replace_macros($cmnt_tpl,array(
-								'$return_path' => '',
-								'$jsreload' => $return_url,
-								'$type' => 'wall-comment',
-								'$id' => $item['item_id'],
-								'$parent' => $item['parent'],
-								'$profile_uid' =>  $owner_uid,
-								'$mylink' => $contact['url'],
-								'$mytitle' => t('This is you'),
-								'$myphoto' => $contact['thumb'],
-								'$comment' => t('Comment'),
-								'$submit' => t('Submit'),
-								'$ww' => ''
-							));
-						}
-					}
-
-
-					if(local_user() && ($item['contact-uid'] == local_user()) 
-						&& ($item['network'] == 'dfrn') && (! $item['self'] )) {
-						$profile_url = $redirect_url;
-						$sparkle = ' sparkle';
-					}
-					else {
-						$profile_url = $item['url'];
-						$sparkle = '';
-					}
- 
-					$diff_author = (($item['url'] !== $item['author-link']) ? true : false);
-
-					$profile_name   = (((strlen($item['author-name']))   && $diff_author) ? $item['author-name']   : $item['name']);
-					$profile_avatar = (((strlen($item['author-avatar'])) && $diff_author) ? $item['author-avatar'] : $item['thumb']);
-
-					$profile_link = $profile_url;
-
-					$drop = '';
-
-					if(($item['contact-id'] == remote_user()) || ($item['uid'] == local_user()))
-						$drop = replace_macros(get_markup_template('photo_drop.tpl'), array('$id' => $item['id'], '$delete' => t('Delete')));
-
-
-					$comments .= replace_macros($template,array(
-						'$id' => $item['item_id'],
-						'$profile_url' => $profile_link,
-						'$name' => template_escape($profile_name),
-						'$thumb' => $profile_avatar,
-						'$sparkle' => $sparkle,
-						'$title' => template_escape($item['title']),
-						'$body' => template_escape(bbcode($item['body'])),
-						'$ago' => relative_date($item['created']),
-						'$indent' => (($item['parent'] != $item['item_id']) ? ' comment' : ''),
-						'$drop' => $drop,
-						'$comment' => $comment
-					));
-				}
-			}
-
-			$paginate = paginate($a);
+		$usage = null;
+		if ($cmd === 'usage' && $is_owner) {
+			$usage = DI::mediaUsageRenderer()->renderForPhoto($ph[0]['resource-id'], $owner_uid);
 		}
-		
-		$photo_tpl = get_markup_template('photo_view.tpl');
-		$o .= replace_macros($photo_tpl, array(
-			'$id' => $ph[0]['id'],
-			'$album' => array($album_link,template_escape($ph[0]['album'])),
-			'$tools' => $tools,
-			'$lock' => $lock,
-			'$photo' => $photo,
-			'$prevlink' => $prevlink,
-			'$nextlink' => $nextlink,
-			'$desc' => $ph[0]['desc'],
-			'$tags' => template_escape($tags),
-			'$edit' => $edit,	
-			'$likebuttons' => $likebuttons,
-			'$like' => template_escape($like),
-			'$dislike' => template_escape($dislike),
-			'$comments' => $comments,
-			'$paginate' => $paginate,
-		));
-		
+
+		$photo_tpl = Renderer::getMarkupTemplate('photo_view.tpl');
+		$o .= Renderer::replaceMacros($photo_tpl, [
+			'$id'                          => $ph[0]['id'],
+			'$album'                       => [$album_link, $ph[0]['album']],
+			'$tools'                       => $tools,
+			'$photo'                       => $photo,
+			'$prevlink'                    => $prevlink,
+			'$nextlink'                    => $nextlink,
+			'$desc'                        => $ph[0]['desc'],
+			'$edit'                        => $edit,
+			'$usage'                       => $usage,
+			'$edit_text'                   => DI::l10n()->t('Edit'),
+			'$delete_text'                 => DI::l10n()->t('Delete'),
+			'$use_as_profile_picture_text' => DI::l10n()->t('Use as profile picture'),
+			'$usage_text'                  => DI::l10n()->t('Used in posts'),
+			'$back_text'                   => DI::l10n()->t('Back to viewing'),
+		]);
+
+		DI::page()['htmlhead'] .= "\n" . '<meta name="twitter:card" content="summary_large_image" />' . "\n";
+		DI::page()['htmlhead'] .= '<meta name="twitter:title" content="' . $photo["album"] . '" />' . "\n";
+		DI::page()['htmlhead'] .= '<meta name="twitter:image" content="' . DI::baseUrl() . "/" . $photo["href"] . '" />' . "\n";
+		DI::page()['htmlhead'] .= '<meta name="twitter:image:width" content="' . $photo["width"] . '" />' . "\n";
+		DI::page()['htmlhead'] .= '<meta name="twitter:image:height" content="' . $photo["height"] . '" />' . "\n";
+
 		return $o;
 	}
-
-	// Default - show recent photos with upload link (if applicable)
-	//$o = '';
-
-	$r = q("SELECT `resource-id`, max(`scale`) AS `scale` FROM `photo` WHERE `uid` = %d AND `album` != '%s' AND `album` != '%s' 
-		$sql_extra GROUP BY `resource-id`",
-		intval($a->data['user']['uid']),
-		dbesc('Contact Photos'),
-		dbesc( t('Contact Photos'))
-	);
-	if(count($r)) {
-		$a->set_pager_total(count($r));
-		$a->set_pager_itemspage(20);
-	}
-
-	$r = q("SELECT `resource-id`, `id`, `filename`, `album`, max(`scale`) AS `scale` FROM `photo`
-		WHERE `uid` = %d AND `album` != '%s' AND `album` != '%s'  
-		$sql_extra GROUP BY `resource-id` ORDER BY `created` DESC LIMIT %d , %d",
-		intval($a->data['user']['uid']),
-		dbesc('Contact Photos'),
-		dbesc( t('Contact Photos')),
-		intval($a->pager['start']),
-		intval($a->pager['itemspage'])
-	);
-
-	$o .= '<h3>' . t('Recent Photos') . '</h3>';
-
-	if($can_post) {
-		$o .= '<div id="photo-top-links"><a id="photo-top-upload-link" href="'. $a->get_baseurl() . '/photos/' 
-			. $a->data['user']['nickname'] . '/upload' . '">' . t('Upload New Photos') . '</a></div>';
-	}
-
-	$tpl = get_markup_template('photo_top.tpl');
-	if(count($r)) {
-		foreach($r as $rr) {
-			$o .= replace_macros($tpl,array(
-				'$id'         => $rr['id'],
-				'$photolink'  => $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/image/' . $rr['resource-id'],
-				'$phototitle' => t('View Photo'),
-				'$imgsrc'     => $a->get_baseurl() . '/photo/' . $rr['resource-id'] . '-' . ((($rr['scale']) == 6) ? 4 : $rr['scale']) . '.jpg',
-				'$albumlink'  => $a->get_baseurl() . '/photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($rr['album']),
-				'$albumname'  => template_escape($rr['album']),
-				'$albumalt'   => t('View Album'),
-				'$imgalt'     => template_escape($rr['filename'])
-			));
-
-		}
-		$o .= '<div id="photo-top-end"></div>';
-	}
-	$o .= paginate($a);
-	return $o;
 }
-

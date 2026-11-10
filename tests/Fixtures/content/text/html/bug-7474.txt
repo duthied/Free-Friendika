@@ -1,0 +1,11 @@
+I recently released a PHP package that makes executing commands over SSH super simple. You can also upload/download files via SCP.
+
+https://github.com/DivineOmega/php-ssh-connection
+
+#php #opensource #webdev #ssh #DevOps
+
+https://mastodon.xyz/tags/php
+https://mastodon.xyz/tags/opensource
+https://mastodon.xyz/tags/webdev
+https://mastodon.xyz/tags/ssh
+https://mastodon.xyz/tags/devops

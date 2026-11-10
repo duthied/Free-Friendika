@@ -1,0 +1,44 @@
+/*
+ * SPDX-FileCopyrightText: 2010-2026 the Friendica project
+ *
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+/**
+ * Loading Indicator CSS Styles
+ */
+
+/* ============================================
+   LOADING INDICATOR - Multi-Status
+   ============================================ */
+
+/* Base loading indicator container */
+#spa-loading-indicator {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 17px; /* 3px bar + 14px for text */
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background: var(--spa-loading-bg, rgba(0, 0, 0, 0.85));
+}
+
+#spa-loading-indicator.active {
+  opacity: 1;
+  pointer-events: none;
+}
+
+/* Status text */
+#spa-loading-indicator .spa-status-text {
+  color: var(--spa-loading-text, rgba(255, 255, 255, 0.9));
+  font-size: 11px;
+  margin-top: 2px;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}

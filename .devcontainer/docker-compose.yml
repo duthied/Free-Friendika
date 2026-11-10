@@ -1,0 +1,47 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    volumes:
+      - ../..:/workspaces:cached
+    env_file: ".env"
+
+    # Overrides default command so things don't shut down after the process ends.
+    command: sleep infinity
+
+    ports:
+      - ${ServerPort:-8080}:80
+      - 8443:443
+
+    # Use "forwardPorts" in **devcontainer.json** to forward an app port locally.
+    # (Adding the "ports" property to this file will not forward from a Codespace.)
+
+    extra_hosts:
+      - "${ServerAlias}:127.0.0.1"
+
+  db:
+    image: mariadb:10.4
+    restart: unless-stopped
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    env_file: ".env"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    command: ['mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci']
+
+    # Runs app on the same network as the app container, allows "forwardPorts" in devcontainer.json function.
+    network_mode: service:app
+
+  redis:
+    image: redis:latest
+    restart: unless-stopped
+    env_file: ".env"
+    network_mode: service:app
+
+volumes:
+  mariadb-data:
+
+networks:
+  default:

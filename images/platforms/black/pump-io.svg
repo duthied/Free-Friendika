@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:osb="http://www.openswatchbook.org/uri/2009/osb"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="400"
+   height="400"
+   id="svg12278"
+   version="1.1"
+   inkscape:version="0.48.3.1 r9886"
+   sodipodi:docname="pumpiologo_w.svg">
+  <defs
+     id="defs12280">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 526.18109 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="744.09448 : 526.18109 : 1"
+       inkscape:persp3d-origin="372.04724 : 350.78739 : 1"
+       id="perspective14540" />
+    <linearGradient
+       id="linearGradient14510"
+       osb:paint="solid">
+      <stop
+         style="stop-color:#d45500;stop-opacity:1;"
+         offset="0"
+         id="stop14512" />
+    </linearGradient>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.2896673"
+     inkscape:cx="198.42242"
+     inkscape:cy="147.83246"
+     inkscape:document-units="px"
+     inkscape:current-layer="g17124"
+     showgrid="true"
+     showguides="true"
+     inkscape:guide-bbox="true"
+     inkscape:window-width="1676"
+     inkscape:window-height="1011"
+     inkscape:window-x="0"
+     inkscape:window-y="37"
+     inkscape:window-maximized="0">
+    <inkscape:grid
+       type="xygrid"
+       id="grid14516"
+       empspacing="5"
+       visible="true"
+       enabled="true"
+       snapvisiblegridlinesonly="true" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata12283">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Ebene 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-652.36217)">
+    <g
+       id="g17124"
+       inkscape:export-filename="/home/mgebbe/Dokumente/master/masterarbeit/Bilder/pumpio_logo.png"
+       inkscape:export-xdpi="15.94"
+       inkscape:export-ydpi="15.94"
+       transform="matrix(11.360492,0,0,10.29357,-2514.3711,-1716.6702)">
+      <g
+         id="g19989">
+        <path
+           sodipodi:type="arc"
+           style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:4.22213601999999977;stroke-linecap:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+           id="path17087"
+           sodipodi:cx="24.268293"
+           sodipodi:cy="23.038614"
+           sodipodi:rx="23.401569"
+           sodipodi:ry="23.401569"
+           d="m 47.669863,23.038614 a 23.401569,23.401569 0 1 1 -46.80313899,0 23.401569,23.401569 0 1 1 46.80313899,0 z"
+           transform="matrix(0.67706502,0,0,0.74984105,222.49956,232.36194)" />
+        <path
+           style="fill:#ffffff;stroke:#000000;stroke-width:3.61005044000000019;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;fill-opacity:1"
+           d="m 232.97982,232.77202 c 16.79309,17.60655 16.79309,17.60655 16.79309,17.60655 l -14.83661,15.56789"
+           id="path17089"
+           inkscape:connector-curvature="0" />
+      </g>
+    </g>
+  </g>
+</svg>

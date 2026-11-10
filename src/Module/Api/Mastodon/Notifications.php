@@ -1,0 +1,148 @@
+<?php
+
+// Copyright (C) 2010-2026, the Friendica project
+// SPDX-FileCopyrightText: 2010-2026 the Friendica project
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+namespace Friendica\Module\Api\Mastodon;
+
+use Friendica\Database\DBA;
+use Friendica\DI;
+use Friendica\Model\Contact;
+use Friendica\Model\Post;
+use Friendica\Model\Verb;
+use Friendica\Module\BaseApi;
+use Friendica\Object\Api\Mastodon\Notification;
+use Friendica\Protocol\Activity;
+
+/**
+ * @see https://docs.joinmastodon.org/methods/notifications/
+ */
+class Notifications extends BaseApi
+{
+	/**
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	protected function rawContent(array $request = [])
+	{
+		$this->checkAllowedScope(self::SCOPE_READ);
+		$uid = self::getCurrentUserID();
+
+		if (!empty($this->parameters['id'])) {
+			$id = $this->parameters['id'];
+			try {
+				$notification = DI::notification()->selectOneForUser($uid, ['id' => $id]);
+				$this->earlyJsonExit(DI::mstdnNotification()->createFromNotification($notification));
+			} catch (\Exception) {
+				$this->logAndJsonError(404, $this->errorFactory->RecordNotFound());
+			}
+		}
+
+		$request = $this->getRequest([
+			'max_id'        => 0,     // Return results older than this ID
+			'since_id'      => 0,     // Return results newer than this ID
+			'min_id'        => 0,     // Return results immediately newer than this ID
+			'limit'         => 15,    // Maximum number of results to return. Defaults to 15 notifications. Max 30 notifications.
+			'exclude_types' => [],    // Array of types to exclude (follow, favourite, reblog, mention, poll, follow_request)
+			'account_id'    => 0,     // Return only notifications received from this account
+			'with_muted'    => false, // Pleroma extension: return activities by muted (not by blocked!) users.
+			'include_all'   => false,  // Include dismissed and undismissed
+			'summary'       => false,
+		], $request);
+
+		$params = ['order' => ['id' => true]];
+
+		$condition = ["`uid` = ? AND (NOT `type` IN (?, ?)) AND NOT EXISTS(SELECT `cid` FROM `user-contact` WHERE `user-contact`.`cid` = `notification`.`actor-id` AND `user-contact`.`uid` = `notification`.`uid` AND (`is-blocked` OR `blocked`))", $uid,
+			Post\UserNotification::TYPE_ACTIVITY_PARTICIPATION,
+			Post\UserNotification::TYPE_COMMENT_PARTICIPATION];
+
+		if (!$request['include_all']) {
+			$condition = DBA::mergeConditions($condition, ['dismissed' => false]);
+		}
+
+		if (!empty($request['account_id'])) {
+			$contact = Contact::getById($request['account_id'], ['url']);
+			if (!empty($contact['url'])) {
+				$condition['url'] = $contact['url'];
+			}
+		}
+
+		if (in_array(Notification::TYPE_INTRODUCTION, $request['exclude_types'])) {
+			$condition = DBA::mergeConditions(
+				$condition,
+				["(`vid` != ? OR `type` != ? OR EXISTS(SELECT `pid` FROM `account-user-view` WHERE `account-user-view`.`pid` = `notification`.`actor-id` AND `notification`.`uid` = `account-user-view`.`uid` AND NOT `account-user-view`.`pending`))",
+					Verb::getID(Activity::FOLLOW),
+					Post\UserNotification::TYPE_NONE],
+			);
+		}
+
+		if (in_array(Notification::TYPE_FOLLOW, $request['exclude_types'])) {
+			$condition = DBA::mergeConditions(
+				$condition,
+				["(`vid` != ? OR `type` != ? OR EXISTS(SELECT `pid` FROM `account-user-view` WHERE `account-user-view`.`pid` = `notification`.`actor-id` AND `notification`.`uid` = `account-user-view`.`uid` AND `account-user-view`.`pending`))",
+					Verb::getID(Activity::FOLLOW),
+					Post\UserNotification::TYPE_NONE],
+			);
+		}
+
+		if (in_array(Notification::TYPE_LIKE, $request['exclude_types'])) {
+			$condition = DBA::mergeConditions($condition, [
+				"(NOT `vid` IN (?, ?, ?) OR NOT `type` IN (?, ?))",
+				Verb::getID(Activity::LIKE), Verb::getID(Activity::DISLIKE), Verb::getID(Activity::EMOJIREACT),
+				Post\UserNotification::TYPE_DIRECT_COMMENT, Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT,
+			]);
+		}
+
+		if (in_array(Notification::TYPE_RESHARE, $request['exclude_types'])) {
+			$condition = DBA::mergeConditions($condition, [
+				"(NOT `vid` IN (?) OR NOT `type` IN (?, ?))",
+				Verb::getID(Activity::ANNOUNCE),
+				Post\UserNotification::TYPE_DIRECT_COMMENT, Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT,
+			]);
+		}
+
+		if (in_array(Notification::TYPE_MENTION, $request['exclude_types'])) {
+			$condition = DBA::mergeConditions($condition, [
+				"(NOT `vid` IN (?) OR NOT `type` IN (?, ?, ?, ?, ?))",
+				Verb::getID(Activity::POST), Post\UserNotification::TYPE_EXPLICIT_TAGGED,
+				Post\UserNotification::TYPE_IMPLICIT_TAGGED, Post\UserNotification::TYPE_DIRECT_COMMENT,
+				Post\UserNotification::TYPE_DIRECT_THREAD_COMMENT, Post\UserNotification::TYPE_THREAD_COMMENT]);
+		}
+
+		if (in_array(Notification::TYPE_POST, $request['exclude_types'])) {
+			$condition = DBA::mergeConditions($condition, ["NOT `type` IN (?)",
+				Post\UserNotification::TYPE_SHARED]);
+		}
+
+		if ($request['summary']) {
+			$count = DI::notification()->countForUser($uid, $condition);
+			$this->earlyJsonExit(['count' => $count]);
+		} else {
+			$mstdnNotifications = [];
+
+			$Notifications = DI::notification()->selectByBoundaries(
+				$condition,
+				$params,
+				$request['min_id'] ?: $request['since_id'],
+				$request['max_id'],
+				min($request['limit'], 30),
+			);
+
+			foreach ($Notifications as $Notification) {
+				// Always advance the paging boundary, even when a notification can't be converted below,
+				// so a run of unconvertible notifications doesn't make the pagination get stuck on the same page.
+				self::setBoundaries($Notification->id);
+
+				try {
+					$mstdnNotifications[] = DI::mstdnNotification()->createFromNotification($Notification);
+				} catch (\Exception) {
+					// Skip this notification
+				}
+			}
+
+			$this->setPaginationLinkHeader();
+			$this->earlyJsonExit($mstdnNotifications);
+		}
+	}
+}

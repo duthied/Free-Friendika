@@ -1,0 +1,105 @@
+{{*
+  * Copyright (C) 2010-2026, the Friendica project
+  * SPDX-FileCopyrightText: 2010-2026 the Friendica project
+  *
+  * SPDX-License-Identifier: AGPL-3.0-or-later
+  *}}
+
+{{if $threaded}}
+<div class="comment-wwedit-wrapper threaded" id="comment-edit-wrapper-{{$id}}">
+{{else}}
+<div class="comment-wwedit-wrapper" id="comment-edit-wrapper-{{$id}}">
+{{/if}}
+	<form class="comment-edit-form" data-item-id="{{$id}}" id="comment-edit-form-{{$id}}" action="item" method="post">
+		<input type="hidden" name="profile_uid" value="{{$profile_uid}}" />
+		<input type="hidden" name="parent" value="{{$parent}}" />
+		{{*<!--<input type="hidden" name="return" value="{{$return_path}}" />-->*}}
+		<input type="hidden" name="jsreload" value="{{$jsreload}}" />
+		<input type="hidden" name="post_id_random" value="{{$rand_num}}" />
+
+		<p class="comment-edit-bb-{{$id}} comment-icon-list">
+			<span class="btn-group">
+				<button type="button" class="btn btn-default bb-img" style="cursor: pointer;" aria-label="{{$edimg}}" title="{{$edimg}}" data-role="insert-formatting" data-bbcode="img" data-id="{{$id}}">
+					<i class="ri ri-image-line"></i>
+				</button>
+				<button type="button" class="btn btn-default bb-attach" style="cursor: pointer;" aria-label="{{$edattach}}" title="{{$edattach}}" ondragenter="return commentLinkDrop(event, {{$id}});" ondragover="return commentLinkDrop(event, {{$id}});" ondrop="commentLinkDropper(event);" onclick="commentGetLink({{$id}}, '{{$prompttext}}');">
+					<i class="ri ri-attachment-2"></i>
+				</button>
+			</span>
+			<span class="btn-group">
+				<button type="button" class="btn btn-default bb-url" style="cursor: pointer;" aria-label="{{$edurl}}" title="{{$edurl}}" onclick="insertFormatting('url',{{$id}});">
+					<i class="ri ri-link"></i>
+				</button>
+				<button type="button" class="btn btn-default underline" style="cursor: pointer;" aria-label="{{$eduline}}" title="{{$eduline}}" onclick="insertFormatting('u',{{$id}});">
+					<i class="ri ri-underline"></i>
+				</button>
+				<button type="button" class="btn btn-default italic" style="cursor: pointer;" aria-label="{{$editalic}}" title="{{$editalic}}" onclick="insertFormatting('i',{{$id}});">
+					<i class="ri ri-italic"></i>
+				</button>
+				<button type="button" class="btn btn-default bold" style="cursor: pointer;" aria-label="{{$edbold}}" title="{{$edbold}}" onclick="insertFormatting('b',{{$id}});">
+					<i class="ri ri-bold"></i>
+				</button>
+				<button type="button" class="btn btn-default quote" style="cursor: pointer;" aria-label="{{$edquote}}" title="{{$edquote}}" onclick="insertFormatting('quote',{{$id}});">
+					<i class="ri ri-double-quotes-l"></i>
+				</button>
+				<button type="button" class="btn btn-default emojis" style="cursor: pointer;" aria-label="{{$edemojis}}" title="{{$edemojis}}">
+					<i class="ri ri-emotion-line"></i>
+				</button>
+				<button type="button" class="btn btn-default eye" style="cursor: pointer;" aria-label="{{$contentwarn}}" title="{{$contentwarn}}" onclick="insertFormatting('abstract',{{$id}});">
+					<i class="ri ri-eye-line"></i>
+				</button>
+				<button type="button" class="btn btn-default code" style="cursor: pointer;" aria-label="{{$edcode}}" title="{{$edcode}}" onclick="insertFormatting('code',{{$id}});">
+					<i class="ri ri-code-line"></i>
+				</button>
+			</span>
+			</p>
+			<div id="dropzone-{{$id}}" class="dropzone">
+				<p>
+					<textarea id="comment-edit-text-{{$id}}" class="dropzone comment-edit-text-empty form-control text-autosize" name="body" placeholder="{{$comment}}" rows="8" data-default="{{$default}}" dir="auto" onkeydown="sendOnCtrlEnter(event, 'comment-edit-submit-{{$id}}')">{{$default}}</textarea>
+				</p>
+			</div>
+	{{if $qcomment}}
+			<p>
+			<select id="qcomment-select-{{$id}}" name="qcomment-{{$id}}" class="qcomment" onchange="qCommentInsert(this,{{$id}});">
+				<option value=""></option>
+	{{foreach $qcomment as $qc}}
+				<option value="{{$qc}}">{{$qc}}</option>
+	{{/foreach}}
+			</select>
+		</p>
+{{/if}}
+		<p class="comment-edit-submit-wrapper">
+			<select id="jot-language-{{$id}}" class="form-control jot-language" title="{{$language_label}}" aria-label="{{$language_label}}">
+				{{foreach $languages as $code => $name}}
+					<option value="{{$code}}"{{if $code == $language}} selected{{/if}}>{{$name}}</option>
+				{{/foreach}}
+			</select>
+			<span id="character-counter-{{$id}}" class="grey text-info"></span>
+{{if $preview}}
+			<button type="button" class="btn btn-default comment-edit-preview" onclick="preview_comment({{$id}});" id="comment-edit-preview-link-{{$id}}"><i class="ri ri-eye-line"></i> {{$preview}}</button>
+{{/if}}
+			<button type="submit" class="btn btn-primary comment-edit-submit" id="comment-edit-submit-{{$id}}" name="submit" data-loading-text="{{$loading}}"><i class="ri ri-send-plane-line"></i> {{$submit}}</button>
+		</p>
+
+		<div class="comment-edit-end clear"></div>
+	</form>
+	<div id="comment-edit-preview-{{$id}}" class="comment-edit-preview" style="display:none;"></div>
+</div>
+
+<script>
+	$('[id=comment-fake-text-{{$id}}]').on('focus', function() {
+		dzFactory.setupDropzone('#dropzone-{{$id}}', 'comment-edit-text-{{$id}}');
+		$('[id=comment-fake-text-{{$id}}]').prop('focus', null).off('focus');
+		$('[id=comment-{{$id}}]').prop('click', null).off('click');
+	});
+	$('[id=comment-{{$id}}]').on('click', function() {
+		dzFactory.setupDropzone('#dropzone-{{$id}}', 'comment-edit-text-{{$id}}');
+		$('[id=comment-fake-text-{{$id}}]').prop('focus', null).off('focus');
+		$('[id=comment-{{$id}}]').prop('click', null).off('click');
+	});
+
+	$('#comment-edit-text-{{$id}}').off('keyup.comment-counter').on('keyup.comment-counter', function () {
+		$('#character-counter-{{$id}}').text($(this).val().length);
+	});
+	initLanguageDetection($('#comment-edit-text-{{$id}}'), $('#jot-language-{{$id}}'), 'keyup');
+</script>

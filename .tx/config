@@ -1,0 +1,13 @@
+# SPDX-FileCopyrightText: 2010-2026 the Friendica project
+#
+# SPDX-License-Identifier: CC0-1.0
+
+[main]
+host = https://api.transifex.com
+
+[o:Friendica:p:friendica:r:messagespo]
+file_filter = view/lang/<lang>/messages.po
+source_file = view/lang/C/messages.po
+source_lang = en
+type        = PO
+

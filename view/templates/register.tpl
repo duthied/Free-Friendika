@@ -1,0 +1,129 @@
+{{*
+  * Copyright (C) 2010-2026, the Friendica project
+  * SPDX-FileCopyrightText: 2010-2026 the Friendica project
+  *
+  * SPDX-License-Identifier: AGPL-3.0-or-later
+  *}}
+
+{{* Display system messages *}}
+{{if $notices}}
+	{{foreach $notices as $notice}}
+		<div class="alert alert-warning" role="alert">{{$notice}}</div>
+	{{/foreach}}
+{{/if}}
+
+<h3>{{$regtitle}}</h3>
+
+<form action="register" method="post" id="register-form">
+
+	<input type="hidden" name="photo" value="{{$photo}}" />
+	<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
+
+	{{if $registertext != ""}}<div class="error-message">{{$registertext nofilter}} </div>{{/if}}
+
+	{{if $explicit_content}} <p id="register-explicit-content">{{$explicit_content_note}}</p> {{/if}}
+
+	<p id="register-fill-desc">{{$fillwith}}</p>
+	<p id="register-fill-ext">{{$fillext}}</p>
+
+{{if $oidlabel}}
+	<div id="register-openid-wrapper">
+	<label for="register-openid" id="label-register-openid">{{$oidlabel}}</label><input type="text" maxlength="60" name="openid_url" class="openid" id="register-openid" value="{{$openid}}">
+	</div>
+	<div id="register-openid-end"></div>
+{{/if}}
+
+{{if $invitations}}
+	<p id="register-invite-desc">{{$invite_desc nofilter}}</p>
+	<div id="register-invite-wrapper">
+		<label for="register-invite" id="label-register-invite">{{$invite_label}}</label>
+		<input type="text" maxlength="60" name="invite_id" id="register-invite" value="{{$invite_id}}">
+	</div>
+	<div id="register-name-end"></div>
+{{/if}}
+
+	<div id="register-name-wrapper">
+		<label for="register-name" id="label-register-name">{{$namelabel}}</label>
+		<input type="text" maxlength="60" name="username" id="register-name" value="{{$username}}" required>
+	</div>
+	<div id="register-name-end"></div>
+
+
+	{{if !$additional}}
+		<div id="register-email-wrapper">
+			<label for="register-email" id="label-register-email">{{$addrlabel}}</label>
+			<input type="email" autocomplete="email" maxlength="60" name="field1" id="register-email" value="{{$email}}" required>
+		</div>
+		<div id="register-email-end"></div>
+
+		<div id="register-repeat-wrapper">
+			<label for="register-repeat" id="label-register-repeat">{{$addrlabel2}}</label>
+			<input type="email" autocomplete="email" maxlength="60" name="repeat" id="register-repeat" value="" required>
+		</div>
+		<div id="register-repeat-end"></div>
+	{{/if}}
+
+{{if $ask_password}}
+	{{include file="field_password.tpl" field=$password1}}
+	{{include file="field_password.tpl" field=$password2}}
+{{/if}}
+
+	<p id="register-nickname-desc">{{$nickdesc nofilter}}</p>
+
+	<div id="register-nickname-wrapper">
+		<label for="register-nickname" id="label-register-nickname">{{$nicklabel}}</label>
+		<input type="text" maxlength="60" name="nickname" id="register-nickname" value="{{$nickname}}" required><div id="register-sitename">@{{$sitename}}</div>
+	</div>
+	<div id="register-nickname-end"></div>
+
+	{{include file="field_custom.tpl" field=$timezone}}
+	{{include file="field_select.tpl" field=$language}}
+
+	<input type="input" id=tarpit" name="email" style="display: none;" placeholder="Don't enter anything here"/>
+
+	{{if $additional}}
+		<div id="register-type-wrapper" class="form-group">
+			{{include file="field_select.tpl" field=$acct_type}}
+		</div>
+		<div id="register-type-end"></div>	
+		{{assign var="label" value="true"}}
+		{{include file="field_password.tpl" field=$parent_password}}
+	{{/if}}
+
+{{if $permonly}}
+	{{include file="field_textarea.tpl" field=$permonlybox}}
+{{/if}}
+
+	{{$publish nofilter}}
+
+{{if $showtoslink}}
+	<p><a href="{{$baseurl}}/tos">{{$tostext}}</a></p>
+{{/if}}
+{{if $showprivstatement}}
+	<h4>{{$privstatement.0}}</h4>
+	{{for $i=1 to 3}}
+	<p>{{$privstatement[$i] nofilter}}</p>
+	{{/for}}
+{{/if}}
+
+	<div id="register-submit-wrapper">
+		<input type="submit" name="submit" id="register-submit-button" value="{{$regbutt}}" />
+	</div>
+	<div id="register-submit-end"></div>
+
+	{{if !$additional}}
+		<h3>{{$importh}}</h3>
+		<div id ="import-profile">
+			<a href="user/import" class="button">{{$importt}}</a>
+		</div>
+	{{/if}}
+<script>
+	(function () {
+		var select = document.getElementById('timezone_select');
+		var timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+		if (select && timezone && Array.prototype.some.call(select.options, function (option) { return option.value === timezone; })) {
+			select.value = timezone;
+		}
+	})();
+</script>
+</form>

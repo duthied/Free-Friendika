@@ -1,0 +1,190 @@
+<?php
+
+// Copyright (C) 2010-2026, the Friendica project
+// SPDX-FileCopyrightText: 2010-2026 the Friendica project
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+namespace Friendica\Core\Cache\Type;
+
+use Friendica\Core\Cache\Enum\Duration;
+use Friendica\Core\Cache\Capability\ICanCacheInMemory;
+use Friendica\Core\Cache\Exception\CachePersistenceException;
+use Friendica\Core\Cache\Exception\InvalidCacheDriverException;
+use Friendica\Core\Config\Capability\IManageConfigValues;
+use Memcached;
+use Psr\Log\LoggerInterface;
+
+/**
+ * Memcached Cache
+ */
+class MemcachedCache extends AbstractCache implements ICanCacheInMemory
+{
+	use CompareSetTrait;
+	use CompareDeleteTrait;
+	use MemcacheCommandTrait;
+	public const NAME = 'memcached';
+
+	/**
+	 * @var \Memcached
+	 */
+	private $memcached;
+
+	/**
+	 * Due to limitations of the INI format, the expected configuration for Memcached servers is the following:
+	 * array {
+	 *   0 => "hostname, port(, weight)",
+	 *   1 => ...
+	 * }
+	 *
+	 * @param string              $hostname
+	 * @param IManageConfigValues $config
+	 * @param LoggerInterface     $logger
+	 *
+	 * @throws InvalidCacheDriverException
+	 * @throws CachePersistenceException
+	 */
+	public function __construct(string $hostname, IManageConfigValues $config, private LoggerInterface $logger)
+	{
+		if (!class_exists('Memcached', false)) {
+			throw new InvalidCacheDriverException('Memcached class isn\'t available');
+		}
+
+		parent::__construct($hostname);
+
+		$this->memcached = new Memcached();
+
+		$memcached_hosts = $config->get('system', 'memcached_hosts');
+
+		array_walk($memcached_hosts, function (&$value): void {
+			if (is_string($value)) {
+				$value = array_map(trim(...), explode(',', $value));
+			}
+		});
+
+		$this->server = $memcached_hosts[0][0] ?? 'localhost';
+		$this->port   = $memcached_hosts[0][1] ?? 11211;
+
+		$this->memcached->addServers($memcached_hosts);
+
+		if (count($this->memcached->getServerList()) == 0) {
+			throw new CachePersistenceException('Expected Memcached servers aren\'t available, config:' . var_export($memcached_hosts, true));
+		}
+	}
+
+	/**
+	 * Memcached doesn't allow spaces in keys
+	 *
+	 * @param string $key
+	 * @return string
+	 */
+	protected function getCacheKey(string $key): string
+	{
+		return str_replace(' ', '_', parent::getCacheKey($key));
+	}
+
+	/**
+	 * (@inheritdoc)
+	 */
+	public function getAllKeys(?string $prefix = null): array
+	{
+		$keys = $this->getOriginalKeys($this->getMemcacheKeys());
+
+		return $this->filterArrayKeysByPrefix($keys, $prefix);
+	}
+
+	/**
+	 * (@inheritdoc)
+	 */
+	public function get(string $key)
+	{
+		$cacheKey = $this->getCacheKey($key);
+
+		// We fetch with the hostname as key to avoid problems with other applications
+		$value = $this->memcached->get($cacheKey);
+
+		if ($this->memcached->getResultCode() === Memcached::RES_SUCCESS) {
+			return $value;
+		} elseif ($this->memcached->getResultCode() === Memcached::RES_NOTFOUND) {
+			$this->logger->debug('Try to use unknown key.', ['key' => $key]);
+			return null;
+		} else {
+			throw new CachePersistenceException(sprintf('Cannot get cache entry with key %s', $key), new \MemcachedException($this->memcached->getResultMessage(), $this->memcached->getResultCode()));
+		}
+	}
+
+	/**
+	 * (@inheritdoc)
+	 */
+	public function set(string $key, $value, int $ttl = Duration::FIVE_MINUTES): bool
+	{
+		$cacheKey = $this->getCacheKey($key);
+
+		// We store with the hostname as key to avoid problems with other applications
+		if ($ttl > 0) {
+			return $this->memcached->set(
+				$cacheKey,
+				$value,
+				$ttl,
+			);
+		} else {
+			return $this->memcached->set(
+				$cacheKey,
+				$value,
+			);
+		}
+	}
+
+	/**
+	 * (@inheritdoc)
+	 */
+	public function delete(string $key): bool
+	{
+		$cacheKey = $this->getCacheKey($key);
+		return $this->memcached->delete($cacheKey);
+	}
+
+	/**
+	 * (@inheritdoc)
+	 */
+	public function clear(bool $outdated = true): bool
+	{
+		if ($outdated) {
+			return true;
+		} else {
+			return $this->memcached->flush();
+		}
+	}
+
+	/**
+	 * (@inheritdoc)
+	 */
+	public function add(string $key, $value, int $ttl = Duration::FIVE_MINUTES): bool
+	{
+		$cacheKey = $this->getCacheKey($key);
+		return $this->memcached->add($cacheKey, $value, $ttl);
+	}
+
+	/** {@inheritDoc} */
+	public function getStats(): array
+	{
+		$stats = $this->memcached->getStats();
+
+		// get statistics of the first instance
+		foreach ($stats as $value) {
+			$stats = $value;
+			break;
+		}
+
+		return [
+			'version'           => $stats['version']          ?? null,
+			'entries'           => $stats['curr_items']       ?? null,
+			'used_memory'       => $stats['bytes']            ?? null,
+			'uptime'            => $stats['uptime']           ?? null,
+			'connected_clients' => $stats['curr_connections'] ?? null,
+			'hits'              => $stats['get_hits']         ?? null,
+			'misses'            => $stats['get_misses']       ?? null,
+			'evictions'         => $stats['evictions']        ?? null,
+		];
+	}
+}

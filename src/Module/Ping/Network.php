@@ -1,0 +1,151 @@
+<?php
+
+// Copyright (C) 2010-2026, the Friendica project
+// SPDX-FileCopyrightText: 2010-2026 the Friendica project
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+namespace Friendica\Module\Ping;
+
+use Friendica\App\Arguments;
+use Friendica\App\BaseURL;
+use Friendica\App\Mode;
+use Friendica\App\Page;
+use Friendica\AppHelper;
+use Friendica\Content\Conversation\ConversationRenderer;
+use Friendica\Content\Conversation\StatusEditor;
+use Friendica\Content\Conversation\Factory\Timeline as TimelineFactory;
+use Friendica\Content\Conversation\Factory\Activity as ActivityFactory;
+use Friendica\Content\Conversation\Repository\UserDefinedChannel;
+use Friendica\Content\Conversation\Factory\Channel as ChannelFactory;
+use Friendica\Content\Conversation\Factory\UserDefinedChannel as UserDefinedChannelFactory;
+use Friendica\Content\Conversation\Factory\Community as CommunityFactory;
+use Friendica\Content\Conversation\Factory\Network as NetworkFactory;
+use Friendica\Content\GroupManager;
+use Friendica\Content\PagesManager;
+use Friendica\Content\Widget\SidebarMenu;
+use Friendica\Core\Cache\Capability\ICanCache;
+use Friendica\Core\Config\Capability\IManageConfigValues;
+use Friendica\Core\L10n;
+use Friendica\Core\Lock\Capability\ICanLock;
+use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
+use Friendica\Core\System;
+use Friendica\Database\Database;
+use Friendica\Module\Conversation\Network as NetworkModule;
+use Friendica\Module\Response;
+use Friendica\Navigation\SystemMessages;
+use Friendica\Util\Profiler;
+use Psr\EventDispatcher\EventDispatcherInterface;
+use Psr\Log\LoggerInterface;
+
+class Network extends NetworkModule
+{
+	public function __construct(
+		private readonly ICanLock $lock,
+		UserDefinedChannelFactory $userDefinedChannel,
+		NetworkFactory $network,
+		CommunityFactory $community,
+		ChannelFactory $channelFactory,
+		UserDefinedChannel $channel,
+		AppHelper $appHelper,
+		EventDispatcherInterface $eventDispatcher,
+		TimelineFactory $timeline,
+		SystemMessages $systemMessages,
+		Mode $mode,
+		ConversationRenderer $conversationRenderer,
+		StatusEditor $statusEditor,
+		private readonly GroupManager $groupManager,
+		private readonly PagesManager $pagesManager,
+		Page $page,
+		SidebarMenu $sidebarMenu,
+		IHandleUserSessions $session,
+		Database $database,
+		IManagePersonalConfigValues $pConfig,
+		IManageConfigValues $config,
+		ICanCache $cache,
+		ActivityFactory $ActivityFactory,
+		L10n $l10n,
+		BaseURL $baseUrl,
+		Arguments $args,
+		LoggerInterface $logger,
+		Profiler $profiler,
+		Response $response,
+		array $server,
+		array $parameters = [],
+	) {
+		parent::__construct(
+			$userDefinedChannel,
+			$network,
+			$community,
+			$channelFactory,
+			$channel,
+			$appHelper,
+			$eventDispatcher,
+			$timeline,
+			$systemMessages,
+			$mode,
+			$conversationRenderer,
+			$statusEditor,
+			$groupManager,
+			$pagesManager,
+			$page,
+			$sidebarMenu,
+			$session,
+			$database,
+			$pConfig,
+			$config,
+			$cache,
+			$ActivityFactory,
+			$l10n,
+			$baseUrl,
+			$args,
+			$logger,
+			$profiler,
+			$response,
+			$server,
+			$parameters,
+		);
+	}
+
+	protected function rawContent(array $request = [])
+	{
+		if (!$this->session->getLocalUserId()) {
+			System::exit();
+		}
+
+		if (!empty($request['ping'])) {
+			$request = $this->getTimelineRequestBySession();
+		}
+
+		if (!isset($request['p']) || !isset($request['item'])) {
+			System::exit();
+		}
+
+		$this->parseRequest($request);
+
+		if ($this->force || !is_null($this->maxId)) {
+			$this->earlyHttpExit('');
+		}
+
+		$lockkey = 'network-ping-' . $this->session->getLocalUserId() . '-' . md5(json_encode([$this->selectedTab, $this->parameters]));
+		if (!$this->lock->acquire($lockkey, 0)) {
+			$this->logger->debug('Ping-1-lock', ['uid' => $this->session->getLocalUserId()]);
+			$this->earlyHttpExit('');
+		}
+
+		$this->setPing(true);
+		$this->itemsPerPage = 100;
+
+		if ($this->channel->isTimeline($this->selectedTab) || $this->userDefinedChannel->isTimeline($this->selectedTab, $this->session->getLocalUserId())) {
+			$items = $this->getChannelItems($request, $this->session->getLocalUserId());
+		} elseif ($this->community->isTimeline($this->selectedTab)) {
+			$items = $this->getCommunityItems();
+		} else {
+			$items = $this->getItems();
+		}
+		$this->lock->release($lockkey);
+		$count = count($items);
+		$this->earlyHttpExit(($count < 100) ? $count : '99+');
+	}
+}

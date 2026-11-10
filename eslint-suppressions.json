@@ -1,0 +1,159 @@
+{
+  "mods/bookmarklet-share2friendica/bookmarklet-share2friendica.js": {
+    "no-undef": {
+      "count": 6
+    },
+    "no-unused-labels": {
+      "count": 1
+    }
+  },
+  "view/js/dropzone-factory.js": {
+    "no-undef": {
+      "count": 1
+    }
+  },
+  "view/js/loading-indicator.js": {
+    "no-undef": {
+      "count": 2
+    }
+  },
+  "view/js/main.js": {
+    "eqeqeq": {
+      "count": 16
+    },
+    "no-empty": {
+      "count": 1
+    },
+    "no-self-assign": {
+      "count": 2
+    },
+    "no-undef": {
+      "count": 53
+    },
+    "no-unused-vars": {
+      "count": 2
+    },
+    "no-use-before-define": {
+      "count": 1
+    },
+    "no-useless-assignment": {
+      "count": 1
+    },
+    "no-useless-escape": {
+      "count": 2
+    }
+  },
+  "view/js/module/admin/logs/view.js": {
+    "eqeqeq": {
+      "count": 2
+    }
+  },
+  "view/theme/frio/js/advancedcomposer-analysis.js": {
+    "no-empty": {
+      "count": 1
+    },
+    "no-useless-escape": {
+      "count": 1
+    }
+  },
+  "view/theme/frio/js/advancedcomposer-distraction.js": {
+    "no-empty": {
+      "count": 1
+    }
+  },
+  "view/theme/frio/js/advancedcomposer-layout.js": {
+    "no-empty": {
+      "count": 1
+    }
+  },
+  "view/theme/frio/js/advancedcomposer-panel.js": {
+    "no-empty": {
+      "count": 2
+    }
+  },
+  "view/theme/frio/js/advancedcomposer-preview.js": {
+    "no-empty": {
+      "count": 1
+    },
+    "no-undef": {
+      "count": 2
+    },
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "view/theme/frio/js/advancedcomposer-toggle.js": {
+    "no-empty": {
+      "count": 1
+    }
+  },
+  "view/theme/frio/js/advancedcomposer-watchers.js": {
+    "no-empty": {
+      "count": 6
+    },
+    "no-undef": {
+      "count": 1
+    }
+  },
+  "view/theme/frio/js/advancedcomposer.js": {
+    "no-unused-vars": {
+      "count": 1
+    }
+  },
+  "view/theme/frio/js/hovercard.js": {
+    "no-unused-vars": {
+      "count": 1
+    },
+    "no-useless-assignment": {
+      "count": 1
+    }
+  },
+  "view/theme/frio/js/mod_admin.js": {
+    "no-undef": {
+      "count": 8
+    }
+  },
+  "view/theme/frio/js/mod_events.js": {
+    "eqeqeq": {
+      "count": 2
+    },
+    "no-useless-assignment": {
+      "count": 1
+    }
+  },
+  "view/theme/frio/js/modal.js": {
+    "no-useless-assignment": {
+      "count": 1
+    }
+  },
+  "view/theme/frio/js/module/admin/logs/view.js": {
+    "eqeqeq": {
+      "count": 6
+    },
+    "no-prototype-builtins": {
+      "count": 1
+    },
+    "no-redeclare": {
+      "count": 1
+    },
+    "no-useless-assignment": {
+      "count": 1
+    }
+  },
+  "view/theme/frio/js/textedit.js": {
+    "no-undef": {
+      "count": 8
+    }
+  },
+  "view/theme/frio/js/theme.js": {
+    "eqeqeq": {
+      "count": 11
+    },
+    "no-redeclare": {
+      "count": 6
+    },
+    "no-undef": {
+      "count": 7
+    }
+  }
+}

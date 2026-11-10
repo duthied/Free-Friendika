@@ -1,0 +1,141 @@
+<?php
+
+// Copyright (C) 2010-2026, the Friendica project
+// SPDX-FileCopyrightText: 2010-2026 the Friendica project
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+namespace Friendica\Factory\Api\Friendica;
+
+use Friendica\App\BaseURL;
+use Friendica\BaseFactory;
+use Friendica\Database\DBA;
+use Friendica\Factory\Api\Twitter\Status;
+use Friendica\Model\Item;
+use Friendica\Model\Photo as ModelPhoto;
+use Friendica\Model\Post;
+use Friendica\Network\HTTPException;
+use Psr\Log\LoggerInterface;
+use Friendica\Util\Images;
+
+class Photo extends BaseFactory
+{
+	public function __construct(LoggerInterface $logger, private readonly BaseURL $baseUrl, private readonly Status $status, private readonly Activities $activities)
+	{
+		parent::__construct($logger);
+	}
+
+	/**
+	 * @param string $photo_id
+	 * @param int|null    $scale
+	 * @param int    $uid
+	 * @param string $type
+	 */
+	public function createFromId(string $photo_id, ?int $scale, int $uid, string $type = 'json', bool $with_posts = true): array
+	{
+		$fields = ['resource-id', 'created', 'edited', 'title', 'desc', 'album', 'filename','type',
+			'height', 'width', 'datasize', 'profile', 'allow_cid', 'deny_cid', 'allow_gid', 'deny_gid',
+			'backend-class', 'backend-ref', 'id', 'scale'];
+
+		$condition = ['uid' => $uid, 'resource-id' => $photo_id];
+		if (is_int($scale)) {
+			$fields = array_merge(['data'], $fields);
+
+			$condition['scale'] = $scale;
+		}
+
+		$photos = ModelPhoto::selectToArray($fields, $condition);
+		if (empty($photos)) {
+			throw new HTTPException\NotFoundException();
+		}
+		$data = $photos[0];
+
+		$data['media-id'] = $data['id'];
+		$data['id']       = $data['resource-id'];
+
+		if (is_int($scale)) {
+			$data['data'] = base64_encode(ModelPhoto::getImageDataForPhoto($data) ?? '');
+		}
+
+		if ($type == 'xml') {
+			$data['links'] = [];
+		} else {
+			$data['link'] = [];
+		}
+
+		foreach ($photos as $id => $photo) {
+			$link = $this->baseUrl . '/photo/' . $data['resource-id'] . '-' . $photo['scale'] . Images::getExtensionByMimeType($data['type']);
+			if ($type == 'xml') {
+				$data['links'][$photo['scale'] . ':link']['@attributes'] = [
+					'type'  => $data['type'],
+					'scale' => $photo['scale'],
+					'href'  => $link,
+				];
+			} else {
+				$data['link'][$id] = $link;
+			}
+			if (is_null($scale)) {
+				$data['scales'][] = [
+					'id'     => $photo['id'],
+					'scale'  => $photo['scale'],
+					'link'   => $link,
+					'width'  => $photo['width'],
+					'height' => $photo['height'],
+					'size'   => $photo['datasize'],
+				];
+			}
+		}
+
+		unset($data['backend-class']);
+		unset($data['backend-ref']);
+		unset($data['resource-id']);
+
+		if ($with_posts) {
+			// retrieve item element for getting activities (like, dislike etc.) related to photo
+			$condition = ['uid' => $uid, 'resource-id' => $photo_id];
+
+			$item = Post::selectFirst(['id', 'uid', 'uri', 'uri-id', 'parent', 'allow_cid', 'deny_cid', 'allow_gid', 'deny_gid'], $condition);
+		}
+		if (!empty($item)) {
+			$data['friendica_activities'] = $this->activities->createFromUriId($item['uri-id'], $item['uid'], $type);
+
+			// retrieve comments on photo
+			$condition = ["`parent` = ? AND `uid` = ? AND `gravity` IN (?, ?)",
+				$item['parent'], $uid, Item::GRAVITY_PARENT, Item::GRAVITY_COMMENT];
+
+			$statuses = Post::selectForUser($uid, [], $condition);
+
+			// prepare output of comments
+			$commentData = [];
+			while ($status = DBA::fetch($statuses)) {
+				$commentData[] = $this->status->createFromUriId($status['uri-id'], $status['uid'])->toArray();
+			}
+			DBA::close($statuses);
+
+			$comments = [];
+			if ($type == 'xml') {
+				$k = 0;
+				foreach ($commentData as $comment) {
+					$comments[$k++ . ':comment'] = $comment;
+				}
+			} else {
+				foreach ($commentData as $comment) {
+					$comments[] = $comment;
+				}
+			}
+			$data['friendica_comments'] = $comments;
+
+			// include info if rights on photo and rights on item are mismatching
+			$data['rights_mismatch'] = $data['allow_cid'] != $item['allow_cid']
+				|| $data['deny_cid'] != $item['deny_cid']
+				|| $data['allow_gid'] != $item['allow_gid']
+				|| $data['deny_gid'] != $item['deny_gid'];
+		} elseif ($with_posts) {
+			$data['friendica_activities'] = [];
+			$data['friendica_comments']   = [];
+			$data['rights_mismatch']      = false;
+		}
+
+		return $data;
+	}
+}

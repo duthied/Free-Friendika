@@ -1,0 +1,1988 @@
+/*
+ * SPDX-FileCopyrightText: 2010-2026 the Friendica project
+ *
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
+
+/* Mobile Layout Adjustments
+   ==========================================================================
+   On mobile devices (max-width: 767px), show essential Advanced Composer functions
+   but with a compact, touch-friendly layout. Zen mode and split preview are
+   disabled on mobile due to screen space constraints. */
+@media (max-width: 767px) {
+	/* Hide secondary toggles on mobile - only show main toggle */
+	#easy-compose-distraction-toggle,
+	#easy-compose-focus-preview-toggle,
+	#easy-compose-ep-zen-toggle {
+		display: none !important;
+	}
+	
+	/* Show main toggle and buttons on mobile */
+	#easy-compose-toggle {
+		display: inline-flex !important;
+	}
+	
+	/* Mobile layout for panel - single column, compact */
+	.easy-compose-panel {
+		margin-top: 12px !important;
+		margin-bottom: 8px !important;
+		padding: 14px !important;
+		font-size: 13px !important;
+	}
+	
+	/* Mobile grid - single column */
+	.ec-body {
+		grid-template-columns: 1fr !important;
+		gap: 12px !important;
+	}
+	
+	/* Mobile: split layout becomes vertical */
+	.ec-split-layout {
+		grid-template-columns: 1fr !important;
+		column-gap: 0 !important;
+		row-gap: 16px !important;
+	}
+	
+	/* Preview on mobile: below editor, limited height */
+	.ec-split-layout > .comment-edit-preview,
+	.ec-split-layout > [id^="comment-edit-preview-"],
+	.ec-split-layout > #jot-preview-content {
+		grid-column: 1 !important;
+		order: 3 !important;
+		height: 300px !important;
+		max-height: 300px !important;
+		min-height: 200px !important;
+	}
+	
+	/* Textarea height for mobile */
+	.ec-split-layout .comment-edit-text,
+	.ec-split-layout [id^="comment-edit-text-"],
+	.ec-split-layout .profile-jot-text {
+		height: 250px !important;
+		min-height: 200px !important;
+		max-height: 280px !important;
+	}
+}
+
+/* ==========================================================================
+   ACCESSIBILITY: Focus Styles & Touch Targets
+   ========================================================================== */
+
+/* Focus Styles for Keyboard Navigation (WCAG 2.4.7 Focus Visible) */
+/* Apply to all interactive elements that can receive keyboard focus */
+#easy-compose-toggle:focus,
+#easy-compose-distraction-toggle:focus,
+#easy-compose-focus-preview-toggle:focus,
+#easy-compose-ep-zen-toggle:focus,
+.easy-compose-btn:focus,
+.ec-close-btn:focus,
+.ec-device-btn:focus,
+.ec-preview-close-btn:focus,
+.ec-preview-refresh-btn:focus,
+.easy-compose-panel:focus,
+.ec-toolbar-clone:focus,
+.ec-checklist-item:focus,
+button.easy-compose-btn:focus,
+.btn-toolbar.ec-toolbar-active button.easy-compose-btn:focus,
+.btn-toolbar.ec-toolbar-active .easy-compose-btn:focus {
+	outline: 2px solid var(--link-color, #3498db) !important;
+	outline-offset: 2px !important;
+	box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.25) !important;
+}
+
+/* Focus styles for input elements and textareas */
+.ep-input:focus,
+textarea.comment-edit-text:focus,
+textarea.profile-jot-text:focus,
+#jot-text-wrap textarea:focus {
+	outline: 2px solid var(--link-color, #3498db) !important;
+	outline-offset: 1px !important;
+	box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15) !important;
+	/* Remove problematic outline: none for accessibility */
+}
+
+/* Remove outline: none declarations and replace with proper focus handling */
+textarea.comment-edit-text,
+textarea.profile-jot-text,
+.ep-input {
+	/* Replace outline: none with transparent outline that becomes visible on focus */
+	outline: 2px solid transparent !important;
+	outline-offset: 1px !important;
+	transition: outline-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+/* Touch Target Sizes (WCAG 2.5.5 Target Size - minimum 44x44px) */
+/* Note: Touch target improvements are now integrated into the main button definitions above */
+
+/* Assistant Panel Layout */
+.easy-compose-panel {
+	margin-top: 16px;
+	margin-bottom: 12px;
+	padding: 20px;
+	border: 1px solid var(--border-color, rgba(128, 128, 128, 0.2)) !important;
+	border-radius: 14px;
+	background-color: var(--box-background-color, var(--background-color, #ffffff)) !important;
+	color: var(--text-color, #333) !important;
+	font-size: 14px !important;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
+	overflow: visible;
+	transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+	            opacity 0.3s ease, 
+	            padding 0.4s ease, 
+	            margin 0.4s ease;
+	max-height: 2000px;
+	opacity: 1;
+}
+
+/* Slide-up Collapsed State */
+.easy-compose-panel.collapsed {
+	max-height: 0px;
+	overflow: hidden; /* keep hidden during collapse animation */
+	opacity: 0;
+	padding-top: 0px;
+	padding-bottom: 0px;
+	margin-top: 0px;
+	margin-bottom: 0px;
+	border-color: transparent;
+	pointer-events: none;
+}
+
+/* Header Elements */
+.ec-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	border-bottom: 1px solid var(--border-color, rgba(128, 128, 128, 0.18));
+	padding-bottom: 12px;
+	margin-bottom: 16px;
+}
+
+.ec-header-title {
+	display: flex;
+	flex-direction: row;
+	align-items: baseline;
+	flex-wrap: wrap;
+}
+
+.ec-title-text {
+	font-size: 15px !important;
+	font-weight: 700;
+	letter-spacing: -0.3px;
+	color: var(--text-color, #222) !important;
+}
+
+.ec-subtitle-text {
+	font-size: 14px !important;
+	color: var(--text-color-muted, #666) !important;
+	margin-left: 8px;
+	font-weight: 400;
+}
+
+.ec-close-btn {
+	background: none !important;
+	border: none !important;
+	font-size: 20px !important;
+	font-weight: 300 !important;
+	color: var(--text-color-muted, #999) !important;
+	cursor: pointer !important;
+	padding: 8px 12px !important; /* WCAG 2.5.5: better touch target */
+	min-height: 40px !important;
+	min-width: 40px !important;
+	line-height: 1.2 !important; /* Better vertical alignment */
+	transition: color 0.2s ease, background-color 0.2s ease !important;
+}
+
+.ec-close-btn:hover {
+	color: #e74c3c !important;
+}
+
+/* Character counter embedded in the panel header */
+.ec-char-count {
+	margin-left: auto;
+	margin-right: 12px;
+	display: inline-flex;
+	align-items: center;
+	font-size: 13px !important;
+	font-weight: 600 !important;
+	color: var(--text-color, #555) !important;
+	background: var(--border-color, rgba(128, 128, 128, 0.12)) !important;
+	border-radius: 10px !important;
+	padding: 2px 10px !important;
+	letter-spacing: 0.2px !important;
+	white-space: nowrap !important;
+}
+
+/* Hide native character counter when the Advanced Composer panel is expanded */
+.easy-compose-panel:not(.collapsed) ~ #character-counter,
+#easy-compose-panel:not(.collapsed) ~ #character-counter {
+	display: none !important;
+}
+
+/* Body Grid (2 columns on desktop) */
+.ec-body {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 20px;
+}
+
+@media (max-width: 768px) {
+	.ec-body {
+		grid-template-columns: 1fr;
+		gap: 16px;
+	}
+}
+
+/* Sections */
+.ec-section {
+	display: flex;
+	flex-direction: column;
+}
+
+/* Readability & Style tips span the full width below the two-column sections */
+.ec-section.ec-tips {
+	grid-column: 1 / -1;
+}
+
+.ec-section-title {
+	font-size: 11px !important;
+	font-weight: 700;
+	color: var(--text-color-muted, #666) !important;
+	text-transform: uppercase;
+	letter-spacing: 0.9px;
+	margin-bottom: 14px;
+	margin-top: 8px;
+	opacity: 0.85;
+}
+
+/* Progress Bars & Indicators */
+.ec-indicator-group {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.ec-indicator {
+	display: flex;
+	flex-direction: column;
+}
+
+.ec-indicator-label {
+	display: flex;
+	justify-content: space-between;
+	font-size: 14px !important;
+	font-weight: 500;
+	margin-bottom: 4px;
+	color: var(--text-color, #333) !important;
+}
+
+.ec-indicator-value {
+	font-weight: 700;
+	font-size: 13px !important;
+	color: var(--text-color, #333) !important;
+}
+
+.ec-progress-bar {
+	width: 100%;
+	height: 6px;
+	background-color: var(--border-color, rgba(128, 128, 128, 0.15));
+	border-radius: 3px;
+	overflow: hidden;
+}
+
+.ec-progress-fill {
+	height: 100%;
+	width: 0%;
+	transition: width 0.4s cubic-bezier(0.1, 0.8, 0.3, 1), background-color 0.4s ease;
+	border-radius: 3px;
+}
+
+/* Progress Fill Colors */
+.ec-progress-fill.fill-green {
+	background-color: #2ecc71;
+}
+
+.ec-progress-fill.fill-yellow {
+	background-color: #f1c40f;
+}
+
+.ec-progress-fill.fill-red {
+	background-color: #e74c3c;
+}
+
+/* Accessibility Checklist */
+.ec-checklist {
+	list-style: none !important;
+	padding: 0 !important;
+	margin: 0 !important;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.ec-checklist-item {
+	display: flex !important;
+	align-items: center !important;
+	font-size: 14px !important;
+	color: var(--text-color, #333) !important;
+	padding: 8px 12px !important; /* WCAG 2.5.5: clickable/tappable area */
+	margin: 4px 0 !important;
+	cursor: pointer !important;
+	transition: opacity 0.2s ease, background-color 0.15s ease, transform 0.1s ease !important;
+}
+
+.ec-checklist-item:hover,
+.ec-checklist-item:focus {
+	background-color: var(--border-color, rgba(128, 128, 128, 0.08)) !important;
+	border-radius: 4px !important;
+}
+
+/* Custom Checkmark/Warning Bullets */
+.ec-checklist-item .ec-icon {
+	width: 22px;
+	height: 22px;
+	margin-right: 12px;
+	display: inline-block;
+	flex-shrink: 0;
+	border-radius: 50%;
+	position: relative;
+	transition: all 0.3s ease;
+}
+
+/* OK Green State */
+.ec-checklist-item.ok .ec-icon {
+	background-color: rgba(46, 204, 113, 0.15);
+	border: 1.5px solid #2ecc71;
+}
+
+.ec-checklist-item.ok .ec-icon::after {
+	content: '';
+	position: absolute;
+	left: 7px;
+	top: 3px;
+	width: 5px;
+	height: 10px;
+	border: solid #2ecc71;
+	border-width: 0 2px 2px 0;
+	transform: rotate(45deg);
+}
+
+/* Warning Yellow/Red State */
+.ec-checklist-item.warn .ec-icon {
+	background-color: rgba(231, 76, 60, 0.12);
+	border: 1.5px solid #e74c3c;
+}
+
+.ec-checklist-item.warn .ec-icon::after {
+	content: '!';
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	text-align: center;
+	line-height: 19px;
+	font-weight: 800;
+	color: #e74c3c;
+	font-size: 14px;
+}
+
+/* Neutral Gray State */
+.ec-checklist-item.neutral .ec-icon {
+	background-color: var(--border-color, rgba(128, 128, 128, 0.1));
+	border: 1.5px solid var(--text-color-muted, #888);
+}
+
+.ec-checklist-item.neutral .ec-icon::after {
+	content: '✓';
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	text-align: center;
+	line-height: 19px;
+	font-weight: 400;
+	color: var(--text-color-muted, #888);
+	font-size: 14px;
+}
+
+.ec-chk-text {
+	line-height: 1.3;
+}
+
+/* Tips Box (Side panel / Column 2) */
+.ec-tips-box {
+	background-color: var(--border-color, rgba(128, 128, 128, 0.08));
+	border-radius: 8px;
+	padding: 14px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	height: 100%;
+	min-height: 120px;
+	box-sizing: border-box;
+}
+
+.ec-tip {
+	font-size: 14px !important;
+	line-height: 1.5;
+	padding: 9px 13px;
+	border-radius: 6px;
+	animation: ecFadeIn 0.3s ease;
+}
+
+/* Individual Tip Variants */
+.ec-tip-success {
+	background-color: rgba(46, 204, 113, 0.10);
+	border-left: 3px solid #2ecc71;
+	color: #1a8a4a !important;
+	font-weight: 500;
+}
+
+.ec-tip-warn {
+	background-color: rgba(231, 76, 60, 0.10);
+	border-left: 3px solid #e74c3c;
+	color: #c0392b !important;
+}
+
+.ec-tip-info {
+	background-color: rgba(241, 196, 15, 0.10);
+	border-left: 3px solid #f1c40f;
+	color: #8a6000 !important;
+}
+
+@keyframes ecFadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(4px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* ==========================================================================
+   DARK MODE & CUSTOM SCHEME ADAPTATIONS (e.g. Onyx Slate, Bookface Dark)
+   ========================================================================== */
+.easy-compose-panel.dark-theme {
+	background-color: var(--box-background-color, var(--background-color, rgba(30, 32, 38, 0.95))) !important;
+	backdrop-filter: blur(12px) !important;
+	-webkit-backdrop-filter: blur(12px) !important;
+	border-color: var(--border-color, rgba(255, 255, 255, 0.08)) !important;
+	box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3) !important;
+}
+
+.easy-compose-panel.dark-theme .ec-title-text {
+	color: var(--text-color, #ffffff) !important;
+}
+
+.easy-compose-panel.dark-theme .ec-subtitle-text {
+	color: var(--text-color-muted, #99aab5) !important;
+}
+
+.easy-compose-panel.dark-theme .ec-section-title {
+	color: var(--text-color-muted, #99aab5) !important;
+}
+
+.easy-compose-panel.dark-theme .ec-indicator-label {
+	color: var(--text-color, #e1e8ed) !important;
+}
+
+.easy-compose-panel.dark-theme .ec-checklist-item {
+	color: var(--text-color, #e1e8ed) !important;
+}
+
+.easy-compose-panel.dark-theme .ec-tips-box {
+	background-color: rgba(0, 0, 0, 0.2) !important;
+	border-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+.easy-compose-panel.dark-theme .ec-tip-success {
+	background-color: rgba(46, 204, 113, 0.12) !important;
+	border-left-color: #2ecc71 !important;
+	color: #2ecc71 !important;
+}
+
+.easy-compose-panel.dark-theme .ec-tip-warn {
+	background-color: rgba(231, 76, 60, 0.12) !important;
+	border-left-color: #e74c3c !important;
+	color: #ff6b6b !important;
+}
+
+.easy-compose-panel.dark-theme .ec-tip-info {
+	background-color: rgba(241, 196, 15, 0.12) !important;
+	border-left-color: #f1c40f !important;
+	color: #ffd43b !important;
+}
+
+.easy-compose-panel.dark-theme .ec-indicator-value {
+	color: var(--text-color, #e1e8ed) !important;
+}
+
+.easy-compose-panel.dark-theme .ec-char-count {
+	color: var(--text-color, #ffffff) !important;
+	background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.easy-compose-panel.dark-theme .ec-help-summary {
+	color: var(--text-color-muted, #99aab5) !important;
+}
+
+.easy-compose-panel.dark-theme .ec-help-privacy-text {
+	color: var(--text-color, #e1e8ed) !important;
+}
+
+.easy-compose-panel.dark-theme .ec-help-criteria dt {
+	color: var(--text-color, #ffffff) !important;
+}
+
+/* Dark theme detail overrides — see individual dark-theme rules below */
+
+/* Standalone Compose Page layout enhancements */
+@media (min-width: 992px) {
+	/* Hide Friendica's sidebar columns by their known layout IDs/classes.
+	   Using specific IDs instead of the bare <aside> tag prevents accidental
+	   collisions with other addons that may inject their own <aside> elements
+	   into the /compose page (e.g. media uploaders, chat widgets). */
+	.mod-compose #region-sidebar-first,
+	.mod-compose #region-sidebar-second,
+	.mod-compose .region-sidebar-first,
+	.mod-compose .region-sidebar-second,
+	.mod-compose #aside,
+	.mod-compose .sidebar-col {
+		display: none !important;
+	}
+	.mod-compose #content {
+		width: 100% !important;
+		max-width: 1350px !important;
+		float: none !important;
+		margin: 0 auto !important;
+	}
+}
+
+.mod-compose textarea.comment-edit-text {
+	min-height: 320px !important;
+	resize: vertical !important;
+}
+
+/* Push Preview+Submit+Assistant+Zen as a unified group to the far right of the toolbar */
+.mod-compose:not(.ec-distraction-free) .ec-submit-group {
+	margin-left: auto !important; /* Pushes the entire right-side group to the far right */
+}
+
+/* Remove the old margin-left:auto from the assistant button — ec-submit-group handles it now */
+.mod-compose:not(.ec-distraction-free) #easy-compose-toggle {
+	margin-left: 0 !important;
+}
+
+/* Style Advanced Composer buttons in the toolbar as clean, borderless icons (Zen-like look) - ONLY in non-Zen mode and scoped to active toolbars */
+.mod-compose:not(.ec-distraction-free) .btn-toolbar.ec-toolbar-active button.easy-compose-btn,
+.mod-compose:not(.ec-distraction-free) .btn-toolbar.ec-toolbar-active .easy-compose-btn {
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	background: transparent !important;
+	border: none !important;
+	box-shadow: none !important;
+	/* Use theme's own text color so icons are visible in both light and dark themes */
+	color: var(--text-color, #444) !important;
+	opacity: 0.75 !important;
+	font-size: 14px !important;
+	padding: 4px 8px !important;
+	height: 30px !important;
+	border-radius: 6px !important;
+	transition: all 0.25s ease !important;
+	cursor: pointer;
+	margin: 0 !important;
+}
+
+/* Hover & Active States for Advanced Composer toolbar buttons */
+.mod-compose:not(.ec-distraction-free) .btn-toolbar.ec-toolbar-active button.easy-compose-btn:hover,
+.mod-compose:not(.ec-distraction-free) .btn-toolbar.ec-toolbar-active .easy-compose-btn:hover {
+	opacity: 1 !important;
+	color: var(--text-color, #111) !important;
+	background: rgba(128, 128, 128, 0.12) !important;
+	transform: translateY(-1px) !important;
+	text-decoration: none !important;
+}
+
+/* Dark theme: icons must be clearly visible — override inherited #555 with light color */
+.ec-dark-theme .btn-toolbar.ec-toolbar-active .easy-compose-btn,
+.ec-dark-theme .btn-toolbar.ec-toolbar-active .easy-compose-btn * {
+	color: #d0d8e0 !important;
+	stroke: #d0d8e0 !important;
+	fill: currentColor !important;
+	opacity: 0.85 !important;
+}
+
+.ec-dark-theme .btn-toolbar.ec-toolbar-active .easy-compose-btn:hover,
+.ec-dark-theme .btn-toolbar.ec-toolbar-active .easy-compose-btn:hover * {
+	color: #ffffff !important;
+	stroke: #ffffff !important;
+	opacity: 1 !important;
+	background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Style our custom buttons as rounded pills */
+.easy-compose-btn {
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	gap: 6px;
+	height: 40px !important; /* WCAG 2.5.5: minimum 44px touch target */
+	min-height: 40px !important;
+	padding: 8px 16px !important; /* Better touch target */
+	min-width: 40px !important;
+	font-size: 12px !important;
+	font-weight: 600 !important;
+	border-radius: 15px !important; /* Rounded Pill Shape */
+	border: 1px solid var(--border-color, rgba(0, 0, 0, 0.12)) !important;
+	background: var(--box-background-color, rgba(0, 0, 0, 0.03)) !important;
+	color: var(--text-color, #333) !important;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+	transition: all 0.2s ease !important;
+	cursor: pointer;
+	margin: 0 !important;
+}
+
+.easy-compose-btn svg {
+	width: 13px !important;
+	height: 13px !important;
+	stroke: currentColor !important;
+}
+
+.easy-compose-btn:hover {
+	background: rgba(0, 0, 0, 0.08) !important;
+	border-color: rgba(0, 0, 0, 0.2) !important;
+	transform: translateY(-1px) !important;
+	color: var(--text-color, #111) !important;
+	text-decoration: none !important;
+}
+
+.easy-compose-btn:active {
+	transform: translateY(0) !important;
+}
+
+/* Active state with green glass-morphism instead of saturated green */
+.easy-compose-btn#easy-compose-toggle.active {
+	background: rgba(46, 204, 113, 0.12) !important; /* Soft Emerald glass */
+	border: 1px solid rgba(46, 204, 113, 0.3) !important;
+	color: #2ecc71 !important;
+	box-shadow: 0 0 10px rgba(46, 204, 113, 0.1) !important;
+}
+
+.easy-compose-btn#easy-compose-toggle.active:hover {
+	background: rgba(46, 204, 113, 0.2) !important;
+	border-color: rgba(46, 204, 113, 0.4) !important;
+}
+
+/* Dark theme adjustments for toolbar buttons — see ec-toolbar-active block above */
+
+.ec-dark-theme .easy-compose-btn {
+	background: rgba(255, 255, 255, 0.05) !important;
+	border-color: rgba(255, 255, 255, 0.14) !important;
+	color: var(--text-color, #eee) !important;
+}
+
+.ec-dark-theme .easy-compose-btn:hover {
+	background: rgba(255, 255, 255, 0.12) !important;
+	border-color: rgba(255, 255, 255, 0.25) !important;
+	color: #ffffff !important;
+}
+
+/* Styled cloned buttons in the toolbar as custom pills */
+.mod-compose:not(.ec-distraction-free) .ec-toolbar-clone {
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	height: 30px !important;
+	padding: 0 14px !important;
+	font-size: 12px !important;
+	font-weight: 600 !important;
+	border-radius: 15px !important;
+	border: 1px solid var(--border-color, rgba(0, 0, 0, 0.12)) !important;
+	background: var(--box-background-color, rgba(0, 0, 0, 0.03)) !important;
+	color: var(--text-color, #555) !important;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+	transition: all 0.2s ease !important;
+	cursor: pointer !important;
+	margin: 0 4px !important;
+	opacity: 1 !important;
+}
+
+.mod-compose:not(.ec-distraction-free) .ec-toolbar-clone:hover {
+	background: rgba(0, 0, 0, 0.07) !important;
+	border-color: rgba(0, 0, 0, 0.18) !important;
+	transform: translateY(-1px) !important;
+	color: var(--text-color, #111) !important;
+	text-decoration: none !important;
+}
+
+.mod-compose:not(.ec-distraction-free) .ec-toolbar-clone:active {
+	transform: translateY(0) !important;
+}
+
+/* Style the primary "Beitrag veröffentlichen" button clone as a soft blue custom pill */
+.mod-compose:not(.ec-distraction-free) [id^="fc-toolbar-submit-"],
+.mod-compose:not(.ec-distraction-free) [id^="ec-toolbar-submit-"] {
+	background: rgba(52, 152, 219, 0.12) !important; /* Soft custom primary blue background */
+	border: 1px solid rgba(52, 152, 219, 0.3) !important;
+	color: #2980b9 !important;
+	box-shadow: 0 1px 2px rgba(52, 152, 219, 0.04) !important;
+}
+
+.mod-compose:not(.ec-distraction-free) [id^="fc-toolbar-submit-"]:hover,
+.mod-compose:not(.ec-distraction-free) [id^="ec-toolbar-submit-"]:hover {
+	background: rgba(52, 152, 219, 0.2) !important;
+	border-color: rgba(52, 152, 219, 0.4) !important;
+	color: #2980b9 !important;
+}
+
+/* Adjustments for dark theme */
+.ec-dark-theme:not(.ec-distraction-free) .ec-toolbar-clone {
+	background: rgba(255, 255, 255, 0.05) !important;
+	border-color: rgba(255, 255, 255, 0.14) !important;
+	color: var(--text-color, #bbb) !important;
+}
+
+.ec-dark-theme:not(.ec-distraction-free) .ec-toolbar-clone:hover {
+	background: rgba(255, 255, 255, 0.1) !important;
+	border-color: rgba(255, 255, 255, 0.2) !important;
+	color: #ffffff !important;
+}
+
+.ec-dark-theme:not(.ec-distraction-free) [id^="fc-toolbar-submit-"],
+.ec-dark-theme:not(.ec-distraction-free) [id^="ec-toolbar-submit-"] {
+	background: rgba(52, 152, 219, 0.18) !important;
+	border-color: rgba(52, 152, 219, 0.4) !important;
+	color: #5dade2 !important;
+}
+
+.ec-dark-theme:not(.ec-distraction-free) [id^="fc-toolbar-submit-"]:hover,
+.ec-dark-theme:not(.ec-distraction-free) [id^="ec-toolbar-submit-"]:hover {
+	background: rgba(52, 152, 219, 0.28) !important;
+	border-color: rgba(52, 152, 219, 0.5) !important;
+	color: #5dade2 !important;
+}
+
+/* Hide the distraction-free button by default everywhere */
+#easy-compose-distraction-toggle {
+	display: none !important;
+}
+
+/* Show the distraction-free button ONLY on standalone compose pages on desktop viewports */
+@media (min-width: 992px) {
+	.mod-compose #easy-compose-distraction-toggle {
+		display: inline-flex !important;
+	}
+}
+
+
+/* Custom Distraction-Free Mode (Only on Desktop) */
+@media (min-width: 992px) {
+	/* Strictly scoped to the standalone /compose page (mod-compose) to prevent layout leakages on all other pages.
+	   Bare HTML tags (header, nav, footer, aside) are intentionally avoided here to prevent collisions
+	   with other addons that may use the same semantic elements on the /compose page.
+	   Instead, we target Friendica's known layout IDs and classes specifically. */
+
+	/* Navigation bar (Frio: #nav-wrapper, .navbar, #topbar-first/second) */
+	.mod-compose.ec-distraction-free .navbar,
+	.mod-compose.ec-distraction-free #nav-wrapper,
+	.mod-compose.ec-distraction-free .topbar,
+	.mod-compose.ec-distraction-free #topbar-first,
+	.mod-compose.ec-distraction-free #topbar-second,
+	.mod-compose.ec-distraction-free #main-nav,
+	.mod-compose.ec-distraction-free .main-nav {
+		display: none !important;
+	}
+
+	/* Footer (Frio: #footer, #footer-wrapper, .footer-wrapper) */
+	.mod-compose.ec-distraction-free #footer,
+	.mod-compose.ec-distraction-free #footer-wrapper,
+	.mod-compose.ec-distraction-free .footer-wrapper,
+	.mod-compose.ec-distraction-free .page-footer {
+		display: none !important;
+	}
+
+	/* Sidebar columns — same specific IDs as the normal-mode rule above */
+	.mod-compose.ec-distraction-free #region-sidebar-first,
+	.mod-compose.ec-distraction-free #region-sidebar-second,
+	.mod-compose.ec-distraction-free .region-sidebar-first,
+	.mod-compose.ec-distraction-free .region-sidebar-second,
+	.mod-compose.ec-distraction-free #aside,
+	.mod-compose.ec-distraction-free .sidebar-col,
+	.mod-compose.ec-distraction-free .section-title-wrapper {
+		display: none !important;
+	}
+
+	/* Hide distracting writing helpers (Advanced Composer panel, and other core editor widgets) */
+	.mod-compose.ec-distraction-free #easy-compose-panel,
+	.mod-compose.ec-distraction-free #profile-jot-perms,
+	.mod-compose.ec-distraction-free #jot-category,
+	.mod-compose.ec-distraction-free #jot-title,
+	.mod-compose.ec-distraction-free #jot-title-wrap,
+	.mod-compose.ec-distraction-free #jot-summary-wrap,
+	.mod-compose.ec-distraction-free #jot-category-wrap,
+	.mod-compose.ec-distraction-free #jot-net-wrapper,
+	.mod-compose.ec-distraction-free .jot-preview-list,
+	.mod-compose.ec-distraction-free .comment-edit-submit-wrapper,
+	.mod-compose.ec-distraction-free .dz-message,
+	.mod-compose.ec-distraction-free .dropzone-preview,
+	.mod-compose.ec-distraction-free #dz-preview-jot,
+	.mod-compose.ec-distraction-free #easy-compose-focus-preview-toggle,
+	.mod-compose.ec-distraction-free #easy-compose-toggle {
+		display: none !important;
+	}
+
+	.mod-compose.ec-distraction-free #profile-jot-submit-wrapper li:has(#easy-compose-focus-preview-toggle),
+	.mod-compose.ec-distraction-free #profile-jot-submit-wrapper li:has(#easy-compose-toggle) {
+		display: none !important;
+	}
+
+	.mod-compose.ec-distraction-free {
+		padding-top: 0 !important;
+		/* Let the active theme's native body background flow through natively, keeping it harmonized */
+		transition: background-color 0.4s ease;
+	}
+
+	/* Expand all parent containers to a highly spacious, ultra-wide typing focus zone */
+	.mod-compose.ec-distraction-free .container,
+	.mod-compose.ec-distraction-free #main-container,
+	.mod-compose.ec-distraction-free .generic-page-wrapper,
+	.mod-compose.ec-distraction-free #content {
+		max-width: 1400px !important;
+		width: 95% !important;
+		/* Force transparent so the BODY's own theme background shows through — no gray box */
+		background: transparent !important;
+		box-shadow: none !important;
+		padding: 0 !important;
+		border: none !important;
+		transition: all 0.4s ease;
+	}
+
+	/* Kill any remaining box/card backgrounds that might cause the gray framing */
+	.mod-compose.ec-distraction-free #profile-jot-wrapper > *:not(#profile-jot-submit-wrapper):not(.btn-toolbar):not(textarea):not(.dropzone) {
+		background: transparent !important;
+	}
+
+	.mod-compose.ec-distraction-free #content {
+		margin: 25px auto !important; /* Vertical floating space */
+	}
+
+	/* Make the typing textarea expand beautifully to fill the entire focus zone */
+	.mod-compose.ec-distraction-free textarea.comment-edit-text,
+	.mod-compose.ec-distraction-free textarea.profile-jot-text {
+		min-height: 550px !important;
+		width: 100% !important;
+		max-width: 100% !important;
+		border: none !important;
+		box-shadow: none !important;
+		/* Fully transparent — inherit the page body background */
+		background: transparent !important;
+		/* Text must stay readable: use the theme's text color */
+		color: var(--text-color, inherit) !important;
+		font-size: 18px !important;
+		line-height: 1.75 !important;
+		transition: none;
+		overflow-y: hidden !important;
+	}
+
+	.mod-compose.ec-dark-theme.ec-distraction-free textarea.comment-edit-text,
+	.mod-compose.ec-dark-theme.ec-distraction-free textarea.profile-jot-text {
+		color: #e2e8f0 !important; /* High-contrast readable off-white in Zen dark theme */
+	}
+
+	/* Flatten and transparentize any active dropzone wrapping a textarea in Zen mode */
+	.mod-compose.ec-distraction-free .dropzone:has(textarea),
+	.mod-compose.ec-distraction-free #jot-text-wrap {
+		background: transparent !important;
+		border: none !important;
+		box-shadow: none !important;
+		padding: 0 !important;
+		margin: 0 !important;
+		min-height: 0 !important;
+		height: auto !important;
+		/* Disable all upload click triggers on the dropzone container itself in Zen mode */
+		pointer-events: none !important;
+	}
+
+	/* Re-enable pointer events explicitly for the textarea so it remains fully interactive */
+	.mod-compose.ec-distraction-free .dropzone:has(textarea) textarea,
+	.mod-compose.ec-distraction-free #jot-text-wrap textarea {
+		pointer-events: auto !important;
+	}
+
+	/* Re-enable pointer events explicitly for EasyPhoto lists and all of their elements in Zen mode */
+	.ec-distraction-free .ep-list,
+	.ec-distraction-free .ep-list * {
+		pointer-events: auto !important;
+	}
+
+	/* Completely hide any empty/separate dropzones that do not wrap a textarea in Zen mode */
+	.mod-compose.ec-distraction-free .dropzone:not(:has(textarea)),
+	.mod-compose.ec-distraction-free [id^="dropzone-"]:not(:has(textarea)) {
+		display: none !important;
+	}
+
+	/* Hide the page title and the "If you want to always use this editor..." subtext on /compose */
+	.mod-compose.ec-distraction-free .generic-page-wrapper > h2,
+	.mod-compose.ec-distraction-free .generic-page-wrapper > p {
+		display: none !important;
+	}
+
+	/* Zen Mode card: frosted-glass protection shield for optimal contrast and readability */
+	.mod-compose.ec-distraction-free #profile-jot-wrapper {
+		background: rgba(255, 255, 255, 0.85) !important;
+		background-color: rgba(255, 255, 255, 0.85) !important;
+		backdrop-filter: blur(20px) !important;
+		-webkit-backdrop-filter: blur(20px) !important;
+		border: 1px solid rgba(255, 255, 255, 0.25) !important;
+		border-radius: 16px !important;
+		padding: 30px 40px !important;
+		box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06) !important;
+		transition: none;
+	}
+
+	.mod-compose.ec-dark-theme.ec-distraction-free #profile-jot-wrapper {
+		background: rgba(20, 22, 28, 0.82) !important;
+		background-color: rgba(20, 22, 28, 0.82) !important;
+		border: 1px solid rgba(255, 255, 255, 0.08) !important;
+		box-shadow: 0 10px 45px rgba(0, 0, 0, 0.3) !important;
+	}
+
+	.mod-compose.ec-distraction-free #jot-text-wrap {
+		width: 100% !important;
+		max-width: 100% !important;
+	}
+
+	/* Glassmorphic floating button for exiting Zen Mode */
+	.mod-compose.ec-distraction-free #easy-compose-distraction-toggle {
+		position: fixed !important;
+		top: 25px !important;
+		right: 40px !important;
+		margin-left: 0 !important;
+		z-index: 100000 !important;
+		height: 34px !important;
+		padding: 0 16px !important;
+		border-radius: 17px !important;
+		display: inline-flex !important;
+		align-items: center;
+		gap: 8px;
+		font-size: 12px !important;
+		font-weight: 700 !important;
+		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
+		transition: all 0.25s ease !important;
+		cursor: pointer;
+		text-decoration: none !important;
+
+		/* Dark styling for light themes to ensure high contrast */
+		background: rgba(0, 0, 0, 0.06) !important;
+		border: 1px solid rgba(0, 0, 0, 0.12) !important;
+		color: #333 !important;
+		backdrop-filter: blur(10px) !important;
+		-webkit-backdrop-filter: blur(10px) !important;
+	}
+
+	.mod-compose.ec-distraction-free #easy-compose-distraction-toggle svg {
+		width: 13px !important;
+		height: 13px !important;
+		stroke: #333 !important;
+	}
+
+	.mod-compose.ec-distraction-free #easy-compose-distraction-toggle:hover {
+		background: rgba(0, 0, 0, 0.12) !important;
+		border-color: rgba(0, 0, 0, 0.2) !important;
+		transform: translateY(-1px) !important;
+		box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12) !important;
+	}
+
+	/* Light styling for dark themes (highly luminous glass) */
+	.mod-compose.ec-distraction-free.dark-theme #easy-compose-distraction-toggle,
+	.mod-compose.ec-dark-theme.ec-distraction-free #easy-compose-distraction-toggle,
+	.mod-compose.ec-distraction-free .ec-dark-theme #easy-compose-distraction-toggle {
+		background: rgba(255, 255, 255, 0.15) !important;
+		border: 1px solid rgba(255, 255, 255, 0.3) !important;
+		color: #ffffff !important;
+		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25) !important;
+	}
+
+	.mod-compose.ec-distraction-free.dark-theme #easy-compose-distraction-toggle svg,
+	.mod-compose.ec-dark-theme.ec-distraction-free #easy-compose-distraction-toggle svg,
+	.mod-compose.ec-distraction-free .ec-dark-theme #easy-compose-distraction-toggle svg {
+		stroke: #ffffff !important;
+	}
+
+	.mod-compose.ec-distraction-free.dark-theme #easy-compose-distraction-toggle:hover,
+	.mod-compose.ec-dark-theme.ec-distraction-free #easy-compose-distraction-toggle:hover,
+	.mod-compose.ec-distraction-free .ec-dark-theme #easy-compose-distraction-toggle:hover {
+		background: rgba(255, 255, 255, 0.25) !important;
+		border-color: rgba(255, 255, 255, 0.45) !important;
+	}
+
+	/* Custom Zen Mode Toolbar styling */
+	.mod-compose.ec-distraction-free .btn-toolbar,
+	.mod-compose.ec-distraction-free #profile-jot-submit-wrapper {
+		display: flex !important;
+		justify-content: center !important;
+		align-items: center !important;
+		gap: 20px !important;
+		margin-bottom: 25px !important;
+		border: none !important;
+		background: transparent !important;
+		padding: 0 !important;
+		float: none !important;
+		width: 100% !important;
+		box-shadow: none !important;
+	}
+
+	.mod-compose.ec-distraction-free .btn-toolbar .btn-group,
+	.mod-compose.ec-distraction-free .btn-toolbar .pull-right {
+		display: flex !important;
+		float: none !important;
+		margin: 0 !important;
+		gap: 15px !important;
+		border: none !important;
+		box-shadow: none !important;
+		background: transparent !important;
+	}
+
+	/* Style the buttons inside the Zen toolbar */
+	.mod-compose.ec-distraction-free .btn-toolbar button.btn,
+	.mod-compose.ec-distraction-free .btn-toolbar .btn-default,
+	.mod-compose.ec-distraction-free #profile-jot-submit-wrapper button.btn,
+	.mod-compose.ec-distraction-free #profile-jot-submit-wrapper .btn-default,
+	.mod-compose.ec-distraction-free #profile-jot-submit-wrapper button.btn-link {
+		background: transparent !important;
+		border: none !important;
+		box-shadow: none !important;
+		color: var(--text-color, #555) !important;
+		opacity: 0.6 !important;
+		font-size: 18px !important; /* Make icons beautiful and large */
+		padding: 8px 12px !important;
+		height: auto !important;
+		border-radius: 8px !important;
+		transition: all 0.25s ease !important;
+	}
+
+	.mod-compose.ec-distraction-free .btn-toolbar button.btn:hover,
+	.mod-compose.ec-distraction-free .btn-toolbar .btn-default:hover,
+	.mod-compose.ec-distraction-free #profile-jot-submit-wrapper button.btn:hover,
+	.mod-compose.ec-distraction-free #profile-jot-submit-wrapper .btn-default:hover,
+	.mod-compose.ec-distraction-free #profile-jot-submit-wrapper button.btn-link:hover {
+		opacity: 1 !important;
+		color: var(--text-color, #111) !important;
+		background: rgba(0, 0, 0, 0.05) !important;
+		transform: translateY(-1px) !important;
+	}
+
+	/* If theme is dark, adjust colors */
+	.mod-compose.ec-distraction-free.dark-theme .btn-toolbar button.btn,
+	.mod-compose.ec-dark-theme.ec-distraction-free .btn-toolbar button.btn,
+	.mod-compose.ec-distraction-free.dark-theme #profile-jot-submit-wrapper button,
+	.mod-compose.ec-dark-theme.ec-distraction-free #profile-jot-submit-wrapper button {
+		color: rgba(255, 255, 255, 0.7) !important;
+	}
+
+	.mod-compose.ec-distraction-free.dark-theme .btn-toolbar button.btn:hover,
+	.mod-compose.ec-dark-theme.ec-distraction-free .btn-toolbar button.btn:hover,
+	.mod-compose.ec-distraction-free.dark-theme #profile-jot-submit-wrapper button:hover,
+	.mod-compose.ec-dark-theme.ec-distraction-free #profile-jot-submit-wrapper button:hover {
+		color: #fff !important;
+		background: rgba(255, 255, 255, 0.08) !important;
+	}
+
+	/* Hide unneeded buttons completely in Zen Mode */
+	.mod-compose.ec-distraction-free .btn-toolbar button:not(.easy-compose-btn):not(.emojis):not(.underline):not(.italic):not(.bold):not(.quote):not(.code),
+	.mod-compose.ec-distraction-free .btn-toolbar .btn:not(.easy-compose-btn):not(.emojis):not(.underline):not(.italic):not(.bold):not(.quote):not(.code),
+	.mod-compose.ec-distraction-free #profile-jot-submit-wrapper button:not(.easy-compose-btn):not(.emojis):not(.underline):not(.italic):not(.bold):not(.quote):not(.code),
+	.mod-compose.ec-distraction-free #profile-jot-submit-wrapper .btn:not(.easy-compose-btn):not(.emojis):not(.underline):not(.italic):not(.bold):not(.quote):not(.code),
+	.mod-compose.ec-distraction-free #profile-jot-submit-wrapper li:not(:has(.emojis)):not(:has(.underline)):not(:has(.italic)):not(:has(.bold)):not(:has(.quote)):not(:has(.code)):not(:has(.easy-compose-btn)) {
+		display: none !important;
+	}
+
+	/* In normal mode: toolbar clones replace the bottom originals */
+	.mod-compose:not(.ec-distraction-free) .ec-original-bottom-btn {
+		display: none !important;
+	}
+
+	/* In Zen mode: show originals at bottom, hide toolbar clones */
+	.mod-compose.ec-distraction-free .ec-toolbar-clone {
+		display: none !important;
+	}
+}
+
+/* ==========================================================================
+   Ghost-inspired Split-Screen Side-by-Side Live Preview Layout
+   ========================================================================== */
+@media (min-width: 992px) {
+	/* Expand only the editor content area on the standalone compose page.
+	   Intentionally NOT targeting .container or #main-container — those wrap
+	   the navbar too, and widening them pushes the topbar icons outward. */
+	.mod-compose:not(.ec-distraction-free) #content,
+	.mod-compose:not(.ec-distraction-free) #profile-jot-wrapper,
+	.mod-compose:not(.ec-distraction-free) .generic-page-wrapper {
+		max-width: 1350px !important;
+		width: 100% !important;
+		transition: max-width 0.3s ease !important;
+	}
+
+	/* When preview is active: break out of the narrow generic-page-wrapper
+	   constraint so both editor and preview get generous horizontal space */
+	form.ec-preview-active-form {
+		width: 100% !important;
+		max-width: 100% !important;
+	}
+
+	/* Also let the wrapping containers expand freely */
+	form.ec-preview-active-form ~ * ,
+	#profile-jot-wrapper:has(form.ec-preview-active-form),
+	.generic-page-wrapper:has(form.ec-preview-active-form) {
+		max-width: 100% !important;
+		width: 100% !important;
+	}
+
+	/* Parent Container becomes a clean CSS Grid (with start alignment to prevent vertical stretching) */
+	.ec-split-layout {
+		display: grid !important;
+		grid-template-columns: 1.15fr 0.85fr !important;
+		column-gap: 28px !important;
+		row-gap: 0 !important;
+		align-items: start !important;
+		width: 100% !important;
+		margin-bottom: 24px !important;
+	}
+
+	/* High-specificity rules to guarantee non-editor elements span 100% width and do NOT squish */
+	.ec-split-layout > * {
+		grid-column: 1 / -1 !important;
+		order: 1 !important;
+		width: 100% !important;
+		box-sizing: border-box !important;
+	}
+
+	.ec-split-layout .btn-toolbar.ec-toolbar-active {
+		grid-column: 1 / -1 !important;
+		width: 100% !important;
+	}
+
+	.ec-split-layout #jot-title-wrap,
+	.ec-split-layout #jot-summary-wrap,
+	.ec-split-layout #jot-category-wrap {
+		grid-column: 1 / -1 !important;
+		width: 100% !important;
+	}
+
+	/* Force the Editor and Preview to sit in the same Grid Row, side-by-side, in sequence 2 */
+	.ec-split-layout > .dropzone,
+	.ec-split-layout > [id^="dropzone-"],
+	.ec-split-layout > #jot-text-wrap {
+		grid-column: 1 !important;
+		order: 2 !important;
+		min-width: 0 !important;
+		margin: 0 !important;
+		box-sizing: border-box !important;
+	}
+
+	/* Preview Panel Column — theme-aware, no hardcoded white fallback */
+	.ec-split-layout > .comment-edit-preview,
+	.ec-split-layout > [id^="comment-edit-preview-"],
+	.ec-split-layout > #jot-preview-content {
+		grid-column: 2 !important;
+		order: 2 !important;
+		margin: 0 !important;
+		height: 520px !important;
+		min-height: 520px !important;
+		max-height: 520px !important;
+		overflow-y: auto !important;
+		padding: 24px !important;
+		border-radius: 12px !important;
+		border: 1px solid var(--border-color, rgba(128, 128, 128, 0.15)) !important;
+		/* Inherit the theme's own box/page background — no hardcoded white */
+		background: var(--box-background-color, var(--background-color, inherit)) !important;
+		color: var(--text-color, inherit) !important;
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06) !important;
+		transition: background 0.3s ease, border-color 0.3s ease !important;
+		box-sizing: border-box !important;
+	}
+
+	/* Suppress any theme hover effects (darkening/brightening) on the preview box itself */
+	.ec-split-layout > .comment-edit-preview:hover,
+	.ec-split-layout > [id^="comment-edit-preview-"]:hover,
+	.ec-split-layout > #jot-preview-content:hover {
+		background: var(--box-background-color, var(--background-color, inherit)) !important;
+		filter: none !important;
+		opacity: 1 !important;
+	}
+
+	/* Suppress Friendica's wall-item hover darkening inside the preview */
+	.ec-split-layout > .comment-edit-preview .wall-item-container,
+	.ec-split-layout > [id^="comment-edit-preview-"] .wall-item-container,
+	.ec-split-layout > #jot-preview-content .wall-item-container {
+		background: transparent !important;
+		transition: none !important;
+	}
+	.ec-split-layout > .comment-edit-preview .wall-item-container:hover,
+	.ec-split-layout > [id^="comment-edit-preview-"] .wall-item-container:hover,
+	.ec-split-layout > #jot-preview-content .wall-item-container:hover {
+		background: transparent !important;
+		filter: none !important;
+		opacity: 1 !important;
+	}
+
+	/* Place the Advanced Composer panel and bottom toolbar in subsequent sequences so they are always below the editor split */
+	.ec-split-layout > .easy-compose-panel,
+	.ec-split-layout > #easy-compose-panel {
+		order: 3 !important;
+		grid-column: 1 / -1 !important;
+		width: 100% !important;
+	}
+
+	.ec-split-layout > #profile-jot-submit-wrapper,
+	.ec-split-layout > .comment-edit-submit-wrapper,
+	.ec-split-layout > [id^="profile-jot-submit-wrapper"] {
+		order: 4 !important;
+		grid-column: 1 / -1 !important;
+		width: 100% !important;
+	}
+
+	.ec-split-layout #easy-compose-distraction-toggle {
+		margin-right: 12px !important;
+	}
+
+	/* Compact toolbar buttons in split layout to avoid overflow */
+	.ec-split-layout .btn-toolbar.ec-toolbar-active .btn-group,
+	.ec-split-layout .btn-toolbar.ec-toolbar-active .pull-right {
+		gap: 4px !important;
+	}
+
+	.ec-split-layout .easy-compose-btn {
+		padding: 0 8px !important;
+		gap: 4px !important;
+	}
+
+	/* Text Editor textarea input height adjustment for side-by-side view */
+	.ec-split-layout .comment-edit-text,
+	.ec-split-layout [id^="comment-edit-text-"],
+	.ec-split-layout .profile-jot-text {
+		height: 480px !important;
+		min-height: 480px !important;
+		max-height: 480px !important;
+		overflow-y: auto !important;
+		resize: none !important; /* Keep both boxes strictly symmetrical */
+	}
+
+	.ec-split-layout .comment-edit-preview .wall-item-container .author-wrapper,
+	.ec-split-layout .comment-edit-preview .wall-item-container .wall-item-header,
+	.ec-split-layout [id^="comment-edit-preview-"] .wall-item-container .author-wrapper,
+	.ec-split-layout [id^="comment-edit-preview-"] .wall-item-container .wall-item-header,
+	.ec-split-layout #jot-preview-content .wall-item-container .author-wrapper,
+	.ec-split-layout #jot-preview-content .wall-item-container .wall-item-header {
+		display: none !important; /* Hide avatar, names, option dropdowns, time stamps */
+	}
+
+	/* Highly readable document typography (Ghost-like style) */
+	.ec-split-layout .comment-edit-preview .wall-item-container .wall-item-body,
+	.ec-split-layout [id^="comment-edit-preview-"] .wall-item-container .wall-item-body,
+	.ec-split-layout #jot-preview-content .wall-item-container .wall-item-body {
+		padding: 0 !important;
+		margin: 0 !important;
+		font-family: inherit !important;
+		font-size: 15px !important;
+		line-height: 1.75 !important; /* Ideal reading line-height */
+		color: var(--text-color, #2c3e50) !important;
+		letter-spacing: -0.01em !important;
+	}
+
+	.ec-dark-theme .ec-split-layout .comment-edit-preview,
+	.ec-dark-theme .ec-split-layout [id^="comment-edit-preview-"],
+	.ec-dark-theme .ec-split-layout #jot-preview-content,
+	.ec-dark-theme .ec-split-layout .comment-edit-preview .wall-item-body,
+	.ec-dark-theme .ec-split-layout [id^="comment-edit-preview-"] .wall-item-body,
+	.ec-dark-theme .ec-split-layout #jot-preview-content .wall-item-body {
+		color: #e2e8f0 !important; /* High contrast white/grey text for all dark theme previews */
+	}
+
+	/* Clean styling for preview headings */
+	.ec-split-layout .comment-edit-preview .wall-item-body h1,
+	.ec-split-layout .comment-edit-preview .wall-item-body h2,
+	.ec-split-layout .comment-edit-preview .wall-item-body h3,
+	.ec-split-layout #jot-preview-content .wall-item-body h1,
+	.ec-split-layout #jot-preview-content .wall-item-body h2,
+	.ec-split-layout #jot-preview-content .wall-item-body h3 {
+		font-weight: 700 !important;
+		color: var(--text-color, #1a252f) !important;
+		margin-top: 1.2em !important;
+		margin-bottom: 0.6em !important;
+		letter-spacing: -0.02em !important;
+	}
+
+	/* Ensure uploaded images scale beautifully inside preview */
+	.ec-split-layout .comment-edit-preview .wall-item-body img,
+	.ec-split-layout [id^="comment-edit-preview-"] .wall-item-body img,
+	.ec-split-layout #jot-preview-content .wall-item-body img {
+		max-width: 100% !important;
+		height: auto !important;
+		border-radius: 8px !important;
+		margin: 12px 0 !important;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
+	}
+}
+
+/* ==========================================================================
+   Help & Privacy Disclosure
+   ========================================================================== */
+
+.ec-help-disclosure {
+	margin: 0;
+	border-bottom: 1px solid var(--border-color, rgba(128,128,128,0.15));
+}
+
+.ec-help-summary {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 10px 16px;
+	font-size: 13px !important;
+	font-weight: 600 !important;
+	color: var(--text-color, #555) !important;
+	cursor: pointer;
+	user-select: none;
+	list-style: none; /* remove default triangle in Firefox */
+	transition: color 0.15s ease, background 0.15s ease;
+}
+
+/* Remove default disclosure triangle cross-browser */
+.ec-help-summary::-webkit-details-marker { display: none; }
+.ec-help-summary::marker { display: none; }
+
+.ec-help-summary:hover {
+	color: var(--text-color, #333);
+	background: var(--border-color, rgba(128,128,128,0.07));
+}
+
+.ec-help-icon {
+	display: inline-flex;
+	align-items: center;
+	flex-shrink: 0;
+	opacity: 0.7;
+}
+
+/* Rotate chevron-like indicator via the summary's own pseudo */
+.ec-help-summary::after {
+	content: '▸';
+	margin-left: auto;
+	font-size: 10px;
+	opacity: 0.5;
+	transition: transform 0.2s ease;
+}
+details[open] > .ec-help-summary::after {
+	transform: rotate(90deg);
+}
+
+/* Body of the disclosure */
+.ec-help-body {
+	padding: 14px 16px 18px;
+	font-size: 14px !important;
+	line-height: 1.7;
+	color: var(--text-color, #333) !important;
+	background: var(--box-background-color, var(--background-color, #fff)) !important;
+}
+
+/* Privacy badge */
+.ec-help-privacy-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 5px 10px;
+	margin-bottom: 10px;
+	border-radius: 20px;
+	background: rgba(46, 204, 113, 0.10);
+	border: 1px solid rgba(46, 204, 113, 0.30);
+	color: #27ae60;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.ec-help-privacy-badge svg {
+	flex-shrink: 0;
+	stroke: #27ae60;
+}
+
+.ec-help-privacy-text {
+	margin: 0 0 6px;
+	font-size: 14px !important;
+	color: var(--text-color, #444) !important;
+	line-height: 1.7;
+}
+
+.ec-help-divider {
+	border: none;
+	border-top: 1px solid var(--border-color, rgba(128,128,128,0.15));
+	margin: 12px 0;
+}
+
+/* Criteria list */
+.ec-help-criteria {
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.ec-help-criteria dt {
+	font-weight: 700;
+	font-size: 14px !important;
+	color: var(--text-color, #222) !important;
+	margin-bottom: 4px;
+}
+
+.ec-help-criteria dd {
+	margin: 0;
+	font-size: 13.5px !important;
+	color: var(--text-color, #444) !important;
+	line-height: 1.7;
+	padding-left: 10px;
+	border-left: 2px solid var(--border-color, rgba(128,128,128,0.25));
+}
+
+/* Dark theme adjustments */
+.easy-compose-panel.dark-theme .ec-help-summary:hover {
+	color: var(--text-color, #ffffff) !important;
+	background: rgba(255,255,255,0.05);
+}
+
+.easy-compose-panel.dark-theme .ec-help-body {
+	background: var(--box-background-color, #1e212b) !important;
+	color: var(--text-color, #e1e8ed) !important;
+}
+
+.easy-compose-panel.dark-theme .ec-help-privacy-badge {
+	background: rgba(46, 204, 113, 0.12);
+	border-color: rgba(46, 204, 113, 0.25);
+}
+
+.easy-compose-panel.dark-theme .ec-help-criteria dd {
+	color: var(--text-color-muted, #99aab5) !important;
+	border-color: rgba(255,255,255,0.12);
+}
+
+/* Addon branding watermark */
+.ec-addon-brand {
+	text-align: right;
+	font-size: 11px !important;
+	font-weight: 700;
+	color: var(--text-color-muted, #888) !important;
+	margin-top: 16px;
+	opacity: 0.65;
+	letter-spacing: 0.3px;
+}
+
+.easy-compose-panel.dark-theme .ec-addon-brand {
+	color: var(--text-color-muted, #99aab5) !important;
+	opacity: 0.55;
+}
+
+.ec-addon-brand a.ec-brand-settings-link {
+	color: inherit !important;
+	text-decoration: underline !important;
+	transition: opacity 0.2s ease !important;
+}
+
+.ec-addon-brand a.ec-brand-settings-link:hover {
+	opacity: 0.8 !important;
+}
+
+
+/* ==========================================================================
+   IMMERSIVE FOCUS PREVIEW OVERLAY
+   ========================================================================== */
+.ec-preview-overlay-active {
+	overflow: hidden !important; /* Lock page scrolling */
+}
+
+.ec-preview-overlay {
+	position: fixed !important;
+	inset: 0 !important;
+	z-index: 1000000 !important;
+	background: rgba(255, 255, 255, 0.97) !important; /* Fallback for older Safari/GPUs */
+	backdrop-filter: blur(25px) !important;
+	-webkit-backdrop-filter: blur(25px) !important;
+	display: flex !important;
+	flex-direction: column !important;
+	will-change: opacity !important;
+	animation: ecOverlayFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+.ec-dark-theme .ec-preview-overlay,
+.ec-preview-overlay.dark-theme {
+	background: rgba(18, 20, 26, 0.97) !important; /* Fallback for older Safari/GPUs */
+}
+
+/* Glassmorphic overlay transparency when backdrop-filter is properly supported by engine */
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+	.ec-preview-overlay {
+		background: rgba(255, 255, 255, 0.92) !important;
+	}
+	.ec-dark-theme .ec-preview-overlay,
+	.ec-preview-overlay.dark-theme {
+		background: rgba(18, 20, 26, 0.92) !important;
+	}
+}
+
+@keyframes ecOverlayFadeIn {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+
+/* Overlay Top-bar */
+.ec-preview-topbar {
+	display: flex !important;
+	justify-content: space-between !important;
+	align-items: center !important;
+	padding: 20px 40px !important;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+
+.ec-dark-theme .ec-preview-topbar,
+.ec-preview-overlay.dark-theme .ec-preview-topbar {
+	border-bottom-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Left group: device buttons + refresh */
+.ec-preview-topbar-left {
+	display: flex !important;
+	align-items: center !important;
+	gap: 12px !important;
+}
+
+/* Refresh button */
+.ec-preview-refresh-btn {
+	display: inline-flex !important;
+	align-items: center !important;
+	gap: 6px !important;
+	background: rgba(0, 0, 0, 0.04) !important;
+	border: 1px solid rgba(0, 0, 0, 0.08) !important;
+	border-radius: 20px !important;
+	padding: 8px 16px !important;
+	min-height: 40px !important;
+	font-size: 12px !important;
+	font-weight: 600 !important;
+	color: #444 !important;
+	cursor: pointer !important;
+	transition: all 0.2s ease !important;
+}
+
+.ec-preview-refresh-btn:hover {
+	background: rgba(0, 0, 0, 0.09) !important;
+	transform: translateY(-1px) !important;
+}
+
+.ec-dark-theme .ec-preview-refresh-btn,
+.ec-preview-overlay.dark-theme .ec-preview-refresh-btn {
+	background: rgba(255, 255, 255, 0.08) !important;
+	border-color: rgba(255, 255, 255, 0.12) !important;
+	color: #d0d8e0 !important;
+}
+
+.ec-dark-theme .ec-preview-refresh-btn:hover,
+.ec-preview-overlay.dark-theme .ec-preview-refresh-btn:hover {
+	background: rgba(255, 255, 255, 0.14) !important;
+}
+
+/* Spin animation on click */
+@keyframes ecRefreshSpin {
+	from { transform: rotate(0deg); }
+	to   { transform: rotate(360deg); }
+}
+
+.ec-preview-refresh-btn.ec-refreshing svg {
+	animation: ecRefreshSpin 0.6s linear !important;
+}
+
+/* Device toggle buttons */
+.ec-preview-device-selector {
+	display: flex !important;
+	gap: 10px !important;
+}
+
+.ec-device-btn {
+	background: rgba(0, 0, 0, 0.04) !important;
+	border: 1px solid rgba(0, 0, 0, 0.08) !important;
+	border-radius: 20px !important;
+	padding: 8px 16px !important;
+	min-height: 40px !important;
+	font-size: 12px !important;
+	font-weight: 600 !important;
+	color: #444 !important;
+	cursor: pointer !important;
+	transition: all 0.2s ease !important;
+}
+
+.ec-device-btn.active {
+	background: #27ae60 !important;
+	border-color: #27ae60 !important;
+	color: #fff !important;
+	box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3) !important;
+}
+
+.ec-dark-theme .ec-device-btn,
+.ec-preview-overlay.dark-theme .ec-device-btn {
+	background: rgba(255, 255, 255, 0.08) !important;
+	border-color: rgba(255, 255, 255, 0.12) !important;
+	color: #d0d8e0 !important;
+}
+
+.ec-dark-theme .ec-device-btn.active,
+.ec-preview-overlay.dark-theme .ec-device-btn.active {
+	background: #2ecc71 !important;
+	border-color: #2ecc71 !important;
+	color: #fff !important;
+}
+
+/* Immersive close button */
+.ec-preview-close-btn {
+	background: rgba(0, 0, 0, 0.06) !important;
+	border: 1px solid rgba(0, 0, 0, 0.12) !important;
+	color: #333 !important;
+	padding: 8px 18px !important;
+	border-radius: 20px !important;
+	font-size: 12px !important;
+	font-weight: 700 !important;
+	cursor: pointer !important;
+	transition: all 0.25s ease !important;
+}
+
+.ec-preview-close-btn:hover {
+	background: rgba(0, 0, 0, 0.12) !important;
+	transform: translateY(-1px) !important;
+}
+
+.ec-dark-theme .ec-preview-close-btn,
+.ec-preview-overlay.dark-theme .ec-preview-close-btn {
+	background: rgba(255, 255, 255, 0.15) !important;
+	border-color: rgba(255, 255, 255, 0.3) !important;
+	color: #fff !important;
+}
+
+.ec-dark-theme .ec-preview-close-btn:hover,
+.ec-preview-overlay.dark-theme .ec-preview-close-btn:hover {
+	background: rgba(255, 255, 255, 0.25) !important;
+}
+
+/* Immersive content scroll area */
+.ec-preview-content-area {
+	flex: 1 !important;
+	overflow-y: auto !important;
+	padding: 40px 20px !important;
+	display: flex !important;
+	justify-content: center !important;
+	align-items: flex-start !important;
+}
+
+/* Simulated Feed Card */
+.ec-preview-card-wrapper {
+	background: #ffffff !important;
+	border: 1px solid rgba(0, 0, 0, 0.08) !important;
+	border-radius: 16px !important;
+	box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05) !important;
+	padding: 30px !important;
+	transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+}
+
+.ec-dark-theme .ec-preview-card-wrapper,
+.ec-preview-overlay.dark-theme .ec-preview-card-wrapper {
+	background: #1c1e24 !important;
+	border-color: rgba(255, 255, 255, 0.06) !important;
+	box-shadow: 0 10px 45px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Viewport simulation sizing */
+.ec-preview-card-wrapper.desktop {
+	width: 100% !important;
+	max-width: var(--content-width, var(--feed-width, 680px)) !important;
+}
+
+.ec-preview-card-wrapper.mobile {
+	width: 380px !important;
+	max-width: 100% !important;
+	padding: 20px !important;
+}
+
+/* Simulated Header */
+.ec-preview-card-header {
+	display: flex !important;
+	align-items: center !important;
+	gap: 15px !important;
+	margin-bottom: 20px !important;
+	padding-bottom: 15px !important;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.04) !important;
+}
+
+.ec-dark-theme .ec-preview-card-header,
+.ec-preview-overlay.dark-theme .ec-preview-card-header {
+	border-bottom-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+.ec-preview-avatar,
+.ec-preview-avatar-placeholder {
+	width: 44px !important;
+	height: 44px !important;
+	border-radius: 50% !important;
+	object-fit: cover !important;
+}
+
+.ec-preview-avatar-fallback {
+	width: 44px !important;
+	height: 44px !important;
+	border-radius: 50% !important;
+	background: rgba(0, 0, 0, 0.06) !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	font-size: 20px !important;
+}
+
+.ec-dark-theme .ec-preview-avatar-fallback,
+.ec-preview-overlay.dark-theme .ec-preview-avatar-fallback {
+	background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.ec-preview-author-info {
+	display: flex !important;
+	flex-direction: column !important;
+	gap: 2px !important;
+}
+
+.ec-preview-author-name {
+	font-size: 14px !important;
+	font-weight: 700 !important;
+	color: #2c3e50 !important;
+}
+
+.ec-dark-theme .ec-preview-author-name,
+.ec-preview-overlay.dark-theme .ec-preview-author-name {
+	color: #ffffff !important;
+}
+
+.ec-preview-timestamp {
+	font-size: 11px !important;
+	color: #888888 !important;
+}
+
+/* Simulated Body */
+.ec-preview-card-body {
+	font-family: inherit !important;
+	font-size: 15px !important;
+	line-height: 1.75 !important;
+	color: #2c3e50 !important;
+	overflow-wrap: anywhere !important;
+}
+
+.ec-preview-card-body * {
+	overflow-wrap: anywhere !important;
+}
+
+.ec-dark-theme .ec-preview-card-body,
+.ec-preview-overlay.dark-theme .ec-preview-card-body {
+	color: #e2e8f0 !important;
+}
+
+/* Loading */
+.ec-preview-loading {
+	display: flex !important;
+	justify-content: center !important;
+	align-items: center !important;
+	padding: 40px 0 !important;
+	color: #888 !important;
+	font-style: italic !important;
+}
+
+/* ==========================================================================
+   BBCode Preview Body Styles
+   (applied to the preview body content loaded via AJAX)
+   ========================================================================== */
+
+.ec-bbcode-body {
+	overflow-wrap: anywhere !important;
+}
+
+.ec-bbcode-body .ec-bbimg {
+	max-width: 100% !important;
+	height: auto !important;
+	border-radius: 8px !important;
+	margin: 8px 0 !important;
+	display: block !important;
+}
+
+.ec-bbcode-body .ec-bbq {
+	border-left: 3px solid rgba(0, 0, 0, 0.15) !important;
+	margin: 10px 0 !important;
+	padding: 8px 14px !important;
+	color: #666 !important;
+	font-style: italic !important;
+	background: rgba(0, 0, 0, 0.03) !important;
+	border-radius: 0 6px 6px 0 !important;
+}
+
+.ec-dark-theme .ec-bbcode-body .ec-bbq,
+.ec-preview-overlay.dark-theme .ec-bbcode-body .ec-bbq {
+	border-left-color: rgba(255, 255, 255, 0.2) !important;
+	color: #aaa !important;
+	background: rgba(255, 255, 255, 0.04) !important;
+}
+
+.ec-bbcode-body .ec-pre {
+	background: rgba(0, 0, 0, 0.05) !important;
+	border-radius: 6px !important;
+	padding: 12px !important;
+	font-size: 13px !important;
+	overflow-x: auto !important;
+	margin: 10px 0 !important;
+	white-space: pre-wrap !important;
+}
+
+.ec-dark-theme .ec-bbcode-body .ec-pre,
+.ec-preview-overlay.dark-theme .ec-bbcode-body .ec-pre {
+	background: rgba(255, 255, 255, 0.07) !important;
+}
+
+.ec-bbcode-body .ec-spoiler {
+	border: 1px solid rgba(0, 0, 0, 0.1) !important;
+	border-radius: 6px !important;
+	padding: 8px 12px !important;
+	margin: 8px 0 !important;
+}
+
+.ec-bbcode-body .ec-hashtag {
+	color: #27ae60 !important;
+	font-weight: 600 !important;
+}
+
+.ec-bbcode-body .ec-mention {
+	color: #2980b9 !important;
+	font-weight: 600 !important;
+}
+
+.ec-dark-theme .ec-bbcode-body .ec-hashtag,
+.ec-preview-overlay.dark-theme .ec-bbcode-body .ec-hashtag {
+	color: #2ecc71 !important;
+}
+
+.ec-dark-theme .ec-bbcode-body .ec-mention,
+.ec-preview-overlay.dark-theme .ec-bbcode-body .ec-mention {
+	color: #5dade2 !important;
+}
+
+/* ==========================================================================
+   EasyPhoto Zen-Mode (Distraction-Free) Integration
+   ========================================================================== */
+
+/* Hide the EasyPhoto Zen button and its list-item wrapper when not in Zen mode or when no images exist */
+#easy-compose-ep-zen-toggle.ec-hidden,
+body:not(.ec-distraction-free) #easy-compose-ep-zen-toggle,
+li.ec-hidden:has(> #easy-compose-ep-zen-toggle),
+body:not(.ec-distraction-free) li:has(> #easy-compose-ep-zen-toggle) {
+	display: none !important;
+}
+
+/* By default, hide EasyPhoto completely when entering Zen mode */
+.ec-distraction-free .ep-list {
+	display: none !important;
+}
+
+/* Display and style the EasyPhoto container when explicitly toggled on in Zen mode */
+.ec-distraction-free.ec-show-ep-list-in-zen .ep-list {
+	display: block !important;
+	max-width: 800px !important;
+	margin: 35px auto 45px auto !important; /* Spacious spacing below the editor */
+	background: var(--box-background-color, rgba(128, 128, 128, 0.05)) !important;
+	border: 1px solid var(--border-color, rgba(128, 128, 128, 0.2)) !important;
+	border-radius: 8px !important;
+	padding: 16px !important;
+	box-shadow: none !important;
+}
+
+.ec-distraction-free.ec-show-ep-list-in-zen .ep-row {
+	display: flex !important;
+	align-items: center !important;
+	gap: 15px !important;
+	padding: 12px 16px !important;
+	margin-bottom: 12px !important;
+	background: var(--box-background-color, var(--background-color, #ffffff)) !important;
+	border: 1px solid var(--border-color, rgba(128, 128, 128, 0.15)) !important;
+	border-radius: 8px !important;
+	box-shadow: none !important;
+}
+
+.ec-distraction-free.ec-show-ep-list-in-zen .ep-row:last-child {
+	margin-bottom: 0 !important;
+}
+
+.ec-distraction-free.ec-show-ep-list-in-zen .ep-thumb-container {
+	border-radius: 6px !important;
+	background: var(--border-color, rgba(128, 128, 128, 0.12)) !important;
+	width: 50px !important;
+	height: 50px !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	overflow: hidden !important;
+}
+
+.ec-distraction-free.ec-show-ep-list-in-zen .ep-thumb {
+	max-width: 100% !important;
+	max-height: 100% !important;
+	object-fit: cover !important;
+}
+
+.ec-distraction-free.ec-show-ep-list-in-zen .ep-input-container label {
+	color: var(--text-color, #2c3e50) !important; /* High contrast on both light/dark themes */
+	font-size: 12px !important;
+	font-weight: 700 !important;
+	letter-spacing: 0.05em !important;
+	text-transform: uppercase !important;
+	margin-bottom: 4px !important;
+	opacity: 0.8 !important;
+}
+
+.ec-distraction-free.ec-show-ep-list-in-zen .ep-input {
+	background: var(--background-color, #ffffff) !important;
+	border: 1px solid var(--border-color, rgba(128, 128, 128, 0.3)) !important;
+	border-radius: 4px !important;
+	padding: 8px 12px !important;
+	font-size: 15px !important;
+	color: var(--text-color, #2c3e50) !important;
+	box-shadow: none !important;
+	width: 100% !important;
+	transition: border-color 0.2s ease !important;
+}
+
+.ec-distraction-free.ec-show-ep-list-in-zen .ep-input:focus {
+	border-color: var(--link-color, #3498db) !important;
+}
+
+/* Dark theme adjustments for the toggled EasyPhoto list */
+.ec-distraction-free.ec-show-ep-list-in-zen.dark-theme .ep-row,
+.ec-distraction-free.ec-show-ep-list-in-zen.ec-dark-theme .ep-row {
+	background: rgba(255, 255, 255, 0.06) !important; /* Stand out on dark backgrounds */
+	border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.ec-distraction-free.ec-show-ep-list-in-zen.dark-theme .ep-input-container label,
+.ec-distraction-free.ec-show-ep-list-in-zen.ec-dark-theme .ep-input-container label {
+	color: rgba(255, 255, 255, 0.85) !important; /* Pure readable white with slight opacity */
+}
+
+.ec-distraction-free.ec-show-ep-list-in-zen.dark-theme .ep-input,
+.ec-distraction-free.ec-show-ep-list-in-zen.ec-dark-theme .ep-input {
+	background: rgba(0, 0, 0, 0.35) !important; /* Dark input background */
+	color: #ffffff !important; /* Crisp white text */
+	border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.ec-distraction-free.ec-show-ep-list-in-zen.dark-theme .ep-input:focus,
+.ec-distraction-free.ec-show-ep-list-in-zen.ec-dark-theme .ep-input:focus {
+	border-color: var(--link-color, #3498db) !important;
+}

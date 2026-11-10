@@ -1,0 +1,28 @@
+{
+	"name": "friendica",
+	"description": "Linting toolchain for Friendica's first-party JavaScript and CSS",
+	"license": "AGPL-3.0-or-later",
+	"private": true,
+	"type": "module",
+	"engines": {
+		"node": "^20.19.0 || ^22.13.0 || >=24"
+	},
+	"scripts": {
+		"lint": "npm run lint:js && npm run lint:css",
+		"lint:fix": "npm run lint:js:fix && npm run lint:css:fix",
+
+		"lint:js": "eslint --pass-on-unpruned-suppressions",
+		"lint:js:fix": "eslint --fix --pass-on-unpruned-suppressions",
+		"lint:js:prune": "eslint --prune-suppressions",
+
+		"lint:css": "stylelint \"view/**/*.css\" --max-warnings 0",
+		"lint:css:fix": "stylelint \"view/**/*.css\" --fix --max-warnings 0"
+	},
+	"devDependencies": {
+		"@eslint/js": "^10.0.1",
+		"eslint": "^10.8.1",
+		"globals": "^17.9.0",
+		"stylelint": "^17.14.1",
+		"stylelint-config-recommended": "^18.0.0"
+	}
+}

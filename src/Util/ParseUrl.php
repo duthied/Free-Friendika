@@ -1,0 +1,1971 @@
+<?php
+
+// Copyright (C) 2010-2026, the Friendica project
+// SPDX-FileCopyrightText: 2010-2026 the Friendica project
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+namespace Friendica\Util;
+
+use DOMDocument;
+use DOMXPath;
+use DOMElement;
+use Friendica\Content\Text\HTML;
+use Friendica\Protocol\HTTP\MediaType;
+use Friendica\Database\Database;
+use Friendica\Event\ArrayFilterEvent;
+use Friendica\Database\DBA;
+use Friendica\DI;
+use Friendica\Network\HTTPClient\Client\HttpClientAccept;
+use Friendica\Network\HTTPException;
+use Friendica\Network\HTTPClient\Client\HttpClientOptions;
+use Friendica\Network\HTTPClient\Client\HttpClientRequest;
+use Embera\Embera;
+use Friendica\Content\Text\BBCode;
+use Friendica\Core\Cache\Enum\Duration;
+use Friendica\Model\Post;
+
+/**
+ * Get information about a given URL
+ *
+ * Class with methods for extracting certain content from an url
+ */
+class ParseUrl
+{
+	public const DEFAULT_EXPIRATION_FAILURE = 'now + 1 day';
+	public const DEFAULT_EXPIRATION_SUCCESS = 'now + 3 months';
+
+	/**
+	 * Maximum number of characters for the description
+	 */
+	public const MAX_DESC_COUNT = 250;
+
+	/**
+	 * Minimum number of characters for the description
+	 */
+	public const MIN_DESC_COUNT = 100;
+
+	/**
+	 * Maximum size in bytes of a fetched page. Some pages are quite large (YouTube is above 1 MB),
+	 * but the relevant meta data is contained in the head.
+	 */
+	private const MAX_PAGE_SIZE = 5000000;
+
+	/**
+	 * Fetch the content type of the given url
+	 *
+	 * Performs a HEAD (fallback to GET) and returns the detected
+	 * content type split into main type and subtype (e.g. ['text', 'html']).
+	 *
+	 * @param string $url     URL of the page
+	 * @param string $accept  content-type to accept
+	 * @param int    $timeout request timeout in seconds
+	 *
+	 * @return string[] Array with the main type and subtype (e.g. ['text','html'])
+	 */
+	public static function getContentType(string $url, string $accept = HttpClientAccept::DEFAULT, int $timeout = 0): array
+	{
+		if (!empty($timeout)) {
+			$options = [HttpClientOptions::TIMEOUT => $timeout, HttpClientOptions::REQUEST => HttpClientRequest::CONTENTTYPE, HttpClientOptions::HEADERS => ['Range' => 'bytes=0-100000']];
+		} else {
+			$options = [HttpClientOptions::REQUEST => HttpClientRequest::CONTENTTYPE, HttpClientOptions::HEADERS => ['Range' => 'bytes=0-100000']];
+		}
+
+		try {
+			$curlResult = DI::httpClient()->head($url, array_merge([HttpClientOptions::ACCEPT_CONTENT => $accept], $options));
+		} catch (\Exception $e) {
+			DI::logger()->debug('Got exception', ['url' => $url, 'message' => $e->getMessage()]);
+			return [];
+		}
+
+		// Workaround for systems that can't handle a HEAD request. Don't retry on timeouts.
+		if (!$curlResult->isSuccess() && ($curlResult->getReturnCode() >= 400) && !in_array($curlResult->getReturnCode(), [408, 504])) {
+			try {
+				$curlResult = DI::httpClient()->get($url, $accept, array_merge([HttpClientOptions::CONTENT_LENGTH => 1000000], $options));
+			} catch (\Throwable $th) {
+				DI::logger()->notice('Got exception', ['code' => $th->getCode(), 'message' => $th->getMessage()]);
+				return [];
+			}
+		}
+
+		if (!$curlResult->isSuccess()) {
+			DI::logger()->debug('Got HTTP Error', ['http error' => $curlResult->getReturnCode(), 'url' => $url]);
+			return [];
+		}
+
+		$contenttype = $curlResult->getContentType();
+		if (empty($contenttype)) {
+			return ['application', 'octet-stream'];
+		}
+
+		return explode('/', current(explode(';', $contenttype)));
+	}
+
+	/**
+	 * Search for cached embeddable data of an url otherwise fetch it
+	 *
+	 * @param string $url      The url of the page which should be scraped
+	 * @param string $mimetype Optional mimetype that had already been detected for this page
+	 *
+	 * @return array which contains needed data for embedding
+	 *    string 'url'      => The url of the parsed page
+	 *    string 'type'     => Content type
+	 *    string 'title'    => (optional) The title of the content
+	 *    string 'text'     => (optional) The description for the content
+	 *    string 'image'    => (optional) A preview image of the content
+	 *    array  'images'   => (optional) Array of preview pictures
+	 *    string 'keywords' => (optional) The tags which belong to the content
+	 *
+	 * @throws HTTPException\InternalServerErrorException
+	 * @see   ParseUrl::getSiteinfo() for more information about scraping
+	 * embeddable content
+	 */
+	public static function getSiteinfoCached(string $url, string $mimetype = ''): array
+	{
+		if (empty($url)) {
+			return [
+				'url'  => '',
+				'type' => 'error',
+			];
+		}
+
+		$urlHash = hash('sha256', $url);
+
+		$parsed_url = DBA::selectFirst('parsed_url', ['content'], ['url_hash' => $urlHash, 'oembed' => false]);
+		if (!empty($parsed_url['content'])) {
+			$data = unserialize($parsed_url['content'], ['allowed_classes' => false]);
+			return $data;
+		}
+
+		$data = self::getSiteinfo($url, $mimetype);
+
+		$expires = $data['expires'];
+
+		unset($data['expires']);
+
+		DI::dba()->insert(
+			'parsed_url',
+			[
+				'url_hash' => $urlHash,
+				'oembed'   => false,
+				'url'      => $url,
+				'content'  => serialize($data),
+				'created'  => DateTimeFormat::utcNow(),
+				'expires'  => $expires,
+			],
+			Database::INSERT_UPDATE,
+		);
+
+		return $data;
+	}
+
+	/**
+	 * Parse a page for embeddable content information
+	 *
+	 * This method parses to url for meta data which can be used to embed
+	 * the content. If available it prioritizes Open Graph meta tags.
+	 * If this is not available it uses the twitter cards meta tags.
+	 * As fallback it uses standard html elements with meta informations
+	 * like \<title\>Awesome Title\</title\> or
+	 * \<meta name="description" content="An awesome description"\>
+	 *
+	 * @param string $url      The url of the page which should be scraped
+	 * @param string $mimetype Optional mimetype that had already been detected for this page
+	 * @param int    $count    Internal counter to avoid endless loops
+	 * @param bool   $songlink Try to retrieve an alternative player via song.link (default: true)
+	 *
+	 * @return array which contains needed data for embedding
+	 *    string 'url'      => The url of the parsed page
+	 *    string 'type'     => Content type (error, link, photo, image, audio, video)
+	 *    string 'title'    => (optional) The title of the content
+	 *    string 'text'     => (optional) The description for the content
+	 *    string 'image'    => (optional) A preview image of the content
+	 *    array  'images'   => (optional) Array of preview pictures
+	 *    string 'keywords' => (optional) The tags which belong to the content
+	 *
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @todo  https://developers.google.com/+/plugins/snippet/
+	 * @verbatim
+	 * <meta itemprop="name" content="Awesome title">
+	 * <meta itemprop="description" content="An awesome description">
+	 * <meta itemprop="image" content="http://maple.libertreeproject.org/images/tree-icon.png">
+	 *
+	 * <body itemscope itemtype="http://schema.org/Product">
+	 *   <h1 itemprop="name">Shiny Trinket</h1>
+	 *   <img itemprop="image" src="{image-url}" />
+	 *   <p itemprop="description">Shiny trinkets are shiny.</p>
+	 * </body>
+	 * @endverbatim
+	 */
+	public static function getSiteinfo(string $url, string $mimetype = '', int $count = 1, bool $songlink = true): array
+	{
+		if (empty($url)) {
+			return [
+				'url'  => '',
+				'type' => 'error',
+			];
+		}
+
+		// Check if the URL does contain a scheme
+		$scheme = parse_url($url, PHP_URL_SCHEME);
+
+		if ($scheme == '') {
+			$url = 'http://' . ltrim($url, '/');
+		}
+
+		$url = trim($url, "'\"");
+
+		$url = Network::stripTrackingQueryParams($url);
+
+		$siteinfo = [
+			'url'     => $url,
+			'type'    => 'link',
+			'expires' => DateTimeFormat::utc(self::DEFAULT_EXPIRATION_FAILURE),
+		];
+
+		if ($count > 10) {
+			DI::logger()->warning('Endless loop detected', ['url' => $url]);
+			return $siteinfo;
+		}
+
+		if (!empty($mimetype)) {
+			$type = explode('/', current(explode(';', $mimetype)));
+		} else {
+			$type = self::getContentType($url);
+		}
+		DI::logger()->info('Got content-type', ['content-type' => $type, 'url' => $url]);
+		if (!empty($type) && in_array($type[0], ['image', 'video', 'audio'])) {
+			$siteinfo['type']      = $type[0];
+			$siteinfo['mimetype']  = implode('/', $type);
+			$siteinfo['mediatype'] = Post\Media::getType($siteinfo['mimetype']);
+			return $siteinfo;
+		}
+
+		if ((count($type) >= 2) && (($type[0] != 'text') || ($type[1] != 'html'))) {
+			DI::logger()->info('Unparseable content-type, quitting here, ', ['content-type' => $type, 'url' => $url]);
+			return $siteinfo;
+		}
+
+		try {
+			$curlResult = DI::httpClient()->get($url, HttpClientAccept::HTML, [HttpClientOptions::CONTENT_LENGTH => self::MAX_PAGE_SIZE, HttpClientOptions::REQUEST => HttpClientRequest::SITEINFO]);
+		} catch (\Throwable $th) {
+			DI::logger()->info('Exception when fetching', ['url' => $url, 'code' => $th->getCode(), 'message' => $th->getMessage()]);
+			return $siteinfo;
+		}
+		if (!$curlResult->isSuccess() || empty($curlResult->getBodyString())) {
+			DI::logger()->info('Empty body or error when fetching', ['url' => $url, 'success' => $curlResult->isSuccess(), 'code' => $curlResult->getReturnCode()]);
+			return $siteinfo;
+		}
+
+		$siteinfo['mimetype']  = $curlResult->getContentType() ?: $mimetype;
+		$siteinfo['mediatype'] = Post\Media::getType($siteinfo['mimetype']);
+		$siteinfo['expires']   = DateTimeFormat::utc(self::DEFAULT_EXPIRATION_SUCCESS);
+
+		if (isset($curlResult->getHeader('Last-Modified')[0]) && $curlResult->getHeader('Last-Modified')[0] != '') {
+			$siteinfo['modified'] = DateTimeFormat::utc($curlResult->getHeader('Last-Modified')[0]);
+		}
+
+		if (isset($curlResult->getHeader('Expires')[0]) && $curlResult->getHeader('Expires')[0] != '') {
+			$expires = DateTimeFormat::utc($curlResult->getHeader('Expires')[0]);
+			if (time() < strtotime($expires)) {
+				$siteinfo['expires'] = $expires;
+			}
+		}
+
+		if ($cacheControlHeader = $curlResult->getHeader('Cache-Control')[0] ?? '') {
+			if (preg_match('/max-age=([0-9]+)/i', $cacheControlHeader, $matches)) {
+				$maxAge = max(86400, (int) array_pop($matches));
+
+				$siteinfo['expires'] = DateTimeFormat::utc("now + $maxAge seconds");
+			}
+		}
+
+		$body = $curlResult->getBodyString();
+
+		$siteinfo['size'] = mb_strlen($body);
+
+		$charset = '';
+		try {
+			// Look for a charset, first in headers
+			$mediaType = MediaType::fromContentType($curlResult->getContentType());
+			if (isset($mediaType->parameters['charset'])) {
+				$charset = $mediaType->parameters['charset'];
+			}
+		} catch (\InvalidArgumentException) {
+		}
+
+		$siteinfo['charset'] = $charset;
+
+		if ($charset && strtoupper($charset) != 'UTF-8') {
+			// See https://github.com/friendica/friendica/issues/5470#issuecomment-418351211
+			$charset = str_ireplace('latin-1', 'latin1', $charset);
+
+			DI::logger()->info('detected charset', ['charset' => $charset]);
+			$body = iconv($charset, 'UTF-8//TRANSLIT', $body);
+		}
+
+		$body = HTML::toNumericEntities($body);
+
+		if (empty($body)) {
+			return $siteinfo;
+		}
+
+		$doc = new DOMDocument();
+		@$doc->loadHTML($body);
+
+		$siteinfo['charset'] = HTML::extractCharset($doc) ?? $siteinfo['charset'];
+
+		XML::deleteNode($doc, 'style');
+		XML::deleteNode($doc, 'option');
+		XML::deleteNode($doc, 'h1');
+		XML::deleteNode($doc, 'h2');
+		XML::deleteNode($doc, 'h3');
+		XML::deleteNode($doc, 'h4');
+		XML::deleteNode($doc, 'h5');
+		XML::deleteNode($doc, 'h6');
+		XML::deleteNode($doc, 'ol');
+		XML::deleteNode($doc, 'ul');
+
+		$xpath = new DOMXPath($doc);
+
+		$list = $xpath->query('//html[@lang]');
+		foreach ($list as $node) {
+			if ($node->attributes->length) {
+				foreach ($node->attributes as $attribute) {
+					if ($attribute->name == 'lang') {
+						$siteinfo['language'] = $attribute->value;
+					}
+				}
+			}
+		}
+
+		$list = $xpath->query('//meta[@content]');
+		foreach ($list as $node) {
+			$meta_tag = [];
+			if ($node->attributes->length) {
+				foreach ($node->attributes as $attribute) {
+					$meta_tag[$attribute->name] = $attribute->value;
+				}
+			}
+
+			if (@$meta_tag['http-equiv'] == 'refresh') {
+				$path    = $meta_tag['content'];
+				$content = '';
+				foreach (explode(';', $path) as $value) {
+					if (str_starts_with(strtolower($value), 'url=')) {
+						$content = substr($value, 4);
+					}
+				}
+				if ($content != '') {
+					$siteinfo = self::getSiteinfo($content, $mimetype, ++$count);
+					return $siteinfo;
+				}
+			}
+		}
+
+		$list = $xpath->query('//title');
+		if ($list->length > 0) {
+			$siteinfo['title'] = trim((string) $list->item(0)->nodeValue);
+		}
+
+		$list = $xpath->query('//meta[@name]');
+		foreach ($list as $node) {
+			$meta_tag = [];
+			if ($node->attributes->length) {
+				foreach ($node->attributes as $attribute) {
+					$meta_tag[$attribute->name] = $attribute->value;
+				}
+			}
+
+			if (empty($meta_tag['content'])) {
+				continue;
+			}
+
+			$meta_tag['content'] = trim(html_entity_decode($meta_tag['content'], ENT_QUOTES, 'UTF-8'));
+
+			switch (strtolower($meta_tag['name'])) {
+				case 'fulltitle':
+					$siteinfo['title'] = trim($meta_tag['content']);
+					break;
+				case 'description':
+					$siteinfo['text'] = trim($meta_tag['content']);
+					break;
+				case 'thumbnail':
+					$siteinfo['image'] = $meta_tag['content'];
+					break;
+				case 'twitter:image':
+					$siteinfo['image'] = $meta_tag['content'];
+					break;
+				case 'twitter:image:src':
+					$siteinfo['image'] = $meta_tag['content'];
+					break;
+				case 'twitter:description':
+					$siteinfo['text'] = trim($meta_tag['content']);
+					break;
+				case 'twitter:title':
+					$siteinfo['title'] = trim($meta_tag['content']);
+					break;
+				case 'twitter:player':
+					$siteinfo['player']['embed'] = trim($meta_tag['content']);
+					break;
+				case 'twitter:player:stream':
+					$siteinfo['player']['stream'] = trim($meta_tag['content']);
+					break;
+				case 'twitter:player:width':
+					$siteinfo['player']['width'] = intval($meta_tag['content']);
+					break;
+				case 'twitter:player:height':
+					$siteinfo['player']['height'] = intval($meta_tag['content']);
+					break;
+				case 'dc.title':
+					$siteinfo['title'] = trim($meta_tag['content']);
+					break;
+				case 'dc.description':
+					$siteinfo['text'] = trim($meta_tag['content']);
+					break;
+				case 'dc.creator':
+					$siteinfo['publisher_name'] = trim($meta_tag['content']);
+					break;
+				case 'keywords':
+					$keywords = explode(',', $meta_tag['content']);
+					break;
+				case 'news_keywords':
+					$keywords = explode(',', $meta_tag['content']);
+					break;
+			}
+		}
+
+		if (isset($keywords)) {
+			$siteinfo['keywords'] = [];
+			foreach ($keywords as $keyword) {
+				if (!in_array(trim($keyword), $siteinfo['keywords'])) {
+					$siteinfo['keywords'][] = trim($keyword);
+				}
+			}
+		}
+
+		$list = $xpath->query('//meta[@property]');
+		foreach ($list as $node) {
+			$meta_tag = [];
+			if ($node->attributes->length) {
+				foreach ($node->attributes as $attribute) {
+					$meta_tag[$attribute->name] = $attribute->value;
+				}
+			}
+
+			if (!empty($meta_tag['content'])) {
+				$meta_tag['content'] = trim(html_entity_decode($meta_tag['content'], ENT_QUOTES, 'UTF-8'));
+
+				switch (strtolower($meta_tag['property'])) {
+					case 'og:image':
+						$siteinfo['image'] = $meta_tag['content'];
+						break;
+					case 'og:image:url':
+						$siteinfo['image'] = $meta_tag['content'];
+						break;
+					case 'og:image:secure_url':
+						$siteinfo['image'] = $meta_tag['content'];
+						break;
+					case 'og:title':
+						$siteinfo['title'] = trim($meta_tag['content']);
+						break;
+					case 'og:description':
+						$siteinfo['text'] = trim($meta_tag['content']);
+						break;
+					case 'og:updated_time':
+						$siteinfo['modified'] = DateTimeFormat::utc(trim($meta_tag['content']));
+						break;
+					case 'og:site_name':
+						$siteinfo['publisher_name'] = trim($meta_tag['content']);
+						break;
+					case 'og:locale':
+						$siteinfo['language'] = trim($meta_tag['content']);
+						break;
+					case 'og:type':
+						$siteinfo['pagetype'] = trim($meta_tag['content']);
+						break;
+					case 'og:video':
+					case 'og:video:secure_url':
+						$siteinfo['player']['embed'] = trim($meta_tag['content']);
+						break;
+					case 'twitter:description':
+						$siteinfo['text'] = trim($meta_tag['content']);
+						break;
+					case 'twitter:title':
+						$siteinfo['title'] = trim($meta_tag['content']);
+						break;
+					case 'twitter:image':
+						$siteinfo['image'] = $meta_tag['content'];
+						break;
+					case 'twitter:player':
+						$siteinfo['player']['embed'] = trim($meta_tag['content']);
+						break;
+					case 'twitter:player:width':
+						$siteinfo['player']['width'] = intval($meta_tag['content']);
+						break;
+					case 'twitter:player:height':
+						$siteinfo['player']['height'] = intval($meta_tag['content']);
+						break;
+				}
+			}
+		}
+
+		$siteinfo = self::checkATProtocol($siteinfo, $xpath);
+
+		$siteinfo['schematypes'] = [];
+
+		$list = $xpath->query("//script[@type='application/ld+json']");
+		foreach ($list as $node) {
+			if (!empty($node->nodeValue)) {
+				$jsonld = json_decode($node->nodeValue, true);
+				if (is_array($jsonld)) {
+					$siteinfo = self::parseParts($siteinfo, $jsonld, true);
+				}
+			}
+		}
+
+		$siteinfo['schematypes'] = array_values(array_unique($siteinfo['schematypes']));
+
+		if (sizeof($siteinfo['schematypes']) === 0) {
+			unset($siteinfo['schematypes']);
+		}
+
+		$siteinfo = self::getOembedInfo($xpath, $siteinfo);
+
+		if ($songlink && isset($siteinfo['player']['embed']) && DI::config()->get('system', 'songlink')) {
+			$siteinfo = self::getSongLinkPlayer($siteinfo);
+		}
+
+		if (!empty($siteinfo['player']['stream'])) {
+			// Only add player data to media arrays if there is no duplicate
+			$content_urls = array_merge(array_column($siteinfo['audio'] ?? [], 'content'), array_column($siteinfo['video'] ?? [], 'content'));
+			if (!in_array($siteinfo['player']['stream'], $content_urls)) {
+				$contenttype = self::getContentType($siteinfo['player']['stream']);
+				if (!empty($contenttype[0]) && in_array($contenttype[0], ['audio', 'video'])) {
+					$media = ['content' => $siteinfo['player']['stream']];
+
+					if (!empty($siteinfo['player']['embed'])) {
+						$media['embed'] = $siteinfo['player']['embed'];
+					}
+
+					$siteinfo[$contenttype[0]][] = $media;
+				}
+			}
+		}
+
+		if (!empty($siteinfo['image'])) {
+			$siteinfo['images'] ??= [];
+			array_unshift($siteinfo['images'], ['url' => $siteinfo['image']]);
+			unset($siteinfo['image']);
+		}
+
+		$siteinfo = self::checkMedia($url, $siteinfo);
+
+		if (!empty($siteinfo['text']) && mb_strlen((string) $siteinfo['text']) > self::MAX_DESC_COUNT) {
+			$siteinfo['text'] = mb_substr((string) $siteinfo['text'], 0, self::MAX_DESC_COUNT) . '…';
+
+			$pos = mb_strrpos($siteinfo['text'], '.');
+			if ($pos > self::MIN_DESC_COUNT) {
+				$siteinfo['text'] = mb_substr($siteinfo['text'], 0, $pos + 1);
+			}
+		}
+
+		if (!empty($siteinfo['language'])) {
+			$siteinfo['language'] = explode('_', str_replace('-', '_', $siteinfo['language']))[0];
+		}
+
+		DI::logger()->info('Siteinfo fetched', ['url' => $url, 'siteinfo' => $siteinfo]);
+
+		$siteinfo = DI::eventDispatcher()->dispatch(
+			new ArrayFilterEvent(ArrayFilterEvent::GET_SITE_INFO, $siteinfo),
+		)->getArray();
+
+		ksort($siteinfo);
+
+		return $siteinfo;
+	}
+
+	/**
+	 * Check if the page is a AT protocol profile page or post page
+	 *
+	 * @param array $siteinfo
+	 * @param DOMXPath $xpath
+	 * @return array
+	 */
+	private static function checkATProtocol(array $siteinfo, DOMXPath $xpath): array
+	{
+		$handle = '';
+		$list   = $xpath->query('//meta[@property]');
+		foreach ($list as $node) {
+			$meta_tag = [];
+			if ($node->attributes->length) {
+				foreach ($node->attributes as $attribute) {
+					$meta_tag[$attribute->name] = $attribute->value;
+				}
+			}
+			if ($meta_tag['property'] !== 'profile:username' || !isset($meta_tag['content'])) {
+				continue;
+			}
+			$handle = $meta_tag['content'];
+		}
+		if ($handle === '') {
+			return $siteinfo;
+		}
+
+		$siteinfo['atprotocol']['handle'] = $handle;
+
+		// Publically visible posts have got a link element that points to the at address
+		$list = $xpath->query('//link[@rel]');
+		foreach ($list as $node) {
+			$meta_tag = [];
+			if ($node->attributes->length) {
+				foreach ($node->attributes as $attribute) {
+					$meta_tag[$attribute->name] = $attribute->value;
+				}
+			}
+			if ($meta_tag['rel'] !== 'alternate' || !isset($meta_tag['href'])) {
+				continue;
+			}
+
+			if (isset($meta_tag['type']) && $meta_tag['type'] === 'application/rss+xml') {
+				$siteinfo['atprotocol']['feed'] = $meta_tag['href'];
+			}
+
+			if (!str_starts_with($meta_tag['href'], 'at://')) {
+				continue;
+			}
+			if (str_ends_with($meta_tag['href'], '/app.bsky.actor.profile/self')) {
+				$siteinfo['atprotocol']['did'] = str_replace(['at://', '/app.bsky.actor.profile/self'], '', $meta_tag['href']);
+				DI::logger()->debug('Found AT Protocol post via alternate link', ['url' => $siteinfo['url'], 'uri' => $meta_tag['href']]);
+				continue;
+			}
+			$siteinfo['atprotocol']['uri'] = $meta_tag['href'];
+			$parts                         = explode('/', $siteinfo['atprotocol']['uri']);
+			if (count($parts) === 5) {
+				$siteinfo['atprotocol']['did'] = $parts[2];
+			}
+		}
+
+		if (!isset($siteinfo['atprotocol']['did'])) {
+			$did = DI::atProtocol()->getDid($handle);
+			if ($did === '') {
+				unset($siteinfo['atprotocol']);
+				return $siteinfo;
+			}
+			$siteinfo['atprotocol']['did'] = $did;
+		}
+
+		if (!DI::atProtocol()->isValidDid($siteinfo['atprotocol']['did'], $siteinfo['atprotocol']['handle'])) {
+			unset($siteinfo['atprotocol']);
+			return $siteinfo;
+		}
+
+		// When the post is not publically visible, we have to do some guess work. At first we check if that page is an AT Protocol page
+		if (!isset($siteinfo['atprotocol']['uri']) && preg_match('#^https://.+/profile/(.+)/post/(.+)#', (string) $siteinfo['url'], $matches)) {
+			$siteinfo['atprotocol']['uri'] = 'at://' . $siteinfo['atprotocol']['did'] . '/app.bsky.feed.post/' . $matches[2];
+			DI::logger()->debug('Found AT Protocol post via url structure', ['uri' => $siteinfo['url'], 'did' => $siteinfo['atprotocol']['did'], 'cid' => $matches[2]]);
+		}
+
+		return $siteinfo;
+	}
+
+	/**
+	 * Check the attached media elements.
+	 * Fix existing data and add missing data.
+	 *
+	 * @param string $page_url
+	 * @param array $siteinfo
+	 * @return array
+	 */
+	private static function checkMedia(string $page_url, array $siteinfo): array
+	{
+		if (!empty($siteinfo['images'])) {
+			array_walk($siteinfo['images'], function (&$image) use ($page_url): void {
+				/*
+				 * According to the specifications someone could place a picture
+				 * URL into the content field as well. But this doesn't seem to
+				 * happen in the wild, so we don't cover it here.
+				 */
+				if (!empty($image['url'])) {
+					$image['url'] = self::completeUrl($image['url'], $page_url);
+
+					$photodata = Images::getInfoFromURLCached($image['url']);
+					if (($photodata) && ($photodata[0] > 50) && ($photodata[1] > 50)) {
+						$image['src']         = $image['url'];
+						$image['width']       = $photodata[0];
+						$image['height']      = $photodata[1];
+						$image['contenttype'] = $photodata['mime'];
+						$image['blurhash']    = $photodata['blurhash'] ?? null;
+						unset($image['url']);
+						ksort($image);
+					} else {
+						$image = [];
+					}
+				} else {
+					$image = [];
+				}
+			});
+
+			$siteinfo['images'] = array_values(array_filter($siteinfo['images']));
+		}
+
+		foreach (['audio', 'video'] as $element) {
+			if (!empty($siteinfo[$element])) {
+				array_walk($siteinfo[$element], function (&$media) use ($page_url): void {
+					$url         = '';
+					$embed       = '';
+					$content     = '';
+					$contenttype = '';
+					foreach (['embed', 'content', 'url'] as $field) {
+						if (!empty($media[$field])) {
+							$media[$field] = self::completeUrl($media[$field], $page_url);
+
+							$type = self::getContentType($media[$field]);
+							if (($type[0] ?? '') == 'text') {
+								if ($field == 'embed') {
+									$embed = $media[$field];
+								} else {
+									$url = $media[$field];
+								}
+							} elseif (!empty($type[0])) {
+								$content     = $media[$field];
+								$contenttype = implode('/', $type);
+							}
+						}
+						unset($media[$field]);
+					}
+
+					foreach (['image', 'preview'] as $field) {
+						if (!empty($media[$field])) {
+							$media[$field] = self::completeUrl($media[$field], $page_url);
+						}
+					}
+
+					if (!empty($url)) {
+						$media['url'] = $url;
+					}
+					if (!empty($embed)) {
+						$media['embed'] = $embed;
+					}
+					if (!empty($content)) {
+						$media['src'] = $content;
+					}
+					if (!empty($contenttype)) {
+						$media['contenttype'] = $contenttype;
+					}
+					if (empty($url) && empty($content) && empty($embed)) {
+						$media = [];
+					}
+					ksort($media);
+				});
+
+				$siteinfo[$element] = array_values(array_filter($siteinfo[$element]));
+			}
+			if (empty($siteinfo[$element])) {
+				unset($siteinfo[$element]);
+			}
+		}
+		return $siteinfo;
+	}
+
+	/**
+	 * Convert tags from CSV to an array
+	 *
+	 * @param string $string Tags
+	 *
+	 * @return array with formatted Hashtags
+	 */
+	public static function convertTagsToArray(string $string): array
+	{
+		$arr_tags = str_getcsv($string, ',', '"', '\\');
+
+		// add the # sign to every tag
+		array_walk($arr_tags, self::arrAddHashes(...));
+
+		return $arr_tags;
+	}
+
+	/**
+	 * Add a hasht sign to a string
+	 *
+	 * This method is used as callback function
+	 *
+	 * @param string $tag The pure tag name
+	 * @param int    $k   Counter for internal use
+	 *
+	 * @return void
+	 */
+	private static function arrAddHashes(string &$tag, int $k)
+	{
+		$tag = '#' . $tag;
+	}
+
+	/**
+	 * Add a scheme to an url
+	 *
+	 * The src attribute of some html elements (e.g. images)
+	 * can miss the scheme so we need to add the correct
+	 * scheme
+	 *
+	 * @param string $url    The url which possibly does have
+	 *                       a missing scheme (a link to an image)
+	 * @param string $scheme The url with a correct scheme
+	 *                       (e.g. the url from the webpage which does contain the image)
+	 *
+	 * @return string The url with a scheme
+	 */
+	private static function completeUrl(string $url, string $scheme): string
+	{
+		$urlarr = parse_url($url);
+
+		// If the url does already have an scheme
+		// we can stop the process here
+		if (isset($urlarr['scheme'])) {
+			return $url;
+		}
+
+		$schemearr = parse_url($scheme);
+
+		$complete = $schemearr['scheme'] . '://' . $schemearr['host'];
+
+		if (!empty($schemearr['port'])) {
+			$complete .= ':' . $schemearr['port'];
+		}
+
+		if (!empty($urlarr['path'])) {
+			if (!str_starts_with($urlarr['path'], '/')) {
+				$complete .= '/';
+			}
+
+			$complete .= $urlarr['path'];
+		}
+
+		if (!empty($urlarr['query'])) {
+			$complete .= '?' . $urlarr['query'];
+		}
+
+		if (!empty($urlarr['fragment'])) {
+			$complete .= '#' . $urlarr['fragment'];
+		}
+
+		return $complete;
+	}
+
+	/**
+	 * Parse the Json-Ld parts of a web page
+	 *
+	 * Recursively parses JSON-LD structures and merges extracted information
+	 * into the given $siteinfo array.
+	 *
+	 * @param array $siteinfo The current siteinfo to enrich
+	 * @param array $jsonld   The JSON-LD data to parse
+	 * @param bool  $root     Whether this call is the root element
+	 *
+	 * @return array The enriched siteinfo array
+	 */
+	private static function parseParts(array $siteinfo, array $jsonld, bool $root): array
+	{
+		if (!empty($jsonld['@graph']) && is_array($jsonld['@graph'])) {
+			foreach ($jsonld['@graph'] as $part) {
+				if (!empty($part) && is_array($part)) {
+					$siteinfo = self::parseParts($siteinfo, $part, false);
+				}
+			}
+		} elseif (!empty($jsonld['@type'])) {
+			$siteinfo = self::parseJsonLd($siteinfo, $jsonld, $root);
+		} elseif (!empty($jsonld)) {
+			$keys         = array_keys($jsonld);
+			$numeric_keys = true;
+			foreach ($keys as $key) {
+				if (!is_int($key)) {
+					$numeric_keys = false;
+				}
+			}
+			if ($numeric_keys) {
+				foreach ($jsonld as $part) {
+					if (!empty($part) && is_array($part)) {
+						$siteinfo = self::parseParts($siteinfo, $part, false);
+					}
+				}
+			}
+		}
+
+		array_walk_recursive($siteinfo, function (&$element): void {
+			if (is_string($element)) {
+				$element = trim(strip_tags(html_entity_decode($element, ENT_COMPAT, 'UTF-8')));
+			}
+		});
+
+		return $siteinfo;
+	}
+
+	/**
+	 * Improve the siteinfo with information from the provided JSON-LD information
+	 * @see https://jsonld.com/
+	 * @see https://schema.org/
+	 *
+	 * @param array $siteinfo
+	 * @param array $jsonld
+	 *
+	 * @return array siteinfo
+	 */
+	private static function parseJsonLd(array $siteinfo, array $jsonld, bool $root): array
+	{
+		$type = JsonLD::fetchElement($jsonld, '@type');
+		if (empty($type)) {
+			DI::logger()->info('Empty type', ['url' => $siteinfo['url']]);
+			return $siteinfo;
+		}
+
+		if ($root) {
+			$siteinfo['schematypes'][] = $type;
+		}
+
+		// Silently ignore some types that aren't processed
+		if (in_array($type, ['SiteNavigationElement', 'JobPosting', 'CreativeWork', 'MusicAlbum',
+			'WPHeader', 'WPSideBar', 'WPFooter', 'LegalService', 'MusicRecording',
+			'ItemList', 'BreadcrumbList', 'Blog', 'Dataset', 'Product'])) {
+			return $siteinfo;
+		}
+
+		if (isset($siteinfo['atprotocol']) && $type === 'ProfilePage') {
+			$siteinfo = self::parseJsonLdProfilePage($siteinfo, $jsonld);
+		}
+
+		switch ($type) {
+			case 'Article':
+			case 'AdvertiserContentArticle':
+			case 'NewsArticle':
+			case 'Report':
+			case 'SatiricalArticle':
+			case 'ScholarlyArticle':
+			case 'SocialMediaPosting':
+			case 'TechArticle':
+			case 'ReportageNewsArticle':
+			case 'SocialMediaPosting':
+			case 'BlogPosting':
+			case 'LiveBlogPosting':
+			case 'DiscussionForumPosting':
+				return self::parseJsonLdArticle($siteinfo, $jsonld);
+			case 'WebPage':
+			case 'AboutPage':
+			case 'CheckoutPage':
+			case 'CollectionPage':
+			case 'ContactPage':
+			case 'FAQPage':
+			case 'ItemPage':
+			case 'MedicalWebPage':
+			case 'ProfilePage':
+			case 'QAPage':
+			case 'RealEstateListing':
+			case 'SearchResultsPage':
+			case 'MediaGallery':
+			case 'ImageGallery':
+			case 'VideoGallery':
+			case 'RadioEpisode':
+			case 'Event':
+				return self::parseJsonLdWebPage($siteinfo, $jsonld);
+			case 'WebSite':
+				return self::parseJsonLdWebSite($siteinfo, $jsonld);
+			case 'Organization':
+			case 'Airline':
+			case 'Consortium':
+			case 'Corporation':
+			case 'EducationalOrganization':
+			case 'FundingScheme':
+			case 'GovernmentOrganization':
+			case 'LibrarySystem':
+			case 'LocalBusiness':
+			case 'MedicalOrganization':
+			case 'NGO':
+			case 'NewsMediaOrganization':
+			case 'Project':
+			case 'SportsOrganization':
+			case 'WorkersUnion':
+				return self::parseJsonLdWebOrganization($siteinfo, $jsonld);
+			case 'Person':
+			case 'Patient':
+			case 'PerformingGroup':
+			case 'DanceGroup':
+			case 'MusicGroup':
+			case 'TheaterGroup':
+				return self::parseJsonLdWebPerson($siteinfo, $jsonld);
+			case 'AudioObject':
+			case 'Audio':
+				return self::parseJsonLdMediaObject($siteinfo, $jsonld, 'audio');
+			case 'VideoObject':
+				return self::parseJsonLdMediaObject($siteinfo, $jsonld, 'video');
+			case 'ImageObject':
+				return self::parseJsonLdMediaObject($siteinfo, $jsonld, 'images');
+			default:
+				DI::logger()->info('Unknown type', ['type' => $type, 'url' => $siteinfo['url']]);
+				return $siteinfo;
+		}
+	}
+
+	/**
+	 * Fetch AT Protocol related profile page data
+	 *
+	 * @param array $siteinfo
+	 * @param array $jsonld
+	 *
+	 * @return array siteinfo
+	 */
+	private static function parseJsonLdProfilePage(array $siteinfo, array $jsonld): array
+	{
+		if (isset($jsonld['dateCreated'])) {
+			$siteinfo['atprotocol']['created'] = DateTimeFormat::utc($jsonld['dateCreated']);
+		}
+		if (!isset($jsonld['mainEntity']) || !is_array($jsonld['mainEntity'])) {
+			return $siteinfo;
+		}
+		$main = $jsonld['mainEntity'];
+		if (!isset($main['@type']) || $main['@type'] !== 'Person') {
+			return $siteinfo;
+		}
+		if (isset($main['name'])) {
+			$siteinfo['atprotocol']['name'] = $main['name'];
+		}
+		if (isset($main['identifier'])) {
+			$siteinfo['atprotocol']['did'] = $main['identifier'];
+		}
+		if (isset($main['description'])) {
+			$siteinfo['atprotocol']['description'] = $main['description'];
+		}
+		if (isset($main['image'])) {
+			$siteinfo['atprotocol']['image'] = $main['image'];
+		}
+		return $siteinfo;
+	}
+
+	/**
+	 * Fetch author and publisher data
+	 *
+	 * @param array $siteinfo
+	 * @param array $jsonld
+	 *
+	 * @return array siteinfo
+	 */
+	private static function parseJsonLdAuthor(array $siteinfo, array $jsonld): array
+	{
+		$jsonldinfo = [];
+
+		if (!empty($jsonld['publisher']) && is_array($jsonld['publisher'])) {
+			$content = JsonLD::fetchElement($jsonld, 'publisher', 'name');
+			if (!empty($content) && is_string($content)) {
+				$jsonldinfo['publisher_name'] = trim($content);
+			}
+
+			$content = JsonLD::fetchElement($jsonld, 'publisher', 'url');
+			if (!empty($content) && is_string($content)) {
+				$jsonldinfo['publisher_url'] = Network::sanitizeUrl($content);
+			}
+
+			$brand = JsonLD::fetchElement($jsonld, 'publisher', 'brand', '@type', 'Organization');
+			if (!empty($brand) && is_array($brand)) {
+				$content = JsonLD::fetchElement($brand, 'name');
+				if (!empty($content) && is_string($content)) {
+					$jsonldinfo['publisher_name'] = trim($content);
+				}
+
+				$content = JsonLD::fetchElement($brand, 'url');
+				if (!empty($content) && is_string($content)) {
+					$jsonldinfo['publisher_url'] = Network::sanitizeUrl($content);
+				}
+
+				$content = JsonLD::fetchElement($brand, 'logo', 'url');
+				if (!empty($content) && is_string($content)) {
+					$jsonldinfo['publisher_img'] = trim($content);
+				}
+			}
+
+			$logo = JsonLD::fetchElement($jsonld, 'publisher', 'logo');
+			if (!empty($logo) && is_array($logo)) {
+				$content = JsonLD::fetchElement($logo, 'url');
+				if (!empty($content) && is_string($content)) {
+					$jsonldinfo['publisher_img'] = trim($content);
+				}
+			}
+		} elseif (!empty($jsonld['publisher']) && is_string($jsonld['publisher'])) {
+			$jsonldinfo['publisher_name'] = trim($jsonld['publisher']);
+		}
+
+		if (!empty($jsonld['author']) && is_array($jsonld['author'])) {
+			$content = JsonLD::fetchElement($jsonld, 'author', 'name');
+			if (!empty($content) && is_string($content)) {
+				$jsonldinfo['author_name'] = trim($content);
+			}
+
+			$content = JsonLD::fetchElement($jsonld, 'author', 'sameAs');
+			if (!empty($content) && is_string($content)) {
+				$jsonldinfo['author_url'] = Network::sanitizeUrl($content);
+			}
+
+			$content = JsonLD::fetchElement($jsonld, 'author', 'url');
+			if (!empty($content) && is_string($content)) {
+				$jsonldinfo['author_url'] = Network::sanitizeUrl($content);
+			}
+
+			$logo = JsonLD::fetchElement($jsonld, 'author', 'logo');
+			if (!empty($logo) && is_array($logo)) {
+				$content = JsonLD::fetchElement($logo, 'url');
+				if (!empty($content) && is_string($content)) {
+					$jsonldinfo['author_img'] = trim($content);
+				}
+			}
+		} elseif (!empty($jsonld['author']) && is_string($jsonld['author'])) {
+			$jsonldinfo['author_name'] = trim($jsonld['author']);
+		}
+
+		DI::logger()->info('Fetched Author information', ['fetched' => $jsonldinfo]);
+		return array_merge($jsonldinfo, $siteinfo);
+	}
+
+	/**
+	 * Fetch data from the provided JSON-LD Article type
+	 * @see https://schema.org/Article
+	 *
+	 * @param array $siteinfo
+	 * @param array $jsonld
+	 *
+	 * @return array siteinfo
+	 */
+	private static function parseJsonLdArticle(array $siteinfo, array $jsonld): array
+	{
+		$jsonldinfo = [];
+
+		$content = JsonLD::fetchElement($jsonld, 'headline');
+		if (!empty($content) && is_string($content)) {
+			$jsonldinfo['title'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'alternativeHeadline');
+		if (!empty($content) && is_string($content) && (($jsonldinfo['title'] ?? '') != trim($content))) {
+			$jsonldinfo['alternative_title'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'description');
+		if (!empty($content) && is_string($content)) {
+			$jsonldinfo['text'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'thumbnailUrl');
+		if (!empty($content)) {
+			$jsonldinfo['image'] = trim((string) $content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'image', 'url', '@type', 'ImageObject');
+		if (!empty($content) && is_string($content)) {
+			$jsonldinfo['image'] = trim($content);
+		}
+
+		if (!empty($jsonld['keywords']) && !is_array($jsonld['keywords'])) {
+			$content = JsonLD::fetchElement($jsonld, 'keywords');
+			if (!empty($content)) {
+				$siteinfo['keywords'] = [];
+				foreach (explode(',', (string) $content) as $keyword) {
+					$siteinfo['keywords'][] = trim($keyword);
+				}
+			}
+		} elseif (!empty($jsonld['keywords'])) {
+			$content = JsonLD::fetchElementArray($jsonld, 'keywords');
+			if (is_array($content) && !empty($content)) {
+				$jsonldinfo['keywords'] = $content;
+			}
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'datePublished');
+		if (!empty($content) && is_string($content)) {
+			$jsonldinfo['published'] = DateTimeFormat::utc($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'dateModified');
+		if (!empty($content) && is_string($content)) {
+			$jsonldinfo['modified'] = DateTimeFormat::utc($content);
+		}
+
+		$jsonldinfo = self::parseJsonLdAuthor($jsonldinfo, $jsonld);
+
+		DI::logger()->info('Fetched article information', ['url' => $siteinfo['url'], 'fetched' => $jsonldinfo]);
+
+		return array_merge($jsonldinfo, $siteinfo);
+	}
+
+	/**
+	 * Fetch data from the provided JSON-LD WebPage type
+	 * @see https://schema.org/WebPage
+	 *
+	 * @param array $siteinfo
+	 * @param array $jsonld
+	 *
+	 * @return array siteinfo
+	 */
+	private static function parseJsonLdWebPage(array $siteinfo, array $jsonld): array
+	{
+		$jsonldinfo = [];
+
+		$content = JsonLD::fetchElement($jsonld, 'name');
+		if (!empty($content)) {
+			$jsonldinfo['title'] = trim((string) $content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'description');
+		if (!empty($content) && is_string($content)) {
+			$jsonldinfo['text'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'image');
+		if (!empty($content) && is_string($content)) {
+			$jsonldinfo['image'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'thumbnailUrl');
+		if (!empty($content) && is_string($content)) {
+			$jsonldinfo['image'] = trim($content);
+		}
+
+		$jsonldinfo = self::parseJsonLdAuthor($jsonldinfo, $jsonld);
+
+		DI::logger()->info('Fetched WebPage information', ['url' => $siteinfo['url'], 'fetched' => $jsonldinfo]);
+		return array_merge($jsonldinfo, $siteinfo);
+	}
+
+	/**
+	 * Fetch data from the provided JSON-LD WebSite type
+	 * @see https://schema.org/WebSite
+	 *
+	 * @param array $siteinfo
+	 * @param array $jsonld
+	 *
+	 * @return array siteinfo
+	 */
+	private static function parseJsonLdWebSite(array $siteinfo, array $jsonld): array
+	{
+		$jsonldinfo = [];
+
+		$content = JsonLD::fetchElement($jsonld, 'name');
+		if (!empty($content) && is_string($content)) {
+			$jsonldinfo['publisher_name'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'description');
+		if (!empty($content) && is_string($content)) {
+			$jsonldinfo['publisher_description'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'url');
+		if (!empty($content) && is_string($content)) {
+			$jsonldinfo['publisher_url'] = Network::sanitizeUrl($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'thumbnailUrl');
+		if (!empty($content) && is_string($content)) {
+			$jsonldinfo['image'] = trim($content);
+		}
+
+		$jsonldinfo = self::parseJsonLdAuthor($jsonldinfo, $jsonld);
+
+		DI::logger()->info('Fetched WebSite information', ['url' => $siteinfo['url'], 'fetched' => $jsonldinfo]);
+		return array_merge($jsonldinfo, $siteinfo);
+	}
+
+	/**
+	 * Fetch data from the provided JSON-LD Organization type
+	 * @see https://schema.org/Organization
+	 *
+	 * @param array $siteinfo
+	 * @param array $jsonld
+	 *
+	 * @return array siteinfo
+	 */
+	private static function parseJsonLdWebOrganization(array $siteinfo, array $jsonld): array
+	{
+		$jsonldinfo = [];
+
+		$content = JsonLD::fetchElement($jsonld, 'name');
+		if (!empty($content) && is_string($content)) {
+			$jsonldinfo['publisher_name'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'description');
+		if (!empty($content) && is_string($content)) {
+			$jsonldinfo['publisher_description'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'url');
+		if (!empty($content) && is_string($content)) {
+			$jsonldinfo['publisher_url'] = Network::sanitizeUrl($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'logo', 'url', '@type', 'ImageObject');
+		if (!empty($content) && is_string($content)) {
+			$jsonldinfo['publisher_img'] = trim($content);
+		} elseif (is_array($content) && array_key_exists(0, $content)) {
+			$jsonldinfo['publisher_img'] = trim((string) $content[0]);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'brand', 'name', '@type', 'Organization');
+		if (!empty($content) && is_string($content)) {
+			$jsonldinfo['publisher_name'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'brand', 'url', '@type', 'Organization');
+		if (!empty($content) && is_string($content)) {
+			$jsonldinfo['publisher_url'] = Network::sanitizeUrl($content);
+		}
+
+		DI::logger()->info('Fetched Organization information', ['url' => $siteinfo['url'], 'fetched' => $jsonldinfo]);
+		return array_merge($jsonldinfo, $siteinfo);
+	}
+
+	/**
+	 * Fetch data from the provided JSON-LD Person type
+	 * @see https://schema.org/Person
+	 *
+	 * @param array $siteinfo
+	 * @param array $jsonld
+	 *
+	 * @return array siteinfo
+	 */
+	private static function parseJsonLdWebPerson(array $siteinfo, array $jsonld): array
+	{
+		$jsonldinfo = [];
+
+		$content = JsonLD::fetchElement($jsonld, 'name');
+		if (!empty($content) && is_string($content)) {
+			$jsonldinfo['author_name'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'description');
+		if (!empty($content) && is_string($content)) {
+			$jsonldinfo['author_description'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'sameAs');
+		if (!empty($content) && is_string($content)) {
+			$jsonldinfo['author_url'] = Network::sanitizeUrl($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'url');
+		if (!empty($content) && is_string($content)) {
+			$jsonldinfo['author_url'] = Network::sanitizeUrl($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'image', 'url', '@type', 'ImageObject');
+		if (!empty($content) && !is_string($content)) {
+			DI::logger()->notice('Unexpected return value for the author image', ['content' => $content]);
+		}
+
+		if (!empty($content) && is_string($content)) {
+			$jsonldinfo['author_img'] = trim($content);
+		}
+
+		DI::logger()->info('Fetched Person information', ['url' => $siteinfo['url'], 'fetched' => $jsonldinfo]);
+		return array_merge($jsonldinfo, $siteinfo);
+	}
+
+	/**
+	 * Fetch data from the provided JSON-LD MediaObject type
+	 * @see https://schema.org/MediaObject
+	 *
+	 * @param array $siteinfo
+	 * @param array $jsonld
+	 *
+	 * @return array siteinfo
+	 */
+	private static function parseJsonLdMediaObject(array $siteinfo, array $jsonld, string $name): array
+	{
+		$media = [];
+
+		$content = JsonLD::fetchElement($jsonld, 'caption');
+		if (!empty($content) && is_string($content)) {
+			$media['caption'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'url');
+		if (!empty($content) && is_string($content)) {
+			$media['url'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'mainEntityOfPage');
+		if (!empty($content) && is_string($content)) {
+			$media['main'] = Strings::compareLink($content, $siteinfo['url']);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'description');
+		if (!empty($content) && is_string($content)) {
+			$media['description'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'name');
+		if (!empty($content) && (($media['description'] ?? '') != trim((string) $content))) {
+			$media['name'] = trim((string) $content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'contentUrl');
+		if (!empty($content) && is_string($content)) {
+			$media['content'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'embedUrl');
+		if (!empty($content) && is_string($content)) {
+			$media['embed'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'height');
+		if (!empty($content) && is_string($content) && is_numeric($content)) {
+			$media['height'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'width');
+		if (!empty($content) && is_string($content) && is_numeric($content)) {
+			$media['width'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'duration');
+		if (!empty($content) && is_string($content) && is_numeric($content)) {
+			$media['duration'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'contentSize');
+		if (!empty($content) && is_string($content) && is_numeric($content)) {
+			$media['size'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'uploadDate');
+		if (!empty($content) && is_string($content)) {
+			$media['uploaded'] = DateTimeFormat::utc($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'image');
+		if (!empty($content) && is_string($content)) {
+			$media['image'] = trim($content);
+		}
+
+		$content = JsonLD::fetchElement($jsonld, 'thumbnailUrl');
+		if (!empty($content) && (($media['image'] ?? '') != trim((string) $content))) {
+			if (!empty($media['image'])) {
+				$media['preview'] = trim((string) $content);
+			} else {
+				$media['image'] = trim((string) $content);
+			}
+		}
+
+		DI::logger()->info('Fetched Media information', ['url' => $siteinfo['url'], 'fetched' => $media]);
+		$siteinfo[$name][] = $media;
+		return $siteinfo;
+	}
+
+	/**
+	 * Fetch oEmbed data
+	 *
+	 * Attempts to discover an oEmbed endpoint from common providers, the
+	 * page's <link> tags, or falls back to Embera. Returns an associative
+	 * array following the oEmbed specification or an empty array on failure.
+	 *
+	 * @param DOMXPath $xpath DOMXPath for the parsed document
+	 * @param string   $url   The original URL
+	 *
+	 * @return array Associative array with oEmbed fields, or empty array if not found
+	 */
+	private static function getOembedData(DOMXPath $xpath, string $url): array
+	{
+		$oembed = '';
+		$data   = [];
+
+		if (in_array(parse_url(Strings::normaliseLink($url), PHP_URL_HOST), ['twitter.com', 'x.com'])) {
+			$oembed = 'https://publish.twitter.com/oembed?url=' . urlencode($url) . '&dnt=true';
+
+			$systemLanguage = DI::config()->get('system', 'language');
+			if ($systemLanguage) {
+				$oembed .= '&lang=' . $systemLanguage;
+			}
+			DI::logger()->debug('Using Twitter oEmbed', ['url' => $url, 'oembed' => $oembed]);
+		}
+
+		if (in_array(parse_url(Strings::normaliseLink($url), PHP_URL_HOST), ['tidal.com'])) {
+			$oembed = 'https://oembed.tidal.com?url=' . urlencode($url);
+			DI::logger()->debug('Using Tidal oEmbed', ['url' => $url, 'oembed' => $oembed]);
+			// @todo Check how to support the parameters listed here: https://developer.tidal.com/documentation/embeds/embeds-code-generator
+		}
+
+		if (in_array(parse_url(Strings::normaliseLink($url), PHP_URL_HOST), ['link.deezer.com', 'deezer.com', 'www.deezer.com'])) {
+			$oembed = 'https://api.deezer.com/oembed?url=' . urlencode($url) . '&tracklist=true';
+			DI::logger()->debug('Using Deezer oEmbed', ['url' => $url, 'oembed' => $oembed]);
+			// @see https://developers.deezer.com/api/oembed
+		}
+
+		if (!$oembed) {
+			$oembed = self::fetchFromProviderList($url);
+		}
+
+		if (!$oembed) {
+			foreach ($xpath->query("//link[@type='application/json+oembed']") as $link) {
+				/** @var DOMElement $link */
+				$oembed = $link->getAttributeNode('href')->nodeValue;
+				DI::logger()->debug('Found oEmbed JSON from page', ['url' => $url, 'oembed' => $oembed]);
+			}
+		}
+
+		if ($oembed) {
+			$oembed .= '&maxwidth=' . DI::config()->get('system', 'max_width') . '&maxheight=' . DI::config()->get('system', 'max_height') . '&format=json';
+			$result = DI::httpClient()->get($oembed, HttpClientAccept::DEFAULT, [HttpClientOptions::REQUEST => HttpClientRequest::SITEINFO]);
+			if ($result->isSuccess() && $result->getBodyString()) {
+				$data = json_decode($result->getBodyString(), true);
+			}
+		}
+
+		if (empty($data) || !is_array($data)) {
+			$embera  = new Embera(['maxwidth' => DI::config()->get('system', 'max_width'), 'maxheight' => DI::config()->get('system', 'max_height')]);
+			$urldata = $embera->getUrlData($url);
+			if (empty($urldata)) {
+				return [];
+			}
+			$data = current($urldata);
+			DI::logger()->debug('Found oEmbed JSON from Embera', ['url' => $url]);
+		}
+
+		if (!isset($data['type']) || !isset($data['provider_url'])) {
+			return [];
+		}
+
+		// Some provider return "rich", although they should return "photo"
+		if ($data['type'] === 'rich' && in_array($data['provider_url'], ['https://www.pixiv.net/', 'https://www.pinterest.com'])) {
+			$data['type'] = 'photo';
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Fetch the oEmbed provider from the oembed.com provider list
+	 *
+	 * @param string $url The url to fetch the oEmbed provider for
+	 *
+	 * @return string|null The oEmbed url or null if no provider was found
+	 */
+	private static function fetchFromProviderList(string $url): ?string
+	{
+		$cachekey = 'ParseUrl:fetchFromProviderList';
+
+		$providers = DI::cache()->get($cachekey);
+		if (!$providers) {
+			$providers_content = DI::httpClient()->fetch('https://oembed.com/providers.json', HttpClientAccept::JSON, 0, '', HttpClientRequest::SITEINFO);
+			if (!$providers_content) {
+				DI::logger()->warning('Could not fetch oEmbed provider list');
+				return null;
+			}
+			$providers = json_decode($providers_content, true);
+			if (!is_array($providers)) {
+				DI::logger()->warning('Could not decode oEmbed provider list');
+				return null;
+			}
+			DI::cache()->set($cachekey, $providers, Duration::WEEK);
+		}
+		$schemes = [];
+		foreach ($providers as $provider) {
+			if (!isset($provider['endpoints']) || !is_array($provider['endpoints'])) {
+				continue;
+			}
+			foreach ($provider['endpoints'] as $endpoint) {
+				if (!isset($endpoint['schemes']) || !is_array($endpoint['schemes'])) {
+					$schemes[rtrim((string) $provider['provider_url'], '/') . '/*'] = str_replace('{format}', 'json', $endpoint['url']);
+					continue;
+				}
+				foreach ($endpoint['schemes'] as $scheme) {
+					$schemes[$scheme] = str_replace('{format}', 'json', $endpoint['url']);
+				}
+			}
+		}
+
+		foreach ($schemes as $scheme => $provider_url) {
+			$regex = str_replace(['.', '?', '*'], ['\.', '\?', '.*'], $scheme);
+			if (preg_match('~' . $regex . '~i', $url)) {
+				$oembed = $provider_url . (!str_contains($provider_url, '?') ? '?' : '&') . 'url=' . urlencode($url);
+				DI::logger()->debug('Found oEmbed provider from oembed.com list', ['url' => $url, 'oembed' => $oembed]);
+				return $oembed;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Merge oEmbed data into the existing siteinfo array.
+	 *
+	 * Maps known oEmbed fields to siteinfo keys, converts dates and logs
+	 * unknown fields for debugging purposes.
+	 *
+	 * @param array $siteinfo Current siteinfo
+	 * @param array $data     The oEmbed data
+	 *
+	 * @return array Enriched siteinfo
+	 */
+	private static function getSiteinfoFromoEmbed(array $siteinfo, array $data): array
+	{
+		// Youtube provides only basic information to some IP ranges.
+		// Dailymotion only provices "Dailymotion" as title in their meta tags, so oEmbed is better
+		// @todo We have to decide if we always trust oEmbed more than the meta tags
+		$overwrite = in_array(parse_url(Strings::normaliseLink($siteinfo['url']), PHP_URL_HOST), ['dailymotion.com', 'tiktok.com', 'youtube.com', 'youtu.be']);
+
+		$unknown_fields = $data;
+		foreach (['account_type', 'asset_type', 'author_unique_id', 'availability', 'brand',
+			'cache_age', 'category', 'collection', 'currency_code', 'duration', 'embera_using_fake_response',
+			'embera_provider_name', 'embed_product_id', 'embed_type', 'embed', 'entity', 'flickr_type',
+			'height', 'html', 'id', 'images','iframe_url', 'is_plus', 'photographer', 'price', 'products',
+			'product_expiration', 'product_id', 'quantity', 'ratio', 'referrer', 'safety', 'success',
+			'terms_of_use_url', 'type', 'thumbnail_credit', 'thumbnail_credit_url', 'thumbnail_credit_note',
+			'thumbnail_height', 'thumbnail_url_with_play_button', 'thumbnail_width',
+			'uri', 'url', 'version', 'video_id', 'web_page', 'web_page_short_url', 'width', 'work_type'] as $value) {
+			unset($unknown_fields[$value]);
+		}
+
+		$fields = [
+			'title'             => 'title',
+			'caption'           => 'text',
+			'description'       => 'text',
+			'summary'           => 'text',
+			'video_description' => 'text',
+			'author_name'       => 'author_name',
+			'author_url'        => 'author_url',
+			'author'            => 'author_name',
+			'provider_name'     => 'publisher_name',
+			'provider_url'      => 'publisher_url',
+			'image'             => 'image',
+			'thumbnail_url'     => 'image',
+			'upload_date'       => 'published',
+			'publication_date'  => 'published',
+			'license'           => 'license_name',
+			'license_url'       => 'license_url',
+			'license_id'        => 'license_id',
+		];
+
+		foreach ($fields as $key => $value) {
+			unset($unknown_fields[$key]);
+			if (isset($data[$key]) && (empty($siteinfo[$value]) || $overwrite)) {
+				if ($value === 'published') {
+					$siteinfo[$value] = DateTimeFormat::utc($data[$key]);
+				} elseif (is_string($data[$key])) {
+					$siteinfo[$value] = trim(strip_tags(html_entity_decode($data[$key], ENT_COMPAT, 'UTF-8')));
+				} else {
+					$siteinfo[$value] = $data[$key];
+				}
+			}
+		}
+
+		if (!empty($unknown_fields)) {
+			DI::logger()->debug('Unknown oEmbed fields', ['url' => $siteinfo['url'], 'fields' => $unknown_fields]);
+		}
+		return $siteinfo;
+	}
+
+	/**
+	 * Retrieve oEmbed information for the page and merge it into siteinfo.
+	 *
+	 * This will request oEmbed JSON (or fall back to embera) and apply
+	 * any appropriate transformations before adding embed/player data.
+	 *
+	 * @param DOMXPath $xpath    XPath object of the parsed document
+	 * @param array    $siteinfo Current siteinfo to be augmented
+	 *
+	 * @return array Augmented siteinfo
+	 */
+	private static function getOembedInfo(DOMXPath $xpath, array $siteinfo): array
+	{
+		$data = self::getOembedData($xpath, $siteinfo['url']);
+		if (!$data) {
+			return $siteinfo;
+		}
+
+		$siteinfo = self::getSiteinfoFromoEmbed($siteinfo, $data);
+
+		if (!self::isWantedEmbed($siteinfo, $data)) {
+			return $siteinfo;
+		}
+
+		if ($data['type'] == 'video' & empty($siteinfo['player']) && ($data['provider_url'] ?? '') == 'https://www.tiktok.com' && isset($data['embed_product_id']) && isset($data['thumbnail_width']) && isset($data['thumbnail_height'])) {
+			$siteinfo['embed']['type']    = $data['type'];
+			$siteinfo['embed']['html']    = trim((string) $data['html']);
+			$siteinfo['embed']['width']   = is_numeric($data['width'] ?? '') ? $data['width']  : $data['thumbnail_width'];
+			$siteinfo['embed']['height']  = is_numeric($data['height'] ?? '') ? $data['height'] : $data['thumbnail_height'];
+			$siteinfo['player']['embed']  = 'https://www.tiktok.com/player/v1/' . $data['embed_product_id'] . '?description=1&rel=0';
+			$siteinfo['player']['width']  = $siteinfo['embed']['width'];
+			$siteinfo['player']['height'] = $siteinfo['embed']['height'];
+			return $siteinfo;
+		}
+
+		if ($data['provider_url'] == 'https://www.pinterest.com' && isset($siteinfo['video'])) {
+			$data['type'] = 'video';
+		}
+
+		if (!isset($data['html'])) {
+			return $siteinfo;
+		}
+
+		if (str_starts_with($data['html'], '&lt;')) {
+			$data['html'] = html_entity_decode($data['html']);
+		}
+
+		unset($siteinfo['player']);
+
+		if ($data['type'] == 'rich' && !isset($siteinfo['text'])) {
+			$bbcode = HTML::toBBCode($data['html']);
+			$bbcode = preg_replace("(\[url\](.*?)\[\/url\])ism", "", $bbcode);
+
+			$siteinfo['text'] = strip_tags(BBCode::convert($bbcode, false));
+			DI::logger()->debug('Text is fetched from oEmbed HTML', ['url' => $siteinfo['url'], 'text' => $siteinfo['text']]);
+		}
+
+		$siteinfo = self::setPlayer($data, $siteinfo);
+
+		if (!empty($siteinfo['player'])) {
+			$siteinfo['embed']['type']   = $data['type'];
+			$siteinfo['embed']['html']   = trim($data['html']);
+			$siteinfo['embed']['width']  = $siteinfo['player']['width'];
+			$siteinfo['embed']['height'] = $siteinfo['player']['height'];
+			return $siteinfo;
+		}
+
+		if (($data['provider_url'] ?? '') == 'https://twitter.com') {
+			if (preg_match_all('#https?://t\.co/[a-zA-Z0-9]+#', $data['html'], $matches)) {
+				$links = array_unique($matches[0]);
+				foreach ($links as $link) {
+					$curlResult = DI::httpClient()->head($link);
+					$redirect   = $curlResult->getRedirectUrl();
+					if (preg_match('#/(video|broadcasts)/#', $redirect)) {
+						$siteinfo['embed']['type']   = 'video';
+						$siteinfo['embed']['html']   = trim(str_replace('<blockquote class="twitter-tweet"', '<blockquote class="twitter-tweet" data-media-max-width="560"', $data['html']));
+						$siteinfo['embed']['width']  = is_numeric($data['width'] ?? '') ? $data['width']  : null;
+						$siteinfo['embed']['height'] = is_numeric($data['height'] ?? '') ? $data['height'] : null;
+						DI::logger()->debug('Fetched Twitter video oEmbed HTML', ['url' => $siteinfo['url']]);
+						return $siteinfo;
+					}
+				}
+			}
+			// We don't embed regular Twitter posts, since this doesn't add any additional value
+			return $siteinfo;
+		}
+
+		if (isset($siteinfo['pagetype'])) {
+			$pagetype = explode('.', $siteinfo['pagetype'])[0];
+		} else {
+			$pagetype = '';
+		}
+
+		if (!in_array($data['type'], ['video', 'photo']) && $pagetype != 'video') {
+			return $siteinfo;
+		}
+
+		$siteinfo['embed']['type']   = $data['type'];
+		$siteinfo['embed']['html']   = trim($data['html']);
+		$siteinfo['embed']['width']  = is_numeric($data['width'] ?? '') ? $data['width']  : null;
+		$siteinfo['embed']['height'] = is_numeric($data['height'] ?? '') ? $data['height'] : null;
+		DI::logger()->debug('Fetched oEmbed HTML', ['provider' => $data['provider_url'], 'url' => $siteinfo['url']]);
+
+		return $siteinfo;
+	}
+
+	/**
+	 * Fetch the services that are supported by song.link
+	 *
+	 * @param string $url media url
+	 * @return array{embed: string, services: array<string, string>} with the detected services
+	 */
+	private static function fetchSongLinkServices(string $url): array
+	{
+		$songlink = 'https://song.link/' . urlencode($url);
+		$http     = DI::httpClient()->get($songlink, HttpClientAccept::HTML, [HttpClientOptions::REQUEST => HttpClientRequest::SITEINFO]);
+		if (!$http->isSuccess() || $http->getRedirectUrl() === '') {
+			return ['embed' => '', 'services' => []];
+		}
+
+		$body  = $http->getBodyString();
+		$embed = $http->getRedirectUrl();
+
+		$dom = new DOMDocument();
+		libxml_use_internal_errors(true);
+		$dom->loadHTML($body, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+		libxml_clear_errors();
+
+		$xpath = new DOMXPath($dom);
+		$links = $xpath->query('//a[@href]');
+
+		$result = [];
+		foreach ($links as $link) {
+			if ($link instanceof DOMElement) {
+				$href = $link->getAttribute('href');
+				$host = parse_url($href, PHP_URL_HOST);
+				if (!empty($host)) {
+					$result[$host] = $href;
+				}
+			}
+		}
+		return ['embed' => $embed, 'services' => $result];
+	}
+
+	/**
+	 * Try to obtain a better embed player using the song.link service.
+	 *
+	 * If a better player is available via song.link (e.g. a non-YouTube
+	 * provider), fetch and merge that player's embed information.
+	 *
+	 * @param array $siteinfo Current siteinfo
+	 *
+	 * @return array Possibly modified siteinfo with 'player' set if found
+	 */
+	private static function getSongLinkPlayer(array $siteinfo): array
+	{
+		$service = self::fetchSongLinkServices($siteinfo['url']);
+		if (count($service['services']) === 0 || $service['embed'] === '') {
+			DI::logger()->debug('No song.link data', ['url' => $siteinfo['url'], 'service' => $service]);
+			return $siteinfo;
+		}
+
+		if (count($service['services']) === 2 && isset($service['services']['www.youtube.com']) && isset($service['services']['music.youtube.com'])) {
+			DI::logger()->debug('Only Youtube links in returned data', ['url' => $siteinfo['url'], 'service' => $service]);
+			return $siteinfo;
+		}
+
+		if (count($service['services']) === 1) {
+			DI::logger()->debug('Only a single service, then we can use the original embed', ['url' => $siteinfo['url'], 'service' => $service]);
+			return $siteinfo;
+		}
+
+		if ($service['embed'] === $siteinfo['url']) {
+			DI::logger()->debug('ParseUrl is already pageUrl', ['url' => $siteinfo['url'], 'service' => $service]);
+			return $siteinfo;
+		}
+
+		$data = self::getSiteinfo($service['embed'], '', 1, false);
+		if (!isset($data['player']['embed'])) {
+			DI::logger()->debug('No embed player', ['url' => $siteinfo['url'], 'service' => $service]);
+			return $siteinfo;
+		}
+
+		$siteinfo['player'] = $data['player'];
+		DI::logger()->debug('Embed player found', ['url' => $siteinfo['url'], 'service' => $service]);
+
+		return $siteinfo;
+	}
+
+	/**
+	 * Decide whether an oEmbed rich response should be used for embedding.
+	 *
+	 * Uses schema type and page metadata to avoid embedding rich content
+	 * that does not add value (e.g. articles) while keeping media embeds.
+	 *
+	 * @param array $siteinfo Current siteinfo
+	 * @param array $data     The oEmbed data
+	 *
+	 * @return bool True if the embed should be used, false otherwise
+	 */
+	private static function isWantedEmbed(array $siteinfo, array $data): bool
+	{
+		if (isset($siteinfo['player'])) {
+			return true;
+		}
+
+		if ($data['type'] !== 'rich') {
+			return true;
+		}
+
+		$pagetype = isset($siteinfo['pagetype']) ? explode('.', $siteinfo['pagetype'])[0] : '';
+		if (in_array($pagetype, ['episode', 'song', 'music', 'video'])) {
+			return true;
+		}
+
+		if (isset($siteinfo['schematypes'])) {
+			foreach (['AudioObject', 'MusicRecording', 'PodcastEpisode', 'PresentationDigitalDocument'] as $type) {
+				if (in_array($type, $siteinfo['schematypes'])) {
+					return true;
+				}
+			}
+
+			foreach (['Article', 'BackgroundNewsArticle', 'NewsArticle'] as $type) {
+				if (in_array($type, $siteinfo['schematypes'])) {
+					return false;
+				}
+			}
+		}
+
+		if (in_array($pagetype, ['article'])) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Set the player information from the oEmbed HTML in case that it contains an iframe
+	 *
+	 * @param array $data
+	 * @param array  $siteinfo
+	 *
+	 * @return array siteinfo
+	 */
+	private static function setPlayer(array $data, array $siteinfo): array
+	{
+		if (isset($data['iframe_url'])) {
+			$siteinfo['player']['embed']  = $data['iframe_url'];
+			$siteinfo['player']['width']  = is_numeric($data['width'] ?? '') ? $data['width']  : null;
+			$siteinfo['player']['height'] = is_numeric($data['height'] ?? '') ? $data['height'] : null;
+			DI::logger()->debug('Found oEmbed iframe_url parameter', ['embed' => $siteinfo['player']['embed'], 'width' => $siteinfo['player']['width'], 'height' => $siteinfo['player']['height']]);
+			return $siteinfo;
+		}
+
+		if ($data['html'] == '') {
+			return $siteinfo;
+		}
+
+		$dom = new DOMDocument();
+		if (!@$dom->loadHTML($data['html'])) {
+			return $siteinfo;
+		}
+
+		$xpath = new DOMXPath($dom);
+
+		$nodes = $xpath->query('/html/body/*');
+		if ($nodes->length !== 1 && $data['type'] != 'video') {
+			return $siteinfo;
+		}
+
+		/** @var DOMElement $iframe */
+		$iframe = $nodes->item(0);
+		$found  = $iframe->nodeName == 'iframe';
+
+		// When the oEmbed data belongs to a video, we can safely use any iframe that we can fetch
+		if (!$found && $data['type'] == 'video') {
+			$nodes = $xpath->query('//iframe');
+			if ($nodes->length > 0) {
+				/** @var DOMElement $iframe */
+				$iframe = $nodes->item(0);
+				$found  = true;
+			}
+		}
+
+		if (!$found) {
+			return $siteinfo;
+		}
+
+		$src = $iframe->getAttributeNode('src')->nodeValue;
+		if (empty($src)) {
+			return $siteinfo;
+		}
+
+		$siteinfo['player']['embed']  = $src;
+		$siteinfo['player']['width']  = is_numeric($data['width'] ?? '') ? $data['width']  : null;
+		$siteinfo['player']['height'] = is_numeric($data['height'] ?? '') ? $data['height'] : null;
+
+		$width = $iframe->getAttributeNode('width')->nodeValue ?? null;
+		if (!empty($width) && is_numeric($width)) {
+			$siteinfo['player']['width'] = $width;
+		}
+
+		$height = $iframe->getAttributeNode('height')->nodeValue ?? null;
+		if (!empty($height) && is_numeric($height)) {
+			$siteinfo['player']['height'] = $height;
+		}
+
+		DI::logger()->debug('Found oEmbed iframe', ['embed' => $siteinfo['player']['embed'], 'width' => $siteinfo['player']['width'], 'height' => $siteinfo['player']['height']]);
+		return $siteinfo;
+	}
+}

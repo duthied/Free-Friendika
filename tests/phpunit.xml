@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd"
+		bootstrap="bootstrap.php"
+		colors="true"
+		cacheDirectory="./.phpunit.result.cache"
+		executionOrder="depends,defects"
+		requireCoverageMetadata="false"
+		beStrictAboutCoverageMetadata="true"
+		beStrictAboutOutputDuringTests="true"
+		displayDetailsOnAllIssues="true"
+		displayDetailsOnPhpunitDeprecations="true"
+		failOnDeprecation="true"
+		failOnEmptyTestSuite="true"
+		failOnIncomplete="false"
+		failOnNotice="false"
+		failOnPhpunitDeprecation="false"
+		failOnRisky="true"
+		failOnSkipped="false"
+		failOnWarning="false"
+>
+	<testsuites>
+		<testsuite name="legacy">
+			<directory suffix="Test.php">src/</directory>
+		</testsuite>
+		<testsuite name="unit">
+			<directory suffix="Test.php">Unit/</directory>
+		</testsuite>
+		<testsuite name="functional">
+			<directory suffix="Test.php">Functional/</directory>
+		</testsuite>
+		<testsuite name="integration">
+			<directory suffix="Test.php">Integration/</directory>
+		</testsuite>
+	</testsuites>
+	<source restrictNotices="true" restrictWarnings="true" ignoreIndirectDeprecations="true" >
+		<include>
+			<directory>../</directory>
+		</include>
+		<exclude>
+			<directory suffix=".php">../config/</directory>
+			<directory suffix=".php">../doc/</directory>
+			<directory suffix=".php">../images/</directory>
+			<directory suffix=".php">../library/</directory>
+			<directory suffix=".php">../spec/</directory>
+			<directory suffix=".php">../tests/</directory>
+			<directory suffix=".php">../view/</directory>
+			<directory suffix=".php">../vendor/</directory>
+		</exclude>
+	</source>
+</phpunit>

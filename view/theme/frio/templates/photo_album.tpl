@@ -1,0 +1,60 @@
+{{*
+  * Copyright (C) 2010-2026, the Friendica project
+  * SPDX-FileCopyrightText: 2010-2026 the Friendica project
+  *
+  * SPDX-License-Identifier: AGPL-3.0-or-later
+  *}}
+<div class="generic-page-wrapper">
+	<div style="display: inline-block">
+		<h3 id="photo-album-title">{{$album}}</h3>
+	</div>
+
+	<div class="photo-album-actions pull-right">
+		{{if $can_post}}
+		<a class="btn btn-primary photos-upload-link page-action" href="{{$upload.1}}">
+			<i class="ri ri-add-line"></i>
+			{{$upload.0}}
+		</a>
+		{{/if}}
+
+		{{if $edit}}
+		<button id="album-edit-link" class="btn btn-primary page-action" type="button" data-modal-url="{{$edit.1}}">
+			<i class="ri ri-pencil-line"></i>
+			{{$edit.0}}
+		</button>
+		{{/if}}
+		{{if $drop}}
+		<button id="album-drop-link" class="btn btn-primary page-action" type="button" data-modal-url="{{$drop.1}}">
+			<i class="ri ri-delete-bin-line"></i>
+			{{$drop.0}}
+		</button>
+		{{/if}}
+		{{if $download}}
+		<a id="album-download-link" class="btn btn-primary page-action" href="{{$download.1}}" download>
+			<i class="ri ri-file-zip-line"></i>
+			{{$download.0}}
+		</a>
+		{{/if}}
+
+		{{if ! $noorder}}
+		<a class="photos-order-link page-action" href="{{$order.1}}" title="{{$order.0}}" data-toggle="tooltip">
+			{{if $order.2 == "newest"}}
+			<i class="ri ri-sort-desc"></i>
+			{{else}}
+			<i class="ri ri-sort-asc"></i>
+			{{/if}}
+		</a>
+		{{/if}}
+	</div>
+
+	<div class="photo-album-wrapper" id="photo-album-contents">
+		{{foreach $photos as $photo}}
+			{{include file="photo_top.tpl"}}
+		{{/foreach}}
+	</div>
+	<div class="photo-album-end"></div>
+
+	{{$paginate nofilter}}
+</div>
+
+<script type="text/javascript">window.onDocumentReady('body', function() { loadingPage = false; justifyPhotos(); });</script>

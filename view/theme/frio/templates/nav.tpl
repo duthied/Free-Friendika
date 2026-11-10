@@ -1,0 +1,440 @@
+{{*
+  * Copyright (C) 2010-2026, the Friendica project
+  * SPDX-FileCopyrightText: 2010-2026 the Friendica project
+  *
+  * SPDX-License-Identifier: AGPL-3.0-or-later
+  *}}
+{{* we have modified the navmenu (look at function frio_remote_nav() ) to have remote links. *}}
+{{if $userinfo}}
+	<nav id="topbar-first" class="topbar" role="menubar">
+		<div class="container-fluid">
+			<div id="topbar-first-nav-container" class="col-lg-12 col-md-12 col-sm-12 col-xs-12 no-padding">
+
+				<header style="display: flex;">
+
+					{{* Buttons for the mobile view *}}
+					{{* Mobile left menu dropdown button *}}
+					<button type="button" id="mobile-left-menu" class="navbar-toggle collapsed visible-sm visible-xs"
+						data-toggle="offcanvas" data-target="aside" aria-haspopup="true" aria-expanded="false">
+						<span class="sr-only">Toggle navigation</span>
+						<i class="ri ri-arrow-right-double-line ri-fw ri-lg" aria-hidden="true"></i>
+					</button>
+
+					<div id="site-location" aria-hidden="true">{{$sitelocation}}</div>
+					<div id="banner" class="hidden-sm hidden-xs">
+						<a href="{{$baseurl}}/" aria-label="{{$home}}">
+							<i id="logo-img" class="ri ri-friendica-fill ri-fw ri-lg" aria-hidden="true"></i>
+						</a>
+					</div>
+					{{* The search box *}}
+					{{if $nav.search}}
+						<form id="search-box" class="navbar-form hidden-sm hidden-xs form-group form-group-search" role="search" method="get" action="{{$nav.search.0}}">
+							<div class="form-group form-group-search">
+								<input accesskey="s" id="nav-search-input-field" class="form-control form-search"
+									type="search" name="q" placeholder="{{$search_placeholder}}" aria-label="{{$search_placeholder}}">
+								<button class="btn btn-primary form-button-search" type="submit">
+									<i class="ri ri-search-line ri-lg" aria-hidden="true"></i>
+									<span class="sr-only">{{$nav.search.1}}</span>
+								</button>
+							</div>
+						</form>
+					{{/if}}
+					<button type="button" id="search-mobile-btn" class="navbar-toggle collapsed visible-sm visible-xs" data-toggle="collapse"
+						data-target="#search-mobile" aria-expanded="false" aria-controls="search-mobile">
+						<span class="sr-only">Toggle Search</span>
+						<i class="ri ri-search-line ri-fw ri-lg" aria-hidden="true"></i>
+						<span class="nav-label">{{$nav.search.1}}</span>
+					</button>
+				</header>
+				<!-- div for navbar width-->
+				<!-- Brand and toggle get grouped for better mobile display -->
+				<div class="topbar-nav">
+
+					{{* Left section of the NavBar with navigation shortcuts/icons *}}
+					<ul class="nav navbar-left">
+						<li class="sr-only">
+							<button class="sr-only" onclick="document.getElementById('content').scrollIntoView(); document.getElementById('content').focus();">{{$skip}}</button>
+						</li>
+						<li class="sr-only">
+							<a class="sr-only" href="{{$baseurl}}/">{{$home}}</a>
+						</li>
+
+						{{if $nav.back}}
+							<!-- Link back home to one's own instance, only visible to visitors -->
+							<li class="nav-segment">
+								<a accesskey="b" class="nav-menu" href="{{$nav.back.0}}" data-toggle="tooltip" data-viewport="#topbar-first"
+										aria-label="{{$nav.back.3}}" title="{{$nav.back.3}}"><i class="ri ri-xl ri-arrow-go-back-line ri-fw"
+										aria-hidden="true"></i> <span class="nav-label">{{$nav.back.1}}</span></a>
+							</li>
+						{{/if}}
+
+						{{if $nav.network}}
+							<li class="nav-segment">
+								<a accesskey="n" class="nav-menu {{$sel.network}}" href="{{$nav.network.0}}"
+									data-toggle="tooltip" data-viewport="#topbar-first" aria-label="{{$nav.network.3}}" title="{{$nav.network.3}}">
+									<span class="icon-badge-container">
+										<i class="ri ri-xl ri-home-5-{{if $sel.network}}fill{{else}}line{{/if}} ri-fw" aria-hidden="true"></i>
+										<span id="net-update" class="badge nav-notification"></span>
+									</span>
+									<span class="nav-label">{{$nav.network.1}}</span>
+								</a>
+							</li>
+						{{/if}}
+
+						{{if $nav.groups}}
+							<li class="nav-segment">
+								<a class="nav-menu {{$sel.groups}}" href="{{$nav.groups.0}}"
+									data-toggle="tooltip" data-viewport="#topbar-first" aria-label="{{$nav.groups.3}}" title="{{$nav.groups.3}}"><i
+									  class="ri ri-xl ri-discuss-{{if $sel.groups}}fill{{else}}line{{/if}} ri-fw" aria-hidden="true"></i> <span class="nav-label">{{$nav.groups.1}}</span></a>
+							</li>
+						{{/if}}
+
+						{{if $nav.community}}
+							<li class="nav-segment hidden-xs">
+								<a accesskey="c" class="nav-menu {{$sel.community}}" href="{{$nav.community.0}}"
+									data-toggle="tooltip" data-viewport="#topbar-first" aria-label="{{$nav.community.3}}" title="{{$nav.community.3}}"><i
+									  class="ri ri-xl ri-earth-{{if $sel.community}}fill{{else}}line{{/if}} ri-fw" aria-hidden="true"></i> <span class="nav-label">{{$nav.community.1}}</span></a>
+							</li>
+						{{/if}}
+
+						{{if $nav.deck}}
+							<li class="nav-segment hidden-xs">
+								<a id="nav-deck-link" href="{{$nav.deck.0}}" data-toggle="tooltip" data-viewport="#topbar-first"
+									aria-label="{{$nav.deck.1}}" title="{{$nav.deck.3}}" class="nav-menu {{$sel.deck}}"><i
+									class="ri ri-xl ri-layout-column-{{if $sel.deck}}fill{{else}}line{{/if}} ri-fw" aria-hidden="true"></i> <span class="nav-label">{{$nav.deck.1}}</span></a>
+							</li>
+						{{/if}}
+
+						{{if $nav.calendar}}
+							<li class="nav-segment">
+								<a accesskey="e" id="nav-calendar-link" href="{{$nav.calendar.0}}" data-toggle="tooltip" data-viewport="#topbar-first"
+									aria-label="{{$nav.calendar.1}}" title="{{$nav.calendar.3}}" class="nav-menu {{$sel.calendar}}"><i
+									class="ri ri-xl ri-calendar-2-{{if $sel.calendar}}fill{{else}}line{{/if}} ri-fw"></i> <span class="nav-label">{{$nav.calendar.1}}</span></a>
+							</li>
+						{{/if}}
+
+						{{if $nav.channel}}
+							<!-- Note: This is currently never displayed -->
+							<li class="nav-segment">
+								<a accesskey="l" class="nav-menu {{$sel.channel}}" href="{{$nav.channel.0}}"
+									data-toggle="tooltip" data-viewport="#topbar-first" aria-label="{{$nav.channel.3}}" title="{{$nav.channel.3}}"><i
+										class="ri ri-xl ri-newspaper-{{if $sel.channel}}fill{{else}}line{{/if}} ri-fw" aria-hidden="true"></i> <span class="nav-label">{{$nav.channel.1}}</span></a>
+							</li>
+						{{/if}}
+
+					</ul>
+				</div>
+
+				{{* This is the right part of the NavBar. It includes the search and the user menu *}}
+				<div class="topbar-actions">
+					<ul class="nav">
+
+						{{if $nav.contacts}}
+							<li class="nav-segment hidden-xs">
+								<a accesskey="k" id="nav-contacts-link" href="{{$nav.contacts.0}}" data-toggle="tooltip" data-viewport="#topbar-first"
+									aria-label="{{$nav.contacts.1}}" title="{{$nav.contacts.1}}"
+									class="nav-menu {{$sel.contacts}} {{$nav.contacts.2}}"><i
+										class="ri ri-contacts-{{if $sel.contacts}}fill{{else}}line{{/if}} ri-lg ri-fw"></i> <span class="nav-label">{{$nav.contacts.1}}</span></a>
+							</li>
+						{{/if}}
+
+						{{if $nav.messages}}
+							<li class="nav-segment">
+								<a accesskey="m" id="nav-messages-link" href="{{$nav.messages.0}}" data-toggle="tooltip" data-viewport="#topbar-first"
+									aria-label="{{$nav.messages.1}}" title="{{$nav.messages.1}}"
+									class="nav-menu {{$sel.messages}}">
+									<span class="icon-badge-container">
+										<i class="ri ri-mail-{{if $sel.messages}}fill{{else}}line{{/if}} ri-lg ri-fw" aria-hidden="true"></i>
+										<span id="mail-update" class="badge nav-notification"></span>
+									</span>
+									<span class="nav-label">{{$nav.messages.1}}</span>
+								</a>
+							</li>
+						{{/if}}
+
+						{{* The notifications dropdown *}}
+						{{if $nav.notifications}}
+							<li id="nav-notification" class="nav-segment dropdown">
+								<button id="nav-notifications-menu-btn" class="btn-link dropdown-toggle" data-toggle="dropdown"
+									type="button" aria-haspopup="true" aria-expanded="false"
+									aria-controls="nav-notifications-menu">
+									<span class="icon-badge-container">
+										<i class="ri ri-notification-line ri-lg" aria-label="{{$nav.notifications.1}}"></i>
+										<span id="notification-update" class="badge nav-notification"></span>
+									</span>
+									<span class="nav-label">{{$nav.notifications.1}}</span>
+								</button>
+								{{* The notifications dropdown menu. There are two parts of menu. The second is at the bottom of this file. It is loaded via js. Look at nav-notifications-template *}}
+								<ul id="nav-notifications-menu" class="dropdown-menu menu-popup" role="menu"
+									aria-labelledby="nav-notifications-menu-btn">
+									{{* the following list entry must have the id "nav-notifications-mark-all". Without it this isn't visible. ....strange behavior :-/ *}}
+									<li id="nav-notifications-mark-all" class="dropdown-header">
+										<div class="arrow"></div>
+										<header id="notifications-header">
+											<h3 id="notifications-title">{{$nav.notifications.1}}</h3>
+											<div id="notifications-subheader">
+												<a href="{{$nav.notifications.all.0}}">{{$nav.notifications.all.1}}</a>
+												<button role="menuitemcheckbox" type="button" id="notifications-pause" class="btn-link"
+													aria-checked="false" data-toggle="tooltip"
+													data-label-pause="{{$nav.notifications.pause.3}}" data-label-resume="{{$nav.notifications.resume.3}}"
+													title="{{$nav.notifications.pause.3}}" aria-label="{{$nav.notifications.pause.3}}"><i class="ri ri-notification-off-line" aria-hidden="true"></i>
+												</button>
+												<button role="menuitem" type="button" id="notifications-mark-as-read" class="btn-link"
+													onclick="notificationMarkAll();" data-toggle="tooltip">{{$nav.notifications.mark.1}}
+												</button>
+											</div>
+										</header>
+									</li>
+
+							<li id="nav-notifications-loading" class="loading" style="font-weight: bold; color: #555; padding-left: 10px;">
+								<i class="ri ri-loader-4-line ri-spin" aria-hidden="true" style="vertical-align: middle;"></i> {{$loadingnotifications}}
+							</li>
+							<li id="nav-notifications-empty" class="empty" style="display: none;">
+								<p role="menuitem" class="text-muted text-center"><i>{{$emptynotifications}}</i></p>
+							</li>
+								</ul>
+							</li>
+						{{/if}}
+
+						{{* The user dropdown menu *}}
+						{{if $userinfo}}
+							<li id="nav-user-linkmenu" class="dropdown account nav-menu">
+								<button accesskey="u" id="main-menu" class="btn-link dropdown-toggle nav-avatar"
+									data-toggle="dropdown" type="button" aria-haspopup="true" aria-expanded="false"
+									aria-controls="nav-user-menu">
+									<div aria-hidden="true" class="user-title pull-left hidden-xs hidden-sm hidden-md nav-label">
+										<strong>{{$userinfo.name}}</strong><br>
+										{{if $nav.remote}}<span class="truncate">{{$nav.remote}}</span>{{/if}}
+									</div>
+									<div class="user-avatar hidden-xs">
+									<img id="avatar" src="{{$userinfo.icon}}" alt="{{$userinfo.name}}">
+									<span class="caret"></span>
+									</div>
+									<div aria-hidden="true" class="mobile-toggle visible-xs">
+										<span class="sr-only">Toggle navigation</span>
+										<i class="ri ri-more-2-line ri-fw ri-lg" aria-hidden="true"></i>
+									</div>
+								</button>
+
+								{{* The list of available usermenu links *}}
+								<ul id="nav-user-menu" class="dropdown-menu pull-right menu-popup" role="menu"
+									aria-labelledby="main-menu">
+									{{if $nav.remote}}
+										{{if $nav.sitename}}
+											<li role="menuitem" class="nav-sitename list-group-item">{{$nav.sitename}}</li>
+										{{/if}}
+									{{/if}}
+									<li>
+										<a role="menuitem" id="nav-profile-link" href="{{$userinfo.link.0}}" title="{{$userinfo.link.3}}">
+										<img src="{{$userinfo.icon}}" alt="{{$userinfo.name}}"
+											style="max-width:15px; max-height:15px; min-width:15px; min-height:15px; width:15px; height:15px;"/>&nbsp;
+										{{$userinfo.name}}{{if $nav.remote}} ({{$nav.remote}}) {{/if}}
+										</a>
+									</li>
+									{{if $nav.delegation}}
+										<li>
+											<a role="menuitem" id="nav-delegation-link" up-follow="false"
+												class="nav-commlink {{$nav.delegation.2}} {{$sel.delegation}}"
+												href="{{$nav.delegation.0}}" title="{{$nav.delegation.3}}">
+												{{if $nav.delegation.4 == "add" }}
+												<i class="ri ri-user-add-line ri-fw" aria-hidden="true"></i>
+												{{else}}
+												<i class="ri ri-arrow-left-right-line ri-fw" aria-hidden="true"></i>{{/if}} {{$nav.delegation.1}}
+											</a>
+										</li>
+									{{/if}}
+									{{foreach $nav.usermenu as $usermenu}}
+										<li>
+											<a role="menuitem" class="{{$usermenu.2}}" href="{{$usermenu.0}}"
+												title="{{$usermenu.3}}">
+												<i class="ri {{$usermenu.4}}"></i>
+												{{$usermenu.1}}
+											</a>
+										</li>
+									{{/foreach}}
+									<li class="divider visible-xs"><hr></li>
+									{{if $nav.calendar}}
+									  {{* This is because the calendar will be hidden from the main menu if nav labels are enabled *}}
+										<li class="visible-xs">
+											<a role="menuitem" id="nav-menu-calendar-link"
+												class="nav-link {{$nav.calendar.2}}" href="{{$nav.calendar.0}}"
+												title="{{$nav.calendar.3}}">
+												<i class="ri ri-calendar-line ri-fw" aria-hidden="true"></i>
+												{{$nav.calendar.1}}
+											</a>
+										</li>
+									{{/if}}
+									{{if $nav.contacts}}
+										<li class="visible-xs">
+											<a role="menuitem" id="nav-menu-contacts-link"
+												class="nav-link {{$nav.contacts.2}}" href="{{$nav.contacts.0}}"
+												title="{{$nav.contacts.3}}">
+												<i class="ri ri-contacts-line ri-fw" aria-hidden="true"></i>
+												{{$nav.contacts.1}}
+											</a>
+										</li>
+									{{/if}}
+									{{if $nav.community}}
+										<li class="visible-xs">
+											<a role="menuitem" id="nav-menu-community-link"
+												class="nav-link {{$nav.community.2}}" href="{{$nav.community.0}}"
+												title="{{$nav.community.3}}">
+												<i class="ri ri-earth-line ri-fw" aria-hidden="true"></i>
+												{{$nav.community.1}}
+											</a>
+										</li>
+									{{/if}}
+									<li>
+										<a role="menuitem" id="nav-directory-link" class="nav-link {{$nav.directory.2}}"
+											href="{{$nav.directory.0}}" title="{{$nav.directory.3}}">
+											<i class="ri ri-node-tree ri-fw" aria-hidden="true"></i>
+											{{$nav.directory.1}}
+										</a>
+									</li>
+									<li class="divider"><hr></li>
+									{{if $nav.apps}}
+										<li>
+											<a role="menuitem" id="nav-apps-link" class="nav-link {{$nav.apps.2}}"
+												href="{{$nav.apps.0}}" title="{{$nav.apps.3}}">
+												<i class="ri ri-puzzle-line ri-fw" aria-hidden="true"></i> {{$nav.apps.1}}
+											</a>
+										</li>
+										<li class="divider"><hr></li>
+									{{/if}}
+									{{if $nav.help}}
+										<li>
+											<a role="menuitem" id="nav-help-link" class="nav-link {{$nav.help.2}}"
+												href="{{$nav.help.0}}" title="{{$nav.help.3}}">
+												<i class="ri ri-question-mark ri-fw" aria-hidden="true"></i> {{$nav.help.1}}
+											</a>
+										</li>
+									{{/if}}
+									{{if $nav.settings}}
+										<li>
+											<a role="menuitem" id="nav-settings-link" class="nav-link {{$nav.settings.2}}"
+												href="{{$nav.settings.0}}" title="{{$nav.settings.3}}">
+												<i class="ri ri-settings-3-line ri-fw" aria-hidden="true"></i> {{$nav.settings.1}}
+											</a>
+										</li>
+									{{/if}}
+									{{if $nav.admin}}
+										<li>
+											<a accesskey="a" role="menuitem" id="nav-admin-link"
+												class="nav-link {{$nav.admin.2}}" href="{{$nav.admin.0}}"
+												title="{{$nav.admin.3}}"><i class="ri ri-medal-2-fill ri-fw" aria-hidden="true"></i>
+												{{$nav.admin.1}}
+											</a>
+										</li>
+									{{/if}}
+									{{if $nav.moderation}}
+										<li>
+											<a accesskey="m" role="menuitem" id="nav-moderation-link"
+												class="nav-link {{$nav.moderation.2}}" href="{{$nav.moderation.0}}"
+												title="{{$nav.moderation.3}}"><i class="ri ri-shield-user-line ri-fw" aria-hidden="true"></i>
+												{{$nav.moderation.1}}
+											</a>
+										</li>
+									{{/if}}
+									<li class="divider"><hr></li>
+									<li>
+										<a role="menuitem" id="nav-about-link" class="nav-link {{$nav.about.2}}"
+											href="{{$nav.about.0}}" title="{{$nav.about.3}}">
+											<i class="ri ri-information-line ri-fw" aria-hidden="true"></i> {{$nav.about.1}}
+										</a>
+									</li>
+									{{if $nav.tos}}
+										<li>
+											<a role="menuitem" id="nav-tos-link" class="nav-link {{$nav.tos.2}}"
+												href="{{$nav.tos.0}}" title="{{$nav.tos.3}}"><i class="ri ri-file-text-line"
+													aria-hidden="true"></i> {{$nav.tos.1}}
+											</a>
+										</li>
+									{{/if}}
+									<li class="divider"><hr></li>
+									{{if $nav.logout}}
+										<li>
+											<a role="menuitem" id="nav-logout-link" up-follow="false"
+												class="nav-link {{$nav.logout.2}}" href="{{$nav.logout.0}}"
+												title="{{$nav.logout.3}}"><i class="ri ri-logout-box-line ri-fw" aria-hidden="true"></i>
+												{{$nav.logout.1}}
+											</a>
+										</li>
+									{{else}}
+										<li>
+											<a role="menuitem" id="nav-login-link"
+												class="nav-login-link {{$nav.login.2}}" href="{{$nav.login.0}}"
+												title="{{$nav.login.3}}"><i class="ri ri-shut-down-line ri-fw" aria-hidden="true"></i>
+												{{$nav.login.1}}
+											</a>
+										</li>
+									{{/if}}
+								</ul>{{* End of userinfo dropdown menu *}}
+							</li>
+						{{/if}}
+					</ul>
+				</div>{{* End of right navbar *}}
+
+			</div><!-- end of div for navbar width-->
+		</div><!-- /.container -->
+	</nav><!-- /.navbar -->
+{{else}}
+	{{* The navbar for users which are not logged in *}}
+	<nav class="navbar navbar-fixed-top">
+		<div class="container-fluid">
+		<div class="navbar-header pull-left">
+			<button type="button" class="navbar-toggle collapsed pull-left visible-sm visible-xs"
+					data-toggle="offcanvas" data-target="aside" aria-haspopup="true" aria-expanded="false">
+				<span class="sr-only">Toggle navigation</span>
+				<i class="ri ri-more-2-line ri-fw ri-lg" aria-hidden="true"></i>
+			</button>
+			<a class="navbar-brand" href="{{$baseurl}}/">
+				<div id="navbrand-container">
+					<i id="logo-img" class="ri ri-friendica-fill ri-fw ri-lg" aria-hidden="true"></i>
+					<div id="navbar-brand-text"> Friendica</div>
+				</div>
+			</a>
+		</div>
+			<div class="pull-right">
+				<ul class="nav navbar-nav navbar-right">
+					<li>
+						<a href="login?mode=none" id="nav-login" class="btn btn-primary">
+							<i class="ri ri-login-box-line ri-fw" aria-hidden="true"></i>
+							{{$nav.login.3}}
+						</a>
+					</li>
+					<li>
+						<a href="{{$nav.about.0}}" id="nav-about" data-toggle="tooltip" aria-label="{{$nav.about.3}}" class="btn btn-primary"
+							title="{{$nav.about.3}}">
+							<i class="ri ri-information-line ri-2x" aria-hidden="true"></i>
+						</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+{{/if}}
+
+{{* provide a a search input for mobile view, which expands by pressing the search icon *}}
+<div id="search-mobile" class="hidden-lg hidden-md collapse row well">
+	<div class="col-xs-12">
+		<form class="navbar-form" role="search" method="get" action="{{$nav.search.0}}">
+			<div class="form-group form-group-search">
+				<input id="nav-search-input-field-mobile" class="form-control form-search" type="search" name="q"
+					placeholder="{{$search_placeholder}}" aria-label="{{$search_placeholder}}">
+				<button class="btn btn-primary btn-sm form-button-search" type="submit">
+					<i class="ri ri-search-line ri-fw ri-lg" aria-hidden="true"></i>
+					<span class="sr-only">{{$nav.search.1}}</span>
+				</button>
+			</div>
+		</form>
+	</div>
+</div>
+
+{{* The second navbar which contains nav points of the actual page - (nav points are actual handled by this theme through js *}}
+<div id="topbar-second" class="topbar">
+	<div class="container-fluid">
+		<div class="col-lg-2 col-md-2 hidden-sm hidden-xs" id="nav-short-info"></div>
+		<div class="col-lg-9 col-md-9 col-sm-11 col-xs-7" id="tabmenu"></div>
+		<div class="col-lg-1 col-md-1 col-sm-1 col-xs-5" id="navbar-button"></div>
+	</div>
+</div>

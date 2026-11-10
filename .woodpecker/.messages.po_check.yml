@@ -1,0 +1,18 @@
+# SPDX-FileCopyrightText: 2010-2026 the Friendica project
+#
+# SPDX-License-Identifier: CC0-1.0
+
+when:
+  branch:
+    exclude: [ stable ]
+  event: [ pull_request, push ]
+
+steps:
+  build_xgettext:
+    image: friendicaci/transifex
+    commands:
+      - ./bin/run_xgettext.sh
+  check:
+    image: friendicaci/transifex
+    commands:
+      - /check-messages.sh

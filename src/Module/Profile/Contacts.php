@@ -1,0 +1,141 @@
+<?php
+
+// Copyright (C) 2010-2026, the Friendica project
+// SPDX-FileCopyrightText: 2010-2026 the Friendica project
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+namespace Friendica\Module\Profile;
+
+use Friendica\App\Arguments;
+use Friendica\App\BaseURL;
+use Friendica\AppHelper;
+use Friendica\Content\Nav;
+use Friendica\Content\Pager;
+use Friendica\Core\Config\Capability\IManageConfigValues;
+use Friendica\Core\L10n;
+use Friendica\Core\Protocol;
+use Friendica\Core\Renderer;
+use Friendica\Core\Session\Capability\IHandleUserSessions;
+use Friendica\Database\Database;
+use Friendica\Model;
+use Friendica\Module;
+use Friendica\Module\Response;
+use Friendica\Network\HTTPException;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
+
+class Contacts extends Module\BaseProfile
+{
+	public function __construct(private readonly Database $database, private readonly AppHelper $appHelper, private readonly IHandleUserSessions $userSession, private readonly IManageConfigValues $config, L10n $l10n, BaseURL $baseUrl, Arguments $args, LoggerInterface $logger, Profiler $profiler, Response $response, array $server, array $parameters = [])
+	{
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+	}
+
+	protected function content(array $request = []): string
+	{
+		if ($this->config->get('system', 'block_public') && !$this->userSession->isAuthenticated()) {
+			throw new HTTPException\NotFoundException($this->t('User not found.'));
+		}
+
+		$nickname = $this->parameters['nickname'];
+		$type     = $this->parameters['type'] ?? 'all';
+
+		$profile = Model\Profile::load($this->appHelper, $nickname);
+		if (empty($profile)) {
+			throw new HTTPException\NotFoundException($this->t('User not found.'));
+		}
+
+		$is_owner = $profile['uid'] == $this->userSession->getLocalUserId();
+
+		if ($profile['hide-friends'] && !$is_owner) {
+			throw new HTTPException\ForbiddenException($this->t('Permission denied.'));
+		}
+
+		Nav::setSelected('home');
+
+		$o = self::getTabsHTML('contacts', $is_owner, $profile['nickname'], $profile['hide-friends']);
+
+		$tabs = $this->getContactFilterTabs('profile/' . $nickname, $type, $this->userSession->isAuthenticated() && $profile['uid'] != $this->userSession->getLocalUserId());
+
+		$condition = [
+			'uid'     => $profile['uid'],
+			'blocked' => false,
+			'pending' => false,
+			'hidden'  => false,
+			'archive' => false,
+			'failed'  => false,
+			'self'    => false,
+			'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA],
+		];
+
+		switch ($type) {
+			case 'followers':
+				$condition['rel'] = [Model\Contact::FOLLOWER, Model\Contact::FRIEND];
+				break;
+			case 'following':
+				$condition['rel'] = [Model\Contact::SHARING, Model\Contact::FRIEND];
+				break;
+			case 'mutuals':
+				$condition['rel'] = Model\Contact::FRIEND;
+				break;
+		}
+
+		$total = $this->database->count('contact', $condition);
+
+		$pager = new Pager($this->l10n, $this->args->getQueryString(), 30);
+
+		$params = ['order' => ['name' => false], 'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
+
+		// Contact list is obtained from the visited profile user, but the contact display is visitor dependent
+		$contacts = array_map(
+			function ($contact) {
+				$contact = Model\Contact::selectFirst(
+					[],
+					['uri-id' => $contact['uri-id'], 'uid' => [0, $this->userSession->getLocalUserId()]],
+					['order'  => ['uid' => 'DESC']],
+				);
+				return $contact ? Module\Contact::getContactTemplateVars($contact) : null;
+			},
+			Model\Contact::selectToArray(['uri-id'], $condition, $params),
+		);
+
+		// Remove nonexistent contacts
+		$contacts = array_filter($contacts);
+
+		$desc = '';
+		switch ($type) {
+			case 'followers':
+				$title = $this->tt('Follower (%s)', 'Followers (%s)', $total);
+				break;
+			case 'following':
+				$title = $this->tt('Following (%s)', 'Following (%s)', $total);
+				break;
+			case 'mutuals':
+				$title = $this->tt('Friend (%s)', 'Friends (%s)', $total);
+				$desc  = $this->t(
+					'These contacts both follow and are followed by <strong>%s</strong>.',
+					htmlentities((string) $profile['name'], ENT_COMPAT, 'UTF-8'),
+				);
+				break;
+			case 'all':
+			default:
+				$title = $this->tt('Contact (%s)', 'Contacts (%s)', $total);
+				break;
+		}
+
+		$tpl = Renderer::getMarkupTemplate('profile/contacts.tpl');
+		$o .= Renderer::replaceMacros($tpl, [
+			'$title' => $title,
+			'$desc'  => $desc,
+			'$tabs'  => $tabs,
+
+			'$noresult_label' => $this->t('No contacts.'),
+
+			'$contacts' => $contacts,
+			'$paginate' => $pager->renderFull($total),
+		]);
+
+		return $o;
+	}
+}

@@ -1,0 +1,42 @@
+{{*
+  * Copyright (C) 2010-2026, the Friendica project
+  * SPDX-FileCopyrightText: 2010-2026 the Friendica project
+  *
+  * SPDX-License-Identifier: AGPL-3.0-or-later
+  *}}
+<nav id="sidebar-photos-albums" class="widget">
+	<div class="pull-left">
+		<h3>
+			<i class="ri ri-image-line"></i>
+			{{$title}}
+		</h3>
+	</div>
+
+	<div class="pull-right">
+		{{if $can_post}}
+			<div class="photos-upload-link">
+				<a href="{{$upload.1}}" aria-label="{{$upload.0}}" title="{{$upload.0}}" class="widget-action faded-icon" data-toggle="tooltip">
+					<i class="ri ri-add-line" aria-hidden="true"></i>
+				</a>
+			</div>
+		{{/if}}
+	</div>
+
+	<ul class="sidebar-photos-albums-ul clear">
+		<li class="sidebar-photos-albums-li">
+			<a href="profile/{{$nick}}/photos" class="sidebar-photos-albums-element" title="{{$title}}">{{$recent}}</a>
+		</li>
+
+		{{if $albums}}
+			{{foreach $albums as $al}}
+				{{if $al.text}}
+					<li class="sidebar-photos-albums-li">
+						<a href="photos/{{$nick}}/album/{{$al.bin2hex}}" class="sidebar-photos-albums-element">
+							<span class="badge pull-right">{{$al.total}}</span>{{$al.text}}
+						</a>
+					</li>
+				{{/if}}
+			{{/foreach}}
+		{{/if}}
+	</ul>
+</nav>

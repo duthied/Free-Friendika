@@ -1,0 +1,7 @@
+{{*
+  * Copyright (C) 2010-2026, the Friendica project
+  * SPDX-FileCopyrightText: 2010-2026 the Friendica project
+  *
+  * SPDX-License-Identifier: AGPL-3.0-or-later
+  *}}
+<iframe class="embed" src="{{$src}}" style="{{$iframe_style}}" height="{{$height}}" width="{{$width}}" data-host="{{$host}}" data-link="{{$link}}" data-preview="{{$preview}}" scrolling="no" frameborder="0" loading="lazy" allow="fullscreen; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-same-origin allow-scripts allow-popups"></iframe>

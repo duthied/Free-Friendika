@@ -1,0 +1,200 @@
+<?php
+
+// Copyright (C) 2010-2026, the Friendica project
+// SPDX-FileCopyrightText: 2010-2026 the Friendica project
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+namespace Friendica\Module\Notifications;
+
+use Friendica\App;
+use Friendica\BaseModule;
+use Friendica\Contact\Introduction\Repository\Introduction;
+use Friendica\Core\L10n;
+use Friendica\Core\PConfig\Capability\IManagePersonalConfigValues;
+use Friendica\Core\System;
+use Friendica\DI;
+use Friendica\Model\Contact;
+use Friendica\Module\Response;
+use Friendica\Module\Security\Login;
+use Friendica\Navigation\Notifications\Factory;
+use Friendica\Navigation\Notifications\Repository;
+use Friendica\Network\HTTPException;
+use Friendica\Util\Profiler;
+use GuzzleHttp\Psr7\Uri;
+use Psr\Log\LoggerInterface;
+
+class Notification extends BaseModule
+{
+	public function __construct(
+		private readonly Introduction $introductionRepo,
+		private readonly Repository\Notification $notificationRepo,
+		private readonly Factory\Notification $notificationFactory,
+		private readonly Repository\Notify $notifyRepo,
+		private readonly IManagePersonalConfigValues $pconfig,
+		L10n $l10n,
+		App\BaseURL $baseUrl,
+		App\Arguments $args,
+		LoggerInterface $logger,
+		Profiler $profiler,
+		Response $response,
+		array $server,
+		array $parameters = [],
+	) {
+		parent::__construct($l10n, $baseUrl, $args, $logger, $profiler, $response, $server, $parameters);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws HTTPException\NotFoundException
+	 * @throws HTTPException\UnauthorizedException
+	 * @throws \ImagickException
+	 * @throws \Exception
+	 */
+	protected function post(array $request = [])
+	{
+		if (!DI::userSession()->getLocalUserId()) {
+			throw new HTTPException\UnauthorizedException($this->l10n->t('Permission denied.'));
+		}
+
+		$request_id = $this->parameters['id'] ?? false;
+
+		if ($request_id) {
+			$intro = $this->introductionRepo->selectOneById($request_id, DI::userSession()->getLocalUserId());
+
+			switch ($_POST['submit']) {
+				case "discard":
+					Contact\Introduction::discard($intro);
+					$this->introductionRepo->delete($intro);
+					break;
+				case "ignore":
+					$intro->ignore();
+					$this->introductionRepo->save($intro);
+					break;
+			}
+
+			$this->baseUrl->redirect('notifications/intros');
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @throws HTTPException\UnauthorizedException
+	 */
+	protected function rawContent(array $request = [])
+	{
+		if (!DI::userSession()->getLocalUserId()) {
+			throw new HTTPException\UnauthorizedException($this->l10n->t('Permission denied.'));
+		}
+
+		if ($this->args->get(1) === 'mark' && $this->args->get(2) === 'all') {
+			try {
+				$this->notificationRepo->setAllSeenForUser(DI::userSession()->getLocalUserId());
+				$success = $this->notifyRepo->setAllSeenForUser(DI::userSession()->getLocalUserId());
+			} catch (\Exception $e) {
+				$this->logger->warning('set all seen failed.', ['exception' => $e]);
+				$success = false;
+			}
+
+			$this->earlyJsonExit(['result' => (($success) ? 'success' : 'fail')]);
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * Redirect to the notifications main page or to the url for the chosen notifications
+	 *
+	 * @throws HTTPException\NotFoundException In case the notification is either not existing or is not for this user
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws \Exception
+	 */
+	protected function content(array $request = []): string
+	{
+		if (!DI::userSession()->getLocalUserId()) {
+			DI::sysmsg()->addNotice($this->l10n->t('You must be logged in to show this page.'));
+			return Login::form();
+		}
+
+		if (isset($this->parameters['notify_id'])) {
+			$this->handleNotify($this->parameters['notify_id']);
+		} elseif (isset($this->parameters['id'])) {
+			$this->handleNotification($this->parameters['id']);
+		}
+
+		$this->baseUrl->redirect('notifications/system');
+	}
+
+	private function handleNotify(int $notifyId)
+	{
+		$Notify = $this->notifyRepo->selectOneById($notifyId);
+		if ($Notify->uid !== DI::userSession()->getLocalUserId()) {
+			throw new HTTPException\ForbiddenException();
+		}
+
+		if ($this->pconfig->get(DI::userSession()->getLocalUserId(), 'system', 'detailed_notif')) {
+			$Notify->setSeen();
+			$this->notifyRepo->save($Notify);
+		} else {
+			$this->notifyRepo->setAllSeenForRelatedNotify($Notify);
+		}
+
+		if ($Notify->uriId) {
+			$this->notificationRepo->setAllSeenForUser($Notify->uid, ['target-uri-id' => $Notify->uriId]);
+		}
+
+		$this->redirectToLink((string) $Notify->link);
+	}
+
+	private function handleNotification(int $notificationId)
+	{
+		$Notification = $this->notificationRepo->selectOneById($notificationId);
+		if ($Notification->uid !== DI::userSession()->getLocalUserId()) {
+			throw new HTTPException\ForbiddenException();
+		}
+
+		if ($this->pconfig->get(DI::userSession()->getLocalUserId(), 'system', 'detailed_notif')) {
+			$Notification->setSeen();
+			$this->notificationRepo->save($Notification);
+		} else {
+			if ($Notification->parentUriId) {
+				$this->notificationRepo->setAllSeenForUser($Notification->uid, ['parent-uri-id' => $Notification->parentUriId]);
+			} else {
+				$Notification->setSeen();
+				$this->notificationRepo->save($Notification);
+			}
+		}
+
+		$message = $this->notificationFactory->getMessageFromNotification($Notification);
+
+		$this->redirectToLink((string) ($message['link'] ?? ''));
+	}
+
+	/**
+	 * Keeps the column mode of the deck, so that the target opens in the column frame as well.
+	 */
+	private function keepColumnMode(string $link): string
+	{
+		if (($_GET['mode'] ?? '') !== 'column' || !$this->baseUrl->isLocalUrl($link)) {
+			return $link;
+		}
+
+		return (string) Uri::withQueryValue(new Uri($link), 'mode', 'column');
+	}
+
+	/**
+	 * Redirects to the given link, or to the network page if there is none.
+	 */
+	private function redirectToLink(string $link): void
+	{
+		if ($link !== '') {
+			System::externalRedirect($this->keepColumnMode($link));
+		}
+
+		// An empty target must not load the full page with the navigation inside a column
+		$this->baseUrl->redirect(($_GET['mode'] ?? '') === 'column' ? 'network?mode=column' : '');
+	}
+}

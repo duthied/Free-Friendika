@@ -1,0 +1,28 @@
+{{*
+  * Copyright (C) 2010-2026, the Friendica project
+  * SPDX-FileCopyrightText: 2010-2026 the Friendica project
+  *
+  * SPDX-License-Identifier: AGPL-3.0-or-later
+  *}}
+{{if count($reasons) > 1}}
+<ul class="content-filter-reasons">
+	{{foreach $reasons as $reason}}
+	<li>{{$reason}}</li>
+	{{/foreach}}
+</ul>
+<p>
+	<button type="button" id="content-filter-wrap-{{$rnd}}" class="btn btn-default btn-small content-filter-button" onclick="openClose('content-filter-{{$rnd}}');">
+		<i class="glyphicon glyphicon-eye-open"></i> {{$openclose}}
+	</button>
+</p>
+{{else}}
+<p>
+	{{$reasons.0}}
+	<button type="button" id="content-filter-wrap-{{$rnd}}" class="btn btn-default btn-xs content-filter-button" onclick="openClose('content-filter-{{$rnd}}');">
+		<i class="glyphicon glyphicon-eye-open"></i> {{$openclose}}
+	</button>
+</p>
+{{/if}}
+<div id="content-filter-{{$rnd}}" class="content-filter-content" style="display: none;">
+	{{$html nofilter}}
+</div>

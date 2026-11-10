@@ -1,0 +1,53 @@
+<?php
+
+// Copyright (C) 2010-2026, the Friendica project
+// SPDX-FileCopyrightText: 2010-2026 the Friendica project
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+declare(strict_types=1);
+
+namespace Friendica\Event;
+
+/**
+ * Allow Event listener to modify HTML.
+ *
+ * @internal
+ */
+final class HtmlFilterEvent extends Event
+{
+	public const HEAD = 'friendica.html.head';
+
+	public const FOOTER = 'friendica.html.footer';
+
+	public const PAGE_HEADER = 'friendica.html.page_header';
+
+	public const PAGE_CONTENT_TOP = 'friendica.html.page_content_top';
+
+	public const PAGE_END = 'friendica.html.page_end';
+
+	public const MOD_HOME_CONTENT = 'friendica.html.mod_home_content';
+
+	public const MOD_ABOUT_CONTENT = 'friendica.html.mod_about_content';
+
+	public const MOD_PROFILE_CONTENT = 'friendica.html.mod_profile_content';
+
+	public const JOT_TOOL = 'friendica.html.jot_tool';
+
+	public const CONTACT_BLOCK_END = 'friendica.html.contact_block_end';
+
+	public function __construct(string $name, private string $html)
+	{
+		parent::__construct($name);
+	}
+
+	public function getHtml(): string
+	{
+		return $this->html;
+	}
+
+	public function setHtml(string $html): void
+	{
+		$this->html = $html;
+	}
+}
